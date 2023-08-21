@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D51FF6E22A8C0513007A3EA5 /* MovieModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D51FF6E12A8C0513007A3EA5 /* MovieModel.swift */; };
 		D5F9AB812A888AA900C076CD /* MovieNightApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5F9AB802A888AA900C076CD /* MovieNightApp.swift */; };
 		D5F9AB832A888AA900C076CD /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5F9AB822A888AA900C076CD /* ContentView.swift */; };
 		D5F9AB852A888AAA00C076CD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D5F9AB842A888AAA00C076CD /* Assets.xcassets */; };
@@ -16,6 +17,7 @@
 		D5F9AB972A888AAA00C076CD /* MovieNightTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5F9AB962A888AAA00C076CD /* MovieNightTests.swift */; };
 		D5F9ABA12A888AAA00C076CD /* MovieNightUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5F9ABA02A888AAA00C076CD /* MovieNightUITests.swift */; };
 		D5F9ABA32A888AAA00C076CD /* MovieNightUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5F9ABA22A888AAA00C076CD /* MovieNightUITestsLaunchTests.swift */; };
+		D5F9ABB02A888B2500C076CD /* NetworkLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5F9ABAF2A888B2500C076CD /* NetworkLayer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +38,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D51FF6E12A8C0513007A3EA5 /* MovieModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieModel.swift; sourceTree = "<group>"; };
 		D5F9AB7D2A888AA900C076CD /* MovieNight.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MovieNight.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D5F9AB802A888AA900C076CD /* MovieNightApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieNightApp.swift; sourceTree = "<group>"; };
 		D5F9AB822A888AA900C076CD /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -48,6 +51,7 @@
 		D5F9AB9C2A888AAA00C076CD /* MovieNightUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MovieNightUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D5F9ABA02A888AAA00C076CD /* MovieNightUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieNightUITests.swift; sourceTree = "<group>"; };
 		D5F9ABA22A888AAA00C076CD /* MovieNightUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieNightUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		D5F9ABAF2A888B2500C076CD /* NetworkLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkLayer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -100,10 +104,12 @@
 			children = (
 				D5F9AB802A888AA900C076CD /* MovieNightApp.swift */,
 				D5F9AB822A888AA900C076CD /* ContentView.swift */,
+				D51FF6E12A8C0513007A3EA5 /* MovieModel.swift */,
 				D5F9AB842A888AAA00C076CD /* Assets.xcassets */,
 				D5F9AB892A888AAA00C076CD /* Persistence.swift */,
 				D5F9AB8B2A888AAA00C076CD /* MovieNight.xcdatamodeld */,
 				D5F9AB862A888AAA00C076CD /* Preview Content */,
+				D5F9ABAF2A888B2500C076CD /* NetworkLayer.swift */,
 			);
 			path = MovieNight;
 			sourceTree = "<group>";
@@ -263,9 +269,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D51FF6E22A8C0513007A3EA5 /* MovieModel.swift in Sources */,
 				D5F9AB8A2A888AAA00C076CD /* Persistence.swift in Sources */,
 				D5F9AB8D2A888AAA00C076CD /* MovieNight.xcdatamodeld in Sources */,
 				D5F9AB832A888AA900C076CD /* ContentView.swift in Sources */,
+				D5F9ABB02A888B2500C076CD /* NetworkLayer.swift in Sources */,
 				D5F9AB812A888AA900C076CD /* MovieNightApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -433,6 +441,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -462,6 +471,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

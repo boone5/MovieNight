@@ -13,7 +13,7 @@ class NetworkLayer {
         "X-RapidAPI-Host": "moviesdatabase.p.rapidapi.com"
     ]
 
-    func sendRequest() async {
+    func sendRequest() async -> MovieResponse {
         let url = URL(string: "https://moviesdatabase.p.rapidapi.com/titles/search/title/uncorked?exact=false&titleType=movie")!
         var request = URLRequest(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10)
 
@@ -22,14 +22,14 @@ class NetworkLayer {
 
         let session = URLSession.shared
 
-        do {
-            let (data, _) = try await session.data(for: request)
+        return MovieMocks().generateMovies(count: 10)
 
-            let obj = try JSONDecoder().decode(Results.self, from: data)
-
-            print("hello")
-        } catch {
-            print(error)
-        }
+        // Uncomment when Debouncer is implemented. Fetching Mock data right now.
+//        do {
+//            let (data, _) = try await session.data(for: request)
+//            let obj = try JSONDecoder().decode(MovieResponse.self, from: data)
+//        } catch {
+//            print(error)
+//        }
     }
 }

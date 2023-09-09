@@ -64,11 +64,11 @@ final class MovieNightTests: XCTestCase {
 
         let movie = try JSONDecoder().decode(MovieResponse.self, from: jsonString.data(using: .utf8)!)
 
-        XCTAssertEqual(movie.results[0]?._id, "61e5cdf0d735dff3f953cd43")
-        XCTAssertEqual(movie.results[0]?.id, "tt16152642")
-        XCTAssertEqual(movie.results[0]?.thumbnail?.url, "https://m.media-amazon.com/images/M/MV5BZTg3NWFkN2ItOTdjMi00NDk4LTllMDktNGZiNTUxYmZmMjlmXkEyXkFqcGdeQXVyMjM4NTM5NDY@._V1_.jpg")
-        XCTAssertEqual(movie.results[0]?.thumbnail?.height, 2222)
-        XCTAssertEqual(movie.results[0]?.thumbnail?.width, 1500)
-        XCTAssertEqual(movie.results[0]?.titleText?.text, "Uncorked")
+        XCTAssertEqual(movie.results![0]?._id, "61e5cdf0d735dff3f953cd43")
+        XCTAssertEqual(movie.results![0]?.id, "tt16152642")
+        XCTAssertEqual(movie.results![0]?.thumbnail?.url, "https://m.media-amazon.com/images/M/MV5BZTg3NWFkN2ItOTdjMi00NDk4LTllMDktNGZiNTUxYmZmMjlmXkEyXkFqcGdeQXVyMjM4NTM5NDY@._V1_.jpg")
+        XCTAssertEqual(movie.results![0]?.thumbnail?.height, 2222)
+        XCTAssertEqual(movie.results![0]?.thumbnail?.width, 1500)
+        XCTAssertEqual(movie.results![0]?.titleText?.text, "Uncorked")
     }
 }

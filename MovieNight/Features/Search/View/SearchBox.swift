@@ -7,8 +7,9 @@
 
 import SwiftUI
 
-struct SearchBoxView: View {
-
+struct SearchBox: View {
+    @ObservedObject var searchViewModel: SearchViewModel
+    
     @State private var textField: String = ""
 
     var body: some View {
@@ -23,16 +24,23 @@ struct SearchBoxView: View {
                     .padding(.leading, 20)
                     .foregroundColor(Color(.darkGray))
 
-                // MARK: TODO - Cycle Text with different prompts
+                #warning("TODO: Cycle Text with different prompts?")
                 TextField("What movie are you looking for?", text: $textField)
                     .foregroundColor(Color(.black))
+                    .onSubmit {
+                        #warning("TODO: Debouncer?")
+                        Task {
+                            print("Query for \(textField)")
+                            await searchViewModel.fetchMovieByTitle(textField)
+                        }
+                    }
             }
         }
     }
 }
 
-struct SearchBoxView_Previews: PreviewProvider {
+struct SearchBox_Previews: PreviewProvider {
     static var previews: some View {
-        SearchBoxView()
+        SearchBox(searchViewModel: SearchViewModel())
     }
 }

@@ -19,9 +19,6 @@ struct LandingPage: View {
                 .tabItem {
                     Label("", systemImage: "books.vertical")
                 }
-
-            // MARK: TODO - "Home" page
-            // Implement in Phase 2
         }
     }
 }

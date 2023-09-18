@@ -21,6 +21,13 @@ final class LeetCode: XCTestCase {
 
         XCTAssertEqual(arr, [0,0,1,1,2,2])
     }
+
+    func testIsPalindrome() {
+        var palin = "A man, a plan, a canal: Panama"
+        var palin2 = " "
+
+        XCTAssertTrue(IsPalindrome().isPalindrome(palin))
+    }
 }
 
 // https://leetcode.com/problems/sort-an-array/description/
@@ -82,5 +89,34 @@ class SortColors {
     // Beats 100%. Beats 69% at Memory
     func sortColors2(_ nums: inout [Int]) {
 
+    }
+}
+
+class IsPalindrome {
+    func isPalindrome(_ s: String) -> Bool {
+        guard !s.isEmpty else { return false }
+
+        var converted = Array(s)
+        var left = 0
+        var right = converted.count - 1
+
+        while left < right {
+            if !converted[left].isLetter, !converted[left].isNumber {
+                left += 1
+                continue
+            }
+
+            if !converted[right].isLetter, !converted[right].isNumber {
+                right -= 1
+                continue
+            }
+
+            guard converted[left].lowercased() == converted[right].lowercased() else { return false }
+
+            left += 1
+            right -= 1
+        }
+
+        return true
     }
 }

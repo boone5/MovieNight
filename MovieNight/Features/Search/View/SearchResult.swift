@@ -12,34 +12,42 @@ struct SearchResult: View {
 
     var body: some View {
         HStack {
-            #warning("TODO: Treat a nil URL the same as error case")
+            #warning("TODO: Implement a Cache")
             AsyncImage(url: URL(string: movie.thumbnail?.url ?? "no image")) { phase in
                 if let image = phase.image {
                     image.resizable()
                 } else if let _ = phase.error {
-                    #warning("TODO: If error, show placeholder image")
                     Color.red
                 } else {
-                    #warning("TODO: If loading, show placeholder shimmer")
                     Color.blue
                 }
             }
-            .frame(width: 125, height: 175)
+            .frame(width: 100, height: 150)
+            .scaledToFit()
+            .cornerRadius(15)
 
-            Text(movie.titleText?.text ?? "hello")
-                .font(.title)
+            VStack(alignment: .leading, spacing: 5) {
+                Text(movie.titleText?.text ?? "hello")
+                    .font(.title2)
+                    .fontWeight(.medium)
+                    .lineLimit(2)
+                    .padding(.leading, 15)
+
+                Text(String(movie.releaseYear?.year ?? -1))
+                    .font(.caption)
+                    .fontWeight(.regular)
+                    .foregroundStyle(Color(uiColor: UIColor.systemGray))
+                    .padding(.leading, 15)
+            }
+
+            Spacer()
+
+            Image(systemName: "chevron.right")
         }
+        .frame(maxWidth: .infinity, alignment: .center)
     }
 }
 
-struct SearchResult_Previews: PreviewProvider {
-    static var previews: some View {
-        SearchResult(
-            movie:
-                Movie(
-                    releaseYear: Movie.ReleaseYear(endYear: nil, year: 2020),
-                    titleText: Movie.TitleText(text: "Test Movie")
-                )
-        )
-    }
+#Preview {
+    SearchResult(movie: Movie(releaseYear: Movie.ReleaseYear(endYear: nil, year: 2023)))
 }

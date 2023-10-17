@@ -13,7 +13,7 @@ struct MovieResponse: Codable {
     var results: [Movie?]
 }
 
-struct Movie: Codable {    
+struct Movie: Codable, Hashable {
     let _id: String?
     let id: String?
     let thumbnail: Thumbail?
@@ -49,29 +49,29 @@ struct Movie: Codable {
         self.titleDetails = titleDetails
     }
 
-    struct TitleText: Codable {
+    struct TitleText: Codable, Hashable {
         let text: String?
     }
 
-    struct Thumbail: Codable {
+    struct Thumbail: Codable, Hashable {
         let id: String?
         let height: Int?
         let width: Int?
         let url: String?
     }
 
-    struct ReleaseDate: Codable {
+    struct ReleaseDate: Codable, Hashable {
         let day: Int?
         let month: Int?
         let year: Int?
     }
 
-    struct ReleaseYear: Codable {
+    struct ReleaseYear: Codable, Hashable {
         let endYear: String?
         let year: Int?
     }
 
-    struct TitleDetails: Codable {
+    struct TitleDetails: Codable, Hashable {
         let id: String?
         let isEpisode: Bool?
         let isSeries: Bool?
@@ -89,7 +89,7 @@ class MovieMocks {
                 id: "mock\(i)",
                 thumbnail: Movie.Thumbail(id: "mock\(i)", height: nil, width: nil, url: "https://m.media-amazon.com/images/M/MV5BZTg3NWFkN2ItOTdjMi00NDk4LTllMDktNGZiNTUxYmZmMjlmXkEyXkFqcGdeQXVyMjM4NTM5NDY@._V1_.jpg"),
                 releaseDate: nil,
-                releaseYear: nil,
+                releaseYear: Movie.ReleaseYear(endYear: nil, year: 2000),
                 titleText: Movie.TitleText(text: "Movie \(i)"),
                 titleDetails: Movie.TitleDetails(id: "movie", isEpisode: false, isSeries: false, text: "movie"))
 

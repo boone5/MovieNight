@@ -10,23 +10,44 @@ import SwiftUI
 struct Search: View {
     @StateObject var searchViewModel: SearchViewModel = SearchViewModel()
 
+    @State var path: NavigationPath = NavigationPath()
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 15) {
-            SearchBox(searchViewModel: searchViewModel)
-                .padding(.top, 30)
+        NavigationStack(path: $path) {
+            VStack(alignment: .leading, spacing: 15) {
+                SearchBox(searchViewModel: searchViewModel)
+                    .padding(.top, 30)
 
-            Spacer()
+                Spacer()
 
-            ScrollView(.vertical, showsIndicators: true) {
-                LazyVStack(alignment: .leading) {
-                    #warning("TODO: If results are nil, show appropiate message")
-                    ForEach(searchViewModel.movieResponse.results, id: \.?._id) { movie in
-                        SearchResult(movie: movie!)
+                ScrollView(.vertical, showsIndicators: true) {
+                    #warning("TODO: Change to custom List?")
+                    LazyVStack(alignment: .leading) {
+                        #if DEBUG
+                        ForEach(MovieMocks().generateMovies(count: 1).results, id: \.?._id) { movie in
+                            NavigationLink(value: movie) {
+                                SearchResult(movie: movie!)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
+                        #elseif RELEASE
+                        #warning("TODO: If results are nil, show appropiate message")
+                        ForEach(searchViewModel.movieResponse.results, id: \.?._id) { movie in
+                            NavigationLink(value: movie) {
+                                SearchResult(movie: movie!)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
+                        #endif
+                    }
+                    .navigationDestination(for: Movie.self) { movie in
+                        Text("Destination")
                     }
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .center)
+            .padding([.leading, .trailing], 20)
         }
-        .frame(width: UIScreen.main.bounds.width * 0.9)
     }
 }
 

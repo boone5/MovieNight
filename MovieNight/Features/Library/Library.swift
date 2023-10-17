@@ -14,14 +14,14 @@ struct Library: View {
         ScrollView(.vertical) {
             VStack(spacing: 5) {
                 Circle()
-                    .frame(width: 100, height: 100)
+                    .frame(width: 150, height: 150)
 
                 Text("{user_name}")
                     .font(.title3)
 
                 HStack {
                     VStack(alignment: .leading) {
-                        Text("Recently Rated")
+                        Text("Movie Library")
                             .font(.title)
                             .padding(.leading, 20)
 
@@ -29,13 +29,7 @@ struct Library: View {
                         // https://developer.apple.com/documentation/swiftui/creating-performant-scrollable-stacks
                         LazyVGrid(columns: columns, spacing: 10) {
                             ForEach(0..<5) { _ in
-                                Rectangle()
-                                    .frame(height: 260)
-                                    .foregroundColor(.gray)
-                                    .cornerRadius(15)
-                                    .overlay(alignment: .bottom) {
-                                        RatingsPill()
-                                    }
+                                MovieGridItem()
                             }
                         }
                         .padding([.leading, .trailing], 20)
@@ -47,24 +41,37 @@ struct Library: View {
     }
 }
 
-struct RatingsPill: View {
+struct MovieGridItem: View {
     var body: some View {
-        ZStack {
-            Rectangle()
-                .frame(height: 50)
-                .cornerRadius(15)
-
-            HStack {
-                Text("4")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-
-                Image(systemName: "star.fill")
-                    .foregroundColor(.white)
+        Rectangle()
+            .foregroundColor(.gray)
+            .frame(height: 240)
+            .frame(width: 175)
+            .cornerRadius(15)
+            .overlay(alignment: .bottom) {
+                RatingsPill()
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.leading, 20)
+    }
+
+    struct RatingsPill: View {
+        var body: some View {
+            ZStack {
+                Rectangle()
+                    .frame(height: 50)
+                    .cornerRadius(15)
+
+                HStack {
+                    Text("4")
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+
+                    Image(systemName: "star.fill")
+                        .foregroundColor(.white)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.leading, 20)
+            }
         }
     }
 }

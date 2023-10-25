@@ -89,7 +89,7 @@ class MovieMocks {
                 id: "mock\(i)",
                 thumbnail: Movie.Thumbail(id: "mock\(i)", height: nil, width: nil, url: "https://m.media-amazon.com/images/M/MV5BZTg3NWFkN2ItOTdjMi00NDk4LTllMDktNGZiNTUxYmZmMjlmXkEyXkFqcGdeQXVyMjM4NTM5NDY@._V1_.jpg"),
                 releaseDate: nil,
-                releaseYear: Movie.ReleaseYear(endYear: nil, year: 2000),
+                releaseYear: Movie.ReleaseYear(endYear: nil, year: 2023),
                 titleText: Movie.TitleText(text: "Movie \(i)"),
                 titleDetails: Movie.TitleDetails(id: "movie", isEpisode: false, isSeries: false, text: "movie"))
 

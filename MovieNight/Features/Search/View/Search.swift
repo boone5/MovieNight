@@ -41,7 +41,7 @@ struct Search: View {
                         #endif
                     }
                     .navigationDestination(for: Movie.self) { movie in
-                        Text("Destination")
+                        SearchResultDetailView(movie: movie, path: $path)
                     }
                 }
             }

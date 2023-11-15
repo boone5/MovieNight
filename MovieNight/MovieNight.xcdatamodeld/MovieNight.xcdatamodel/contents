@@ -1,9 +1,29 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="1" systemVersion="11A491" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="false" userDefinedModelVersionIdentifier="">
-    <entity name="Item" representedClassName="Item" syncable="YES" codeGenerationType="class">
-        <attribute name="timestamp" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22225" systemVersion="23A344" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="CDMovieResult" representedClassName="CDMovieResult" syncable="YES" codeGenerationType="class">
+        <attribute name="uuid_" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <relationship name="releaseDate" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="CDReleaseDate" inverseName="releaseDateR" inverseEntity="CDReleaseDate"/>
+        <relationship name="releaseYear" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="CDReleaseYear" inverseName="releaseYearR" inverseEntity="CDReleaseYear"/>
+        <relationship name="thumbnail" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="CDThumbnail" inverseName="thumbailR" inverseEntity="CDThumbnail"/>
+        <relationship name="titleText" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="CDTitleText" inverseName="titleTextR" inverseEntity="CDTitleText"/>
     </entity>
-    <elements>
-        <element name="Item" positionX="-63" positionY="-18" width="128" height="44"/>
-    </elements>
+    <entity name="CDReleaseDate" representedClassName="CDReleaseDate" parentEntity="CDMovieResult" syncable="YES" codeGenerationType="class">
+        <attribute name="day_" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="month_" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="year_" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="releaseDateR" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="CDMovieResult" inverseName="releaseDate" inverseEntity="CDMovieResult"/>
+    </entity>
+    <entity name="CDReleaseYear" representedClassName="CDReleaseYear" parentEntity="CDMovieResult" syncable="YES" codeGenerationType="class">
+        <attribute name="endYear_" optional="YES" attributeType="String"/>
+        <attribute name="year_" optional="YES" attributeType="Integer 16" defaultValueString="-1" usesScalarValueType="YES"/>
+        <relationship name="releaseYearR" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="CDMovieResult" inverseName="releaseYear" inverseEntity="CDMovieResult"/>
+    </entity>
+    <entity name="CDThumbnail" representedClassName="CDThumbnail" parentEntity="CDMovieResult" syncable="YES" codeGenerationType="class">
+        <attribute name="url_" optional="YES" attributeType="String"/>
+        <relationship name="thumbailR" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="CDMovieResult" inverseName="thumbnail" inverseEntity="CDMovieResult"/>
+    </entity>
+    <entity name="CDTitleText" representedClassName="CDTitleText" parentEntity="CDMovieResult" syncable="YES" codeGenerationType="class">
+        <attribute name="text_" optional="YES" attributeType="String"/>
+        <relationship name="titleTextR" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="CDMovieResult" inverseName="titleText" inverseEntity="CDMovieResult"/>
+    </entity>
 </model>

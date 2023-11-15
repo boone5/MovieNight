@@ -10,10 +10,10 @@ struct MovieResponse: Codable {
     let next: String?
     let entries: Int?
     // mutable for generating mock data
-    var results: [Movie?]
+    var results: [MovieResult?]
 }
 
-struct Movie: Codable, Hashable {
+struct MovieResult: Codable, Hashable {
     let _id: String?
     let id: String?
     let thumbnail: Thumbail?
@@ -84,14 +84,14 @@ class MovieMocks {
 
     func generateMovies(count: Int) -> MovieResponse {
         for i in 0..<count {
-            let movie = Movie(
+            let movie = MovieResult(
                 _id: "mock\(i)",
                 id: "mock\(i)",
-                thumbnail: Movie.Thumbail(id: "mock\(i)", height: nil, width: nil, url: "https://m.media-amazon.com/images/M/MV5BZTg3NWFkN2ItOTdjMi00NDk4LTllMDktNGZiNTUxYmZmMjlmXkEyXkFqcGdeQXVyMjM4NTM5NDY@._V1_.jpg"),
+                thumbnail: MovieResult.Thumbail(id: "mock\(i)", height: nil, width: nil, url: "https://m.media-amazon.com/images/M/MV5BZTg3NWFkN2ItOTdjMi00NDk4LTllMDktNGZiNTUxYmZmMjlmXkEyXkFqcGdeQXVyMjM4NTM5NDY@._V1_.jpg"),
                 releaseDate: nil,
-                releaseYear: Movie.ReleaseYear(endYear: nil, year: 2023),
-                titleText: Movie.TitleText(text: "Movie \(i)"),
-                titleDetails: Movie.TitleDetails(id: "movie", isEpisode: false, isSeries: false, text: "movie"))
+                releaseYear: MovieResult.ReleaseYear(endYear: nil, year: 2023),
+                titleText: MovieResult.TitleText(text: "Movie \(i)"),
+                titleDetails: MovieResult.TitleDetails(id: "movie", isEpisode: false, isSeries: false, text: "movie"))
 
             self.movies.results.append(movie)
         }

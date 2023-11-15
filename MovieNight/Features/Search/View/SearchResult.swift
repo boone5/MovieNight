@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SearchResult: View {
-    let movie: Movie
+    let movie: MovieResult
 
     var body: some View {
         HStack {
@@ -49,5 +49,5 @@ struct SearchResult: View {
 }
 
 #Preview {
-    SearchResult(movie: Movie(releaseYear: Movie.ReleaseYear(endYear: nil, year: 2023)))
+    SearchResult(movie: MovieResult(releaseYear: MovieResult.ReleaseYear(endYear: nil, year: 2023)))
 }

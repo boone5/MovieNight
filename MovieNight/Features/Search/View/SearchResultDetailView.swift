@@ -44,7 +44,7 @@ struct SearchResultDetailView: View {
                 .frame(maxWidth: 300)
                 .multilineTextAlignment(.center)
                 .font(.title)
-                .padding(.top, 15)
+                .padding(.top, 20)
 
             Text("Released in " + String(movie.releaseYear?.year ?? -1))
                 .font(.caption)
@@ -80,100 +80,170 @@ struct SearchResultDetailView: View {
 }
 
 struct RatingSheet: View {
-    @State var offset = CGFloat.zero - 5
-    @State var ratingState: Rating = .horrible
+    @State private var rating: Int = 3
+    @State private var isPressed: Bool = false
 
-    private let width = UIScreen.main.bounds.width * 0.85
-    private var segments: [CGFloat] {
-        calculateSegments()
+    private static let font1 = Font.system(size: 20)
+    private static let font2 = Font.system(size: 45)
+
+    @State private var color = Color.red
+    @State private var currentFont = font1
+
+    var ratingState: Rating {
+        switch rating {
+        case 1:
+            return .horrible
+        case 2:
+            return .notRecommend
+        case 3:
+            return .neutral
+        case 4:
+            return .recommend
+        case 5:
+            return .amazing
+        default:
+            return .horrible
+        }
     }
 
     var body: some View {
-        VStack {
-            switch ratingState {
-            case .horrible:
-                Text("Horrible")
-            case .notRecommend:
-                Text("Don't Recommend")
-            case .neutral:
-                Text("Neutral")
-            case .recommend:
-                Text("Recommend")
-            case .amazing:
-                Text("Incredible")
-            }
+        VStack(spacing: 0) {
+//            HStack {
+//                Spacer()
+//
+//                Image(systemName: "xmark.circle.fill")
+//            }
+//            .frame(width: UIScreen.main.bounds.width * 0.85)
 
-            ZStack(alignment: Alignment(horizontal: .leading, vertical: .center)) {
-                Capsule()
-                    .frame(width: width, height: 30)
-                    .foregroundStyle(Color.black.opacity(0.10))
+            Text("What did you think of the movie?")
+                .frame(width: UIScreen.main.bounds.width * 0.85)
+                .multilineTextAlignment(.center)
+                .font(.title2).fontWeight(.medium)
+                .padding(.bottom, 20)
 
-                HStack(spacing: 0) {
-                    ForEach(1..<6) { num in
-                        Rectangle()
-                            .frame(width: width/5, height: 10)
-                            .foregroundStyle(Color.black.opacity(0.15))
-                            .border(Color.black)
-                    }
+            Text(ratingState.image)
+                .font(.system(size: 80))
+                .padding(.bottom, 10)
+
+            RatingDetailsView(ratingState: ratingState)
+                .padding(.bottom, 20)
+
+            HStack(spacing: 20) {
+                ForEach(1..<6) { index in
+                    #warning("TODO: Add particle animation in background on select")
+                    Image(systemName: index <= rating ? "star.fill" : "star")
+                        .resizable()
+                        .frame(width: 42, height: 42)
+                        .foregroundColor(ratingState.foregroundColor)
+                        .scaleEffect(isPressed ? 0.8 : 1.0)
+                        .onTapGesture {
+                            rating = (index == rating) ? index - 1 : index
+                            
+                            withAnimation {
+                                isPressed.toggle()
+                            }
+                            withAnimation(.easeInOut(duration: 0.15).delay(0.1)) {
+                                isPressed.toggle()
+                            }
+                        }
                 }
-
-                #warning("TODO: match the Circle()'s color to the currently selected rating")
-                Circle()
-                    .frame(width: 45, height: 45)
-                    .foregroundStyle(Color.yellow)
-                    .offset(x: offset)
-                    .gesture(
-                        DragGesture()
-                            .onChanged { value in
-                                if value.location.x > 15 && value.location.x < width - 20 {
-                                    offset = value.location.x - 20
-                                }
-                            }
-                            .onEnded { value in
-                                switch value.location.x {
-                                case 0...segments[0]:
-                                    ratingState = .horrible
-                                case segments[0]...segments[1]:
-                                    ratingState = .notRecommend
-                                case segments[1]...segments[2]:
-                                    ratingState = .neutral
-                                case segments[2]...segments[3]:
-                                    ratingState = .recommend
-                                case segments[3]...segments[4]:
-                                    ratingState = .amazing
-                                default:
-                                    print("💀 not in the range")
-                                    break
-                                }
-                            }
-                    )
             }
+
+            Spacer()
+
+        }
+        .padding(.top, 40)
+    }
+}
+
+struct RatingDetailsView: View {
+    var ratingState: Rating
+
+    var body: some View {
+        VStack(spacing: 10) {
+            Text(ratingState.title)
+                .font(.headline)
+                .fontWeight(.medium)
+
+            Text(ratingState.description)
+                .font(.subheadline)
+        }
+
+    }
+}
+
+enum Rating {
+    case horrible
+    case notRecommend
+    case neutral
+    case recommend
+    case amazing
+
+    var title: String {
+        switch self {
+        case .horrible:
+            "Horrible"
+        case .notRecommend:
+            "Don't Recommend"
+        case .neutral:
+            "Neutral"
+        case .recommend:
+            "Recommend"
+        case .amazing:
+            "INCREDIBLE"
         }
     }
 
-    func calculateSegments() -> [CGFloat]{
-        var segments: [CGFloat] = []
-
-        for i in 1..<6 {
-            segments.append((width/5) * CGFloat(i))
+    var description: String {
+        switch self {
+        case .horrible:
+            "Please do not watch!"
+        case .notRecommend:
+            "Decent, but wouldn't watch again..."
+        case .neutral:
+            "Meh... Need to watch again."
+        case .recommend:
+            "Can't go wrong with this one."
+        case .amazing:
+            "Would definitely watch again!"
         }
-
-        return segments
     }
 
-    enum Rating {
-        case horrible
-        case notRecommend
-        case neutral
-        case recommend
-        case amazing
+    var foregroundColor: Color {
+        switch self {
+        case .horrible:
+            .red
+        case .notRecommend:
+            .orange
+        case .neutral:
+            .gray
+        case .recommend:
+            .blue
+        case .amazing:
+            .green
+        }
+    }
+
+    var image: String {
+        switch self {
+        case .horrible:
+            "😡"
+        case .notRecommend:
+            "😴"
+        case .neutral:
+            "😳"
+        case .recommend:
+            "🙂"
+        case .amazing:
+            "😍"
+        }
     }
 }
 
 struct SearchResultDetailView_Previews: PreviewProvider {
     static var previews: some View {
-//        StatefulPreviewWrapper(NavigationPath()) { SearchResultDetailView(movie: MovieMocks().generateMovies(count: 1).results[0]!, path: $0) }
-        RatingSheet()
+        StatefulPreviewWrapper(NavigationPath()) { SearchResultDetailView(movie: MovieMocks().generateMovies(count: 1).results[0]!, path: $0) }
+//        RatingSheet()
     }
 }
 

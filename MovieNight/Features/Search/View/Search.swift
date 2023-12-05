@@ -14,38 +14,40 @@ struct Search: View {
 
     var body: some View {
         NavigationStack(path: $path) {
-            VStack(alignment: .leading, spacing: 15) {
+            VStack(alignment: .leading, spacing: 0) {
                 SearchBox(searchViewModel: searchViewModel)
                     .padding(.top, 30)
+                    .padding([.leading, .trailing], 20)
 
                 Spacer()
 
-                ScrollView(.vertical, showsIndicators: true) {
-                    #warning("TODO: Change to custom List?")
-                    LazyVStack(alignment: .leading) {
-                        #if DEBUG
-                        ForEach(MovieMocks().generateMovies(count: 1).results, id: \.?._id) { movie in
-                            SearchResult(movie: movie!)
-                        }
-                        #elseif RELEASE
-                        #warning("TODO: If results are nil, show appropiate message")
-                        ForEach(searchViewModel.movieResponse.results, id: \.?._id) { movie in
-                            NavigationLink(value: movie) {
-                                SearchResult(movie: movie!)
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                        }
-                        #endif
+                List {
+                    #if DEBUG
+                    ForEach(MovieMocks().generateMovies(count: 5).results, id: \.?._id) { movie in
+                        SearchResult(movie: movie!)
                     }
-                    .navigationDestination(for: MovieResult.self) { movie in
-                        SearchResultDetailView(movie: movie, path: $path)
+                    .listRowBackground(Color.clear)
+                    #elseif RELEASE
+                    #warning("TODO: If results are nil, show appropiate message")
+                    ForEach(searchViewModel.movieResponse.results, id: \.?._id) { movie in
+                        SearchResult(movie: movie!)
                     }
+                    .listRowBackground(Color.clear)
+                    #endif
+                }
+                .listStyle(.plain)
+                .scrollContentBackground(.hidden)
+                .navigationDestination(for: MovieResult.self) { movie in
+                    SearchResultDetailView(movie: movie, path: $path)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .center)
-            .padding([.leading, .trailing], 20)
         }
     }
+}
+
+#Preview {
+    Search()
 }
 
 struct SearchResult: View {
@@ -74,8 +76,6 @@ struct SearchResult: View {
                 }
 
                 Spacer()
-
-                Image(systemName: "chevron.right")
             }
             .frame(maxWidth: .infinity, alignment: .center)
         }

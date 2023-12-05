@@ -108,13 +108,6 @@ struct RatingSheet: View {
 
     var body: some View {
         VStack(spacing: 0) {
-//            HStack {
-//                Spacer()
-//
-//                Image(systemName: "xmark.circle.fill")
-//            }
-//            .frame(width: UIScreen.main.bounds.width * 0.85)
-
             Text("What did you think of the movie?")
                 .frame(width: UIScreen.main.bounds.width * 0.85)
                 .multilineTextAlignment(.center)

@@ -25,10 +25,7 @@ struct Search: View {
                     LazyVStack(alignment: .leading) {
                         #if DEBUG
                         ForEach(MovieMocks().generateMovies(count: 1).results, id: \.?._id) { movie in
-                            NavigationLink(value: movie) {
-                                SearchResult(movie: movie!)
-                            }
-                            .buttonStyle(PlainButtonStyle())
+                            SearchResult(movie: movie!)
                         }
                         #elseif RELEASE
                         #warning("TODO: If results are nil, show appropiate message")
@@ -47,6 +44,64 @@ struct Search: View {
             }
             .frame(maxWidth: .infinity, alignment: .center)
             .padding([.leading, .trailing], 20)
+        }
+    }
+}
+
+struct SearchResult: View {
+    let movie: MovieResult
+
+    var body: some View {
+        NavigationLink(value: movie) {
+            HStack {
+                ThumbnailView(url: movie.thumbnail?.url)
+                    .frame(width: 100, height: 150)
+                    .scaledToFit()
+                    .cornerRadius(15)
+
+                VStack(alignment: .leading, spacing: 5) {
+                    Text(movie.titleText?.text ?? "hello")
+                        .font(.title2)
+                        .fontWeight(.medium)
+                        .lineLimit(2)
+                        .padding(.leading, 15)
+
+                    Text(String(movie.releaseYear?.year ?? -1))
+                        .font(.caption)
+                        .fontWeight(.regular)
+                        .foregroundStyle(Color(uiColor: UIColor.systemGray))
+                        .padding(.leading, 15)
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+struct ThumbnailView: View {
+    @StateObject var thumbnailViewModel = ThumbnailViewModel()
+
+    let url: String?
+
+    var body: some View {
+        VStack(spacing: 0) {
+            if let data = thumbnailViewModel.data, let uiimage = UIImage(data: data) {
+                Image(uiImage: uiimage)
+                    .resizable()
+                    .frame(width: 100, height: 150)
+                    .scaledToFit()
+                    .cornerRadius(15)
+            } else {
+                Text("Loading")
+            }
+        }
+        .task {
+            await thumbnailViewModel.load(url)
         }
     }
 }

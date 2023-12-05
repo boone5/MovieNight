@@ -8,6 +8,16 @@
 import XCTest
 
 final class LeetCode: XCTestCase {
+    private var lc: LeetCodeProblems!
+
+    override func setUp() {
+        self.lc = LeetCodeProblems()
+    }
+
+    override func tearDown() {
+        lc = nil
+    }
+
     func testSortAnArray() {
         let res = SortAnArray().sortArray([5,1,1,2,0,0])
 
@@ -27,6 +37,48 @@ final class LeetCode: XCTestCase {
         var palin2 = " "
 
         XCTAssertTrue(IsPalindrome().isPalindrome(palin))
+    }
+
+    func testIsValidParanthesis() {
+        let testString = "()[]{}"
+        let complexString = "(([{}]))"
+
+        XCTAssertTrue(ValidParanthesis().isValid(testString))
+    }
+
+    func testEvalRPN() {
+        let tokens1 = ["10","6","9","3","+","-11","*","/","*","17","+","5","+"]
+        let tokens2 = ["4","13","5","/","+"]
+
+        let unwrap = "+"
+
+        let num = Int(unwrap)
+
+        XCTAssertEqual(1, num)
+
+//        XCTAssertEqual(lc.evalRPN(tokens1), 22)
+    }
+
+    func testBinarySearch() {
+        XCTAssertEqual(lc.search([-1,0,3,5,9,12], 9), 4)
+    }
+
+    func testSearchMatrix() {
+        XCTAssertTrue(lc.searchMatrix([[1,3,5,7],[10,11,16,20],[23,30,34,60]], 30))
+    }
+
+    func testKokoBananas() {
+        let input1 = [3,6,7,11]
+        let h1 = 8
+        // output = 4
+        let input2 = [30,11,23,4,20]
+        let h2 = 5
+        // output = 30
+        let input3 = [30,11,23,4,20]
+        let h3 = 6
+        // output = 23
+
+        XCTAssertEqual(lc.minEatingSpeed(input1, h1), 4)
     }
 }
 
@@ -118,5 +170,154 @@ class IsPalindrome {
         }
 
         return true
+    }
+}
+
+class ValidParanthesis {
+    func isValid(_ s: String) -> Bool {
+        guard s.count % 2 == 0 else { return false}
+
+        let paranthesisDict: [Character: Character] = ["{": "}", "[": "]", "(": ")"]
+
+        let openBrackets: Set<Character> = ["(", "{", "["]
+        var openStore: [Character] = []
+
+        for char in s {
+            if openBrackets.contains(char) {
+                openStore.append(char)
+            } else if let lastChar = openStore.last,
+                        paranthesisDict[lastChar] == char 
+            {
+                openStore.removeLast()
+                continue
+            } else {
+                return false
+            }
+        }
+
+        return true
+    }
+}
+
+class LeetCodeProblems {
+    init() { }
+
+    // https://leetcode.com/problems/evaluate-reverse-polish-notation/
+    func evalRPN(_ tokens: [String]) -> Int {
+        guard tokens.count > 1 else {
+            if let stringNum = tokens.first,
+               let num = Int(stringNum)
+            {
+                return num
+            }
+            return -1
+        }
+
+        var sum: Int = 0
+        var orderOfOperations: [Int] = []
+
+        for token in tokens {
+            switch token {
+            case "+":
+                let first = orderOfOperations[orderOfOperations.count - 2]
+                let second = orderOfOperations[orderOfOperations.count - 1]
+
+                sum = first + second
+                orderOfOperations.removeLast(2)
+                orderOfOperations.append(sum)
+            case "-":
+                let first = orderOfOperations[orderOfOperations.count - 2]
+                let second = orderOfOperations[orderOfOperations.count - 1]
+
+                sum = first - second
+                orderOfOperations.removeLast(2)
+                orderOfOperations.append(sum)
+            case "*":
+                let first = orderOfOperations[orderOfOperations.count - 2]
+                let second = orderOfOperations[orderOfOperations.count - 1]
+
+                sum = first * second
+                orderOfOperations.removeLast(2)
+                orderOfOperations.append(sum)
+            case "/":
+                let first = orderOfOperations[orderOfOperations.count - 2]
+                let second = orderOfOperations[orderOfOperations.count - 1]
+
+                sum = first / second
+                orderOfOperations.removeLast(2)
+                orderOfOperations.append(sum)
+            default:
+                // number
+                if let num = Int(token) {
+                    orderOfOperations.append(num)
+                }
+            }
+        }
+
+        return sum
+    }
+
+    func search(_ nums: [Int], _ target: Int) -> Int {
+        var left = 0
+        var right = nums.count - 1
+
+        while left <= right {
+            let mid = left + right / 2
+
+            if nums[mid] == target {
+                return mid
+            } else if nums[mid] > target {
+                right = mid - 1
+            } else if nums[mid] < target {
+                left = mid + 1
+            }
+        }
+
+        return -1
+    }
+
+    func searchMatrix(_ matrix: [[Int]], _ target: Int) -> Bool {
+        // subarrays
+        let m = matrix.count
+        // assuming each array is of the same size
+        let n = matrix[0].count
+
+        var lhs = 0
+        var rhs = m * n - 1 // total elements treated as one array
+
+        while lhs <= rhs {
+            let mid = lhs + ((rhs - lhs) / 2)
+
+            let element = matrix[mid / n][mid % n]
+            guard element != target else { return true }
+
+            if element < target {
+                lhs = mid + 1
+            } else {
+                rhs = mid - 1
+            }
+        }
+
+        return false
+    }
+
+    func minEatingSpeed(_ piles: [Int], _ h: Int) -> Int {
+        // we take the range from 1 to the max element in the array
+        // this is because koko isn't greedy and wants to eat the least amount of bananas possible
+        var (l, r) = (1, piles.max()!)
+
+        while l < r {
+            // bananas per hour
+            var k = (l + r) / 2
+            let hours = piles.reduce(0) {
+                // tells us how many many hours it takes at the current banana count
+                return $0 + ($1 + k - 1)/k
+            }
+
+            // adjust the bounds
+            (l, r) = hours <= h ? (l,k) : (k+1, r)
+        }
+
+        return l
     }
 }

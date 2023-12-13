@@ -22,18 +22,11 @@ struct Search: View {
                 Spacer()
 
                 List {
-                    #if DEBUG
-                    ForEach(MovieMocks().generateMovies(count: 5).results, id: \.?._id) { movie in
-                        SearchResult(movie: movie!)
-                    }
-                    .listRowBackground(Color.clear)
-                    #elseif RELEASE
                     #warning("TODO: If results are nil, show appropiate message")
-                    ForEach(searchViewModel.movieResponse.results, id: \.?._id) { movie in
-                        SearchResult(movie: movie!)
+                    ForEach(searchViewModel.movieCells.enumerated().map(\.element), id: \.0) { movie in
+                        SearchResult(movie: movie)
                     }
                     .listRowBackground(Color.clear)
-                    #endif
                 }
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
@@ -51,24 +44,30 @@ struct Search: View {
 }
 
 struct SearchResult: View {
-    let movie: MovieResult
+    let movie: (MovieResult?, UIImage?)
 
     var body: some View {
-        NavigationLink(value: movie) {
+        NavigationLink(value: movie.0) {
             HStack {
-                ThumbnailView(url: movie.thumbnail?.url)
-                    .frame(width: 100, height: 150)
-                    .scaledToFit()
-                    .cornerRadius(15)
+
+                if let image = movie.1 {
+                    Image(uiImage: image)
+                        .resizable()
+                        .frame(width: 100, height: 150)
+                        .scaledToFit()
+                        .cornerRadius(15)
+                } else {
+                    Text("Loading")
+                }
 
                 VStack(alignment: .leading, spacing: 5) {
-                    Text(movie.titleText?.text ?? "hello")
+                    Text(movie.0?.titleText?.text ?? "hello")
                         .font(.title2)
                         .fontWeight(.medium)
                         .lineLimit(2)
                         .padding(.leading, 15)
 
-                    Text(String(movie.releaseYear?.year ?? -1))
+                    Text(String(movie.0?.releaseYear?.year ?? -1))
                         .font(.caption)
                         .fontWeight(.regular)
                         .foregroundStyle(Color(uiColor: UIColor.systemGray))

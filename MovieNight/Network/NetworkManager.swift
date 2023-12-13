@@ -20,7 +20,10 @@ class NetworkManager {
 
         var request = URLRequest(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10)
         request.httpMethod = "GET"
-        request.allHTTPHeaderFields = headers
+        request.allHTTPHeaderFields = [
+            "X-RapidAPI-Key": "23a15db573mshe9f036d0688007bp1d8ea0jsn4c70d99f389b",
+            "X-RapidAPI-Host": "moviesdatabase.p.rapidapi.com"
+        ]
 
         do {
             #warning("TODO: Handle response status codes")

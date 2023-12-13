@@ -9,10 +9,11 @@ import Combine
 import SwiftUI
 
 class SearchViewModel: ObservableObject {
-    @Published var movieCells: [(MovieResult?, UIImage?)] = []
-    private var cancellables: Set<AnyCancellable> = []
+    @Published var movieCells: [MovieResult?] = []
+    @Published var state: LoadingState = .undefined
 
-    let networkManager: NetworkManager
+    private let networkManager: NetworkManager
+    private var cancellables: Set<AnyCancellable> = []
 
     init(networkManager: NetworkManager = NetworkManager()) {
         self.networkManager = networkManager
@@ -31,11 +32,13 @@ class SearchViewModel: ObservableObject {
             "X-RapidAPI-Host": "moviesdatabase.p.rapidapi.com"
         ]
 
+        self.state = .loading
+
         URLSession.shared.dataTaskPublisher(for: request)
             .map(\.data)
             .decode(type: MovieResponse.self, decoder: JSONDecoder())
-            .flatMap { movieResponse -> AnyPublisher<[(MovieResult?, UIImage?)], Error> in
-                let thumbnailPublishers = movieResponse.results.compactMap { result -> AnyPublisher<(MovieResult?, UIImage?), Error>? in
+            .flatMap { movieResponse -> AnyPublisher<[MovieResult?], Error> in
+                let thumbnailPublishers = movieResponse.results.compactMap { result -> AnyPublisher<(MovieResult?), Error>? in
                     guard let thumbnailString = result?.thumbnail?.url,
                           let thumbnailURL = URL(string: thumbnailString)
                     else {
@@ -50,11 +53,11 @@ class SearchViewModel: ObservableObject {
 
                     return URLSession.shared.dataTaskPublisher(for: request)
                         .map(\.data)
-                        .tryMap { data in
-                            guard let uiimage = UIImage(data: data) else {
+                        .tryMap { [weak self] imgData in
+                            guard let result = result else {
                                 throw URLError(.badServerResponse)
                             }
-                            return (result, uiimage)
+                            return self?.refineMovieModel(movie: result, imageData: imgData)
                         }
                         .retry(3)
                         .mapError { error in
@@ -79,7 +82,23 @@ class SearchViewModel: ObservableObject {
                 }
             } receiveValue: { [weak self] movies in
                 self?.movieCells = movies
+                self?.state = .completed
             }
             .store(in: &cancellables)
     }
+
+    // expand on this as we utilize more properties
+    private func refineMovieModel(movie: MovieResult, imageData: Data) -> MovieResult {
+        MovieResult(
+            thumbnail: MovieResult.Thumbail(imgData: imageData),
+            releaseYear: MovieResult.ReleaseYear(endYear: movie.releaseYear?.endYear, year: movie.releaseYear?.year),
+            titleText: MovieResult.TitleText(text: movie.titleText?.text)
+        )
+    }
+}
+
+enum LoadingState {
+    case undefined
+    case loading
+    case completed
 }

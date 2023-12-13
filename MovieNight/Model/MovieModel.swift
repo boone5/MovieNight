@@ -5,6 +5,8 @@
 //  Created by Boone on 8/15/23.
 //
 
+import Foundation
+
 struct MovieResponse: Codable {
     let page: Int?
     let next: String?
@@ -16,6 +18,7 @@ struct MovieResponse: Codable {
 struct MovieResult: Codable, Hashable {
     let _id: String?
     let id: String?
+    let uuid: UUID?
     let thumbnail: Thumbail?
     let releaseDate: ReleaseDate?
     let releaseYear: ReleaseYear?
@@ -25,6 +28,7 @@ struct MovieResult: Codable, Hashable {
     enum CodingKeys: String, CodingKey {
         case _id
         case id
+        case uuid
         case thumbnail = "primaryImage"
         case releaseDate
         case releaseYear
@@ -35,18 +39,20 @@ struct MovieResult: Codable, Hashable {
     init(
         _id: String? = nil,
         id: String? = nil,
+        uuid: UUID? = UUID(),
         thumbnail: Thumbail? = nil,
         releaseDate: ReleaseDate? = nil,
         releaseYear: ReleaseYear? = nil,
         titleText: TitleText? = nil,
         titleDetails: TitleDetails? = nil) {
-        self._id = _id
-        self.id = id
-        self.thumbnail = thumbnail
-        self.releaseDate = releaseDate
-        self.releaseYear = releaseYear
-        self.titleText = titleText
-        self.titleDetails = titleDetails
+            self._id = _id
+            self.id = id
+            self.uuid = uuid
+            self.thumbnail = thumbnail
+            self.releaseDate = releaseDate
+            self.releaseYear = releaseYear
+            self.titleText = titleText
+            self.titleDetails = titleDetails
     }
 
     struct TitleText: Codable, Hashable {
@@ -58,6 +64,15 @@ struct MovieResult: Codable, Hashable {
         let height: Int?
         let width: Int?
         let url: String?
+        var imgData: Data? // to be set from Network Response
+
+        init(id: String? = nil, height: Int? = nil, width: Int? = nil, url: String? = nil, imgData: Data? = nil) {
+            self.id = id
+            self.height = height
+            self.width = width
+            self.url = url
+            self.imgData = imgData
+        }
     }
 
     struct ReleaseDate: Codable, Hashable {

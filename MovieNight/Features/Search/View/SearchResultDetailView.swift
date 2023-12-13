@@ -34,11 +34,18 @@ struct SearchResultDetailView: View {
             .padding([.leading, .trailing], 30)
             .padding(.bottom, 20)
 
-#warning("TODO: Match devices corner radius")
-            Rectangle()
-                .frame(maxWidth: 300)
-                .frame(height: 400)
-                .cornerRadius(50)
+            #warning("TODO: Match devices corner radius?")
+            if let imgData = movie.thumbnail?.imgData, let uiimage = UIImage(data: imgData) {
+                Image(uiImage: uiimage)
+                    .resizable()
+                    .frame(width: 300)
+                    .frame(height: 400)
+                    .scaledToFit()
+                    .cornerRadius(15)
+            } else {
+                #warning("Not found image")
+                Text("Loading")
+            }
 
             Text(movie.titleText?.text ?? "")
                 .frame(maxWidth: 300)

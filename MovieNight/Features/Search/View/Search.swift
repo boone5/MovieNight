@@ -19,20 +19,39 @@ struct Search: View {
                     .padding(.top, 30)
                     .padding([.leading, .trailing], 20)
 
-                Spacer()
-
-                List {
-                    #warning("TODO: If results are nil, show appropiate message")
-                    ForEach(searchViewModel.movieCells.enumerated().map(\.element), id: \.0) { movie in
-                        SearchResult(movie: movie)
+                switch searchViewModel.state {
+                case .undefined:
+                    HStack {
+                        Spacer()
+                        Text("Recent Searches")
+                        Spacer()
                     }
-                    .listRowBackground(Color.clear)
+                    .padding(.top, 30)
+                case .loading:
+                    HStack {
+                        Spacer()
+                        ProgressView()
+                        Spacer()
+                    }
+                    .padding(.top, 30)
+                case .completed:
+                    Spacer()
+
+                    List {
+                        #warning("TODO: If results are nil, show appropiate message")
+                        ForEach(searchViewModel.movieCells.compactMap { $0 }, id: \.uuid) { movie in
+                            SearchResult(movie: movie)
+                        }
+                        .listRowBackground(Color.clear)
+                    }
+                    .listStyle(.plain)
+                    .scrollContentBackground(.hidden)
+                    .navigationDestination(for: MovieResult.self) { movie in
+                        SearchResultDetailView(movie: movie, path: $path)
+                    }
                 }
-                .listStyle(.plain)
-                .scrollContentBackground(.hidden)
-                .navigationDestination(for: MovieResult.self) { movie in
-                    SearchResultDetailView(movie: movie, path: $path)
-                }
+
+                Spacer()
             }
             .frame(maxWidth: .infinity, alignment: .center)
         }
@@ -44,30 +63,30 @@ struct Search: View {
 }
 
 struct SearchResult: View {
-    let movie: (MovieResult?, UIImage?)
+    let movie: MovieResult?
 
     var body: some View {
-        NavigationLink(value: movie.0) {
+        NavigationLink(value: movie) {
             HStack {
-
-                if let image = movie.1 {
-                    Image(uiImage: image)
+                if let imgData = movie?.thumbnail?.imgData, let uiimage = UIImage(data: imgData) {
+                    Image(uiImage: uiimage)
                         .resizable()
                         .frame(width: 100, height: 150)
                         .scaledToFit()
                         .cornerRadius(15)
                 } else {
+                    #warning("Not found image")
                     Text("Loading")
                 }
 
                 VStack(alignment: .leading, spacing: 5) {
-                    Text(movie.0?.titleText?.text ?? "hello")
+                    Text(movie?.titleText?.text ?? "hello")
                         .font(.title2)
                         .fontWeight(.medium)
                         .lineLimit(2)
                         .padding(.leading, 15)
 
-                    Text(String(movie.0?.releaseYear?.year ?? -1))
+                    Text(String(movie?.releaseYear?.year ?? -1))
                         .font(.caption)
                         .fontWeight(.regular)
                         .foregroundStyle(Color(uiColor: UIColor.systemGray))
@@ -82,28 +101,28 @@ struct SearchResult: View {
     }
 }
 
-struct ThumbnailView: View {
-    @StateObject var thumbnailViewModel = ThumbnailViewModel()
-
-    let url: String?
-
-    var body: some View {
-        VStack(spacing: 0) {
-            if let data = thumbnailViewModel.data, let uiimage = UIImage(data: data) {
-                Image(uiImage: uiimage)
-                    .resizable()
-                    .frame(width: 100, height: 150)
-                    .scaledToFit()
-                    .cornerRadius(15)
-            } else {
-                Text("Loading")
-            }
-        }
-        .task {
-            await thumbnailViewModel.load(url)
-        }
-    }
-}
+//struct ThumbnailView: View {
+//    @StateObject var thumbnailViewModel = ThumbnailViewModel()
+//
+//    let url: String?
+//
+//    var body: some View {
+//        VStack(spacing: 0) {
+//            if let data = thumbnailViewModel.data, let uiimage = UIImage(data: data) {
+//                Image(uiImage: uiimage)
+//                    .resizable()
+//                    .frame(width: 100, height: 150)
+//                    .scaledToFit()
+//                    .cornerRadius(15)
+//            } else {
+//                Text("Loading")
+//            }
+//        }
+//        .task {
+//            await thumbnailViewModel.load(url)
+//        }
+//    }
+//}
 
 struct Search_Previews: PreviewProvider {
     static var previews: some View {

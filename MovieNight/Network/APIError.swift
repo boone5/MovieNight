@@ -5,13 +5,14 @@
 //  Created by Boone on 9/4/23.
 //
 
+import Foundation.NSURLError
+
 enum APIError: Error {
     case networkUnavailable
-    case invalidFormat
     case unknownError(Error)
     case decodingError(Error)
-    case encodingError
     case badURL
+    case networkError(URLError)
 
     var description: String {
         switch self {
@@ -19,8 +20,12 @@ enum APIError: Error {
             return "😡 No internet connection."
         case .unknownError(let error):
             return "😡 Something went wrong: \(error)"
-        case .decodingError(_), .encodingError, .invalidFormat, .badURL:
-            return "😡 Invalid server response: \(self)"
+        case .decodingError(_):
+            return "😡 Had trouble decoding: \(self)"
+        case .badURL:
+            return "😡 Invalid URL"
+        case .networkError(let error):
+            return "😡 Network error: \(error)"
         }
     }
 }

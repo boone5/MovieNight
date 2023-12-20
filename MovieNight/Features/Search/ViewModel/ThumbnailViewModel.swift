@@ -10,7 +10,7 @@ import Foundation
 final class ThumbnailViewModel: ObservableObject {
     private let networkManager: NetworkManager
 
-    init(networkManager: NetworkManager = NetworkManager()) {
+    init(networkManager: NetworkManager = NetworkManager.shared) {
         self.networkManager = networkManager
     }
 

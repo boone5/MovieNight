@@ -6,24 +6,25 @@
 //
 
 import Foundation
+import Combine
 
 class NetworkManager {
-    let headers = [
+    static var shared = NetworkManager()
+
+    private let headers = [
         "X-RapidAPI-Key": "23a15db573mshe9f036d0688007bp1d8ea0jsn4c70d99f389b",
         "X-RapidAPI-Host": "moviesdatabase.p.rapidapi.com"
     ]
 
+    private init() { }
+
+    #warning("TODO: Introduce Generics")
     func request(_ endpoint: APIEndpoint) async throws -> Data {
-        guard let url = URL(string: endpoint.path) else {
+        guard let url = endpoint.url else {
             throw APIError.badURL
         }
 
-        var request = URLRequest(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10)
-        request.httpMethod = "GET"
-        request.allHTTPHeaderFields = [
-            "X-RapidAPI-Key": "23a15db573mshe9f036d0688007bp1d8ea0jsn4c70d99f389b",
-            "X-RapidAPI-Host": "moviesdatabase.p.rapidapi.com"
-        ]
+        let request = createRequest(url: url)
 
         do {
             #warning("TODO: Handle response status codes")
@@ -38,5 +39,13 @@ class NetworkManager {
                 throw APIError.unknownError(error)
             }
         }
+    }
+
+    func createRequest(url: URL) -> URLRequest {
+        var request = URLRequest(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10)
+        request.httpMethod = "GET"
+        request.allHTTPHeaderFields = headers
+
+        return request
     }
 }

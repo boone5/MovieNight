@@ -5,19 +5,47 @@
 //  Created by Boone on 9/4/23.
 //
 
-enum APIEndpoint {
-    case fetchMovieByTitle(_ title: String)
-    case fetchMovieThumbnail(_ url: String)
+import Foundation
 
+enum APIEndpoint {
+    case movies(_ title: String)
+    // can remove once I know we don't need ThumbnailViewModel
+    case fetchMovieThumbnail(_ url: String)
+}
+
+extension APIEndpoint {
     var path: String {
         switch self {
-        case .fetchMovieByTitle(let title):
-            let replacedString = title.replacingOccurrences(of: " ", with: "%20")
-            #warning("TODO: Implement URL Builder for applied filters")
-            return "https://moviesdatabase.p.rapidapi.com/titles/search/title/\(replacedString)?exact=false&titleType=movie"
+        case .movies(let title):
+            return "/titles/search/title/\(title)"
 
         case .fetchMovieThumbnail(let url):
             return url
         }
+    }
+
+    var scheme: String {
+        "https"
+    }
+
+    var host: String {
+        "moviesdatabase.p.rapidapi.com"
+    }
+
+    var queryItems: [URLQueryItem] {
+        return [
+            URLQueryItem(name: "exact", value: "false"),
+            URLQueryItem(name: "titleType", value: "movie")
+        ]
+    }
+
+    var url: URL? {
+        var urlComponents = URLComponents()
+        urlComponents.scheme = scheme
+        urlComponents.host = host
+        urlComponents.path = path
+        urlComponents.queryItems = queryItems
+
+        return urlComponents.url
     }
 }

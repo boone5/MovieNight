@@ -242,7 +242,7 @@ enum Rating {
 
 struct SearchResultDetailView_Previews: PreviewProvider {
     static var previews: some View {
-        StatefulPreviewWrapper(NavigationPath()) { SearchResultDetailView(movie: MovieMocks().generateMovies(count: 1).results[0]!, path: $0) }
+        StatefulPreviewWrapper(NavigationPath()) { SearchResultDetailView(movie: MovieMocks().generateMovies(count: 1).results[0], path: $0) }
 //        RatingSheet()
     }
 }

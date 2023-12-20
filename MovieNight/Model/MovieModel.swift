@@ -12,7 +12,7 @@ struct MovieResponse: Codable {
     let next: String?
     let entries: Int?
     // mutable for generating mock data
-    var results: [MovieResult?]
+    var results: [MovieResult]
 }
 
 struct MovieResult: Codable, Hashable {

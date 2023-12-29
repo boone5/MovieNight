@@ -1,5 +1,5 @@
 //
-//  SearchResultDetailView.swift
+//  MovieDetailView.swift
 //  MovieNight
 //
 //  Created by Boone on 10/18/23.
@@ -9,7 +9,7 @@ import SwiftUI
 
 // Lottie Animations: https://iconscout.com/lottie-animation-pack/emoji-282
 
-struct SearchResultDetailView: View {
+struct MovieDetailView: View {
     let movie: MovieResultTMDB
     @Binding var path: NavigationPath
 

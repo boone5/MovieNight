@@ -39,7 +39,7 @@ struct Search: View {
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
                 .navigationDestination(for: MovieResultTMDB.self) { movie in
-                    SearchResultDetailView(movie: movie, path: $path)
+                    MovieDetailView(movie: movie, path: $path)
                 }
 
                 Spacer()

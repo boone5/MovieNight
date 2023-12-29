@@ -9,39 +9,52 @@ import Combine
 import SwiftUI
 
 class SearchViewModel: ObservableObject {
-    @Published var movieCells: [MovieResult?] = []
+    @Published var movie: Movie?
     @Published var state: LoadingState = .undefined
 
-    private let movieService: MovieService
-    private var cancellables: Set<AnyCancellable> = []
-
-    init(movieService: MovieService = MovieService()) {
-        self.movieService = movieService
+    private var pageIsAvailable: Bool {
+        return false
     }
 
-    // title has to be non-empty
+    public var isLoading: Bool {
+        state == .loading
+    }
+
+    public var isFetching: Bool {
+        state == .fetching
+    }
+
+    private var page: Int = 1
+    private var currentTitle: String = ""
+
     @MainActor
-    func fetchMovies(for title: String) async {
+    func fetchMovieDetails(for title: String) async {
         self.state = .loading
 
-        movieService.fetchMovies(for: title)
-            .sink { completion in
-                switch completion {
-                case .finished:
-                    break
-                case .failure(let error):
-                    print("⛔️ Error: \(error)")
-                }
-            } receiveValue: { [weak self] movies in
-                self?.movieCells = movies
-                self?.state = .completed
+        do {
+            let data = try await NetworkManager.shared.request(Movie.self, SearchEndpoint.search(title: title))
+
+            let decoded = try JSONDecoder().decode(Movie.self, from: data)
+
+            self.movie = decoded
+            self.state = .completed
+        } catch {
+            if let error = error as? DecodingError {
+                print("⛔️ Decoding error: \(error)")
+            } else {
+                print("⛔️ Network error: \(error)")
             }
-            .store(in: &cancellables)
+        }
+    }
+
+    public func shouldRequestNewPage(comparing movie: MovieResultTMDB) -> Bool {
+        self.pageIsAvailable && (self.movie?.results.last?.id == movie.id)
     }
 }
 
 enum LoadingState {
     case undefined
+    case fetching
     case loading
     case completed
 }

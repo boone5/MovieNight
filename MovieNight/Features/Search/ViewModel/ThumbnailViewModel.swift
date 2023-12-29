@@ -18,28 +18,23 @@ final class ThumbnailViewModel: ObservableObject {
 
     /// Make a network request OR load an Image from the ImageCache. Function handles errors respectively.
     @MainActor
-    func load(_ imgURL: String?, cache: ImageCache = .shared) async {
-        guard let url = imgURL else { return }
+    func load(_ imgExtension: String?, cache: ImageCache = .shared) async {
+        guard let imgExtension else { return }
 
-        if let imageData = cache.getObject(forKey: url) {
+        if let imageData = cache.getObject(forKey: imgExtension) {
             self.data = imageData
             return
         }
 
         do {
-            let data = try await networkManager.request(.fetchMovieThumbnail(url))
+            let data = try await networkManager.request(Data.self, PosterEndpoint.poster(imgExtension))
 
-            cache.set(object: data, forKey: url)
+            cache.set(object: data, forKey: imgExtension)
 
             self.data = data
 
-        } catch(let error) {
-            if let error = error as? APIError {
-                // MARK: LOG
-                // This is an area where I could log an event with the error we receive back.
-                print(error.description)
-            }
-            print(APIError.unknownError(error).description)
+        } catch {
+            print("⛔️ Error retrieving image data: \(error)")
         }
     }
 }

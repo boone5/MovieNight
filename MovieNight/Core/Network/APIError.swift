@@ -12,7 +12,7 @@ enum APIError: Error {
     case unknownError(Error)
     case decodingError(Error)
     case badURL
-    case networkError(URLError)
+    case networkError(Error)
 
     var description: String {
         switch self {

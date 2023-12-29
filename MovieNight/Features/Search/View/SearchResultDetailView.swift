@@ -10,7 +10,7 @@ import SwiftUI
 // Lottie Animations: https://iconscout.com/lottie-animation-pack/emoji-282
 
 struct SearchResultDetailView: View {
-    let movie: MovieResult
+    let movie: MovieResultTMDB
     @Binding var path: NavigationPath
 
     @State private var showRatingSheet = false
@@ -35,25 +35,25 @@ struct SearchResultDetailView: View {
             .padding(.bottom, 20)
 
             #warning("TODO: Match devices corner radius?")
-            if let imgData = movie.thumbnail?.imgData, let uiimage = UIImage(data: imgData) {
-                Image(uiImage: uiimage)
-                    .resizable()
-                    .frame(width: 300)
-                    .frame(height: 400)
-                    .scaledToFit()
-                    .cornerRadius(15)
-            } else {
-                #warning("Not found image")
-                Text("Loading")
-            }
+//            if let imgData = movie.thumbnail?.imgData, let uiimage = UIImage(data: imgData) {
+//                Image(uiImage: uiimage)
+//                    .resizable()
+//                    .frame(width: 300)
+//                    .frame(height: 400)
+//                    .scaledToFit()
+//                    .cornerRadius(15)
+//            } else {
+//                #warning("Not found image")
+//                Text("Loading")
+//            }
 
-            Text(movie.titleText?.text ?? "")
+            Text(movie.title)
                 .frame(maxWidth: 300)
                 .multilineTextAlignment(.center)
                 .font(.title)
                 .padding(.top, 20)
 
-            Text("Released in " + String(movie.releaseYear?.year ?? -1))
+            Text("Released in " + movie.releaseDate)
                 .font(.caption)
                 .fontWeight(.regular)
                 .foregroundStyle(Color(uiColor: UIColor.systemGray))
@@ -240,12 +240,12 @@ enum Rating {
     }
 }
 
-struct SearchResultDetailView_Previews: PreviewProvider {
-    static var previews: some View {
-        StatefulPreviewWrapper(NavigationPath()) { SearchResultDetailView(movie: MovieMocks().generateMovies(count: 1).results[0], path: $0) }
-//        RatingSheet()
-    }
-}
+//struct SearchResultDetailView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        StatefulPreviewWrapper(NavigationPath()) { SearchResultDetailView(movie: MovieMocks().generateMovies(count: 1).results[0], path: $0) }
+////        RatingSheet()
+//    }
+//}
 
 struct StatefulPreviewWrapper<Value, Content: View>: View {
     @State var value: Value

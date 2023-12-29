@@ -31,7 +31,7 @@ struct SearchBox: View {
                         #warning("TODO: Debouncer?")
                         Task {
                             print("Query for \(textField)")
-                            await searchViewModel.fetchMovies(for: textField)
+                            await searchViewModel.fetchMovieDetails(for: textField)
                         }
                     }
             }

@@ -9,7 +9,7 @@ import Combine
 import SwiftUI
 
 class SearchViewModel: ObservableObject {
-    @Published var movie: Movie?
+    @Published var movie: MovieResponseTMDB?
     @Published var state: LoadingState = .undefined
 
     private var pageIsAvailable: Bool {
@@ -32,9 +32,9 @@ class SearchViewModel: ObservableObject {
         self.state = .loading
 
         do {
-            let data = try await NetworkManager.shared.request(Movie.self, SearchEndpoint.search(title: title))
+            let data = try await NetworkManager.shared.request(MovieResponseTMDB.self, SearchEndpoint.search(title: title))
 
-            let decoded = try JSONDecoder().decode(Movie.self, from: data)
+            let decoded = try JSONDecoder().decode(MovieResponseTMDB.self, from: data)
 
             self.movie = decoded
             self.state = .completed
@@ -47,7 +47,7 @@ class SearchViewModel: ObservableObject {
         }
     }
 
-    public func shouldRequestNewPage(comparing movie: MovieResultTMDB) -> Bool {
+    public func shouldRequestNewPage(comparing movie: MovieResponseTMDB.Details) -> Bool {
         self.pageIsAvailable && (self.movie?.results.last?.id == movie.id)
     }
 }

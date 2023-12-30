@@ -22,7 +22,7 @@ extension PosterEndpoint {
     func path() -> String {
         switch self {
         case .poster(let ext):
-            return "/t/p/w342" + ext // might not want to hardcode this
+            return "/t/p/w500" + ext // might not want to hardcode this
         }
     }
 

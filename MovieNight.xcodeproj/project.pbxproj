@@ -20,8 +20,9 @@
 		D5D7B6282AA68FA400BA6619 /* Library.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D7B6272AA68FA400BA6619 /* Library.swift */; };
 		D5D7B62A2AA6931100BA6619 /* LeetCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D7B6292AA6931100BA6619 /* LeetCode.swift */; };
 		D5D7B62F2AA69D8000BA6619 /* APIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D7B62E2AA69D8000BA6619 /* APIError.swift */; };
-		D5E6920F2B37F47900466A34 /* Movie.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5E6920E2B37F47900466A34 /* Movie.swift */; };
+		D5E6920F2B37F47900466A34 /* MovieResponseTMDB.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5E6920E2B37F47900466A34 /* MovieResponseTMDB.swift */; };
 		D5E692112B3B63E800466A34 /* PosterEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5E692102B3B63E800466A34 /* PosterEndpoint.swift */; };
+		D5E6921A2B3E72D100466A34 /* MockedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5E692192B3E72D100466A34 /* MockedData.swift */; };
 		D5F9AB812A888AA900C076CD /* MovieNightApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5F9AB802A888AA900C076CD /* MovieNightApp.swift */; };
 		D5F9AB832A888AA900C076CD /* Search.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5F9AB822A888AA900C076CD /* Search.swift */; };
 		D5F9AB852A888AAA00C076CD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D5F9AB842A888AAA00C076CD /* Assets.xcassets */; };
@@ -65,8 +66,9 @@
 		D5D7B6272AA68FA400BA6619 /* Library.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Library.swift; sourceTree = "<group>"; };
 		D5D7B6292AA6931100BA6619 /* LeetCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeetCode.swift; sourceTree = "<group>"; };
 		D5D7B62E2AA69D8000BA6619 /* APIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIError.swift; sourceTree = "<group>"; };
-		D5E6920E2B37F47900466A34 /* Movie.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Movie.swift; sourceTree = "<group>"; };
+		D5E6920E2B37F47900466A34 /* MovieResponseTMDB.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieResponseTMDB.swift; sourceTree = "<group>"; };
 		D5E692102B3B63E800466A34 /* PosterEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PosterEndpoint.swift; sourceTree = "<group>"; };
+		D5E692192B3E72D100466A34 /* MockedData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockedData.swift; sourceTree = "<group>"; };
 		D5F9AB7D2A888AA900C076CD /* MovieNight.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MovieNight.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D5F9AB802A888AA900C076CD /* MovieNightApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieNightApp.swift; sourceTree = "<group>"; };
 		D5F9AB822A888AA900C076CD /* Search.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Search.swift; sourceTree = "<group>"; };
@@ -110,7 +112,8 @@
 		D51FF6E32A943445007A3EA5 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				D5E6920E2B37F47900466A34 /* Movie.swift */,
+				D5E6920E2B37F47900466A34 /* MovieResponseTMDB.swift */,
+				D5E692192B3E72D100466A34 /* MockedData.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -399,6 +402,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D5E6921A2B3E72D100466A34 /* MockedData.swift in Sources */,
 				D5D7B6242A9D653800BA6619 /* SearchBox.swift in Sources */,
 				D52FD4F72B1D70E100386841 /* ThumbnailViewModel.swift in Sources */,
 				D52FD4F52B1D701D00386841 /* ImageCache.swift in Sources */,
@@ -411,7 +415,7 @@
 				D5BF0BDB2AF068D70016735B /* CDMovieResult+Extensions.swift in Sources */,
 				D56CC2632B353BF700A14266 /* EndpointProviding.swift in Sources */,
 				D51FF6E72A95B352007A3EA5 /* SearchViewModel.swift in Sources */,
-				D5E6920F2B37F47900466A34 /* Movie.swift in Sources */,
+				D5E6920F2B37F47900466A34 /* MovieResponseTMDB.swift in Sources */,
 				D5D7B6282AA68FA400BA6619 /* Library.swift in Sources */,
 				D5D7B6262AA68CF700BA6619 /* TabBar.swift in Sources */,
 				D5BF0BDD2AF07E4C0016735B /* CDMovieResponse.swift in Sources */,

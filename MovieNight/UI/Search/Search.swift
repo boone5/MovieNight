@@ -31,15 +31,15 @@ struct Search: View {
                 Spacer()
 
                 List {
-                    ForEach(searchViewModel.movie?.results ?? [], id: \.id) { movie in
-                        SearchResult(searchViewModel: searchViewModel, result: movie)
+                    ForEach(searchViewModel.movie?.results ?? [], id: \.id) { details in
+                        SearchResult(searchViewModel: searchViewModel, details: details)
                     }
                     .listRowBackground(Color.clear)
                 }
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
-                .navigationDestination(for: MovieResultTMDB.self) { movie in
-                    MovieDetailView(movie: movie, path: $path)
+                .navigationDestination(for: MovieResponseTMDB.Details.self) { details in
+                    MovieDetailView(path: $path, details: details)
                 }
 
                 Spacer()
@@ -52,21 +52,21 @@ struct Search: View {
 struct SearchResult: View {
     @ObservedObject var searchViewModel: SearchViewModel
 
-    let result: MovieResultTMDB
+    let details: MovieResponseTMDB.Details
 
     var body: some View {
-        NavigationLink(value: result) {
+        NavigationLink(value: details) {
             HStack {
-                ThumbnailView(url: result.posterPath)
+                ThumbnailView(url: details.posterPath)
 
                 VStack(alignment: .leading, spacing: 5) {
-                    Text(result.title)
+                    Text(details.title)
                         .font(.title2)
                         .fontWeight(.medium)
                         .lineLimit(2)
                         .padding(.leading, 15)
 
-                    Text(result.releaseDate)
+                    Text(details.releaseDate)
                         .font(.caption)
                         .fontWeight(.regular)
                         .foregroundStyle(Color(uiColor: UIColor.systemGray))

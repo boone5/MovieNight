@@ -27,7 +27,9 @@ class ImageCache {
     }()
 
     // Get from Cache
-    func getObject(forKey key: String) -> Data? {
+    func getObject(forKey key: String?) -> Data? {
+        guard let key else { return nil }
+
         print("⬇️ Fetching Image from Cache for key: \(key)")
         return cache.object(forKey: key as NSString) as? Data
     }

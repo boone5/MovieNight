@@ -8,13 +8,13 @@
 import Foundation
 
 final class ThumbnailViewModel: ObservableObject {
+    @Published private(set) var data: Data?
+
     private let networkManager: NetworkManager
 
     init(networkManager: NetworkManager = NetworkManager.shared) {
         self.networkManager = networkManager
     }
-
-    @Published private(set) var data: Data?
 
     /// Make a network request OR load an Image from the ImageCache. Function handles errors respectively.
     @MainActor

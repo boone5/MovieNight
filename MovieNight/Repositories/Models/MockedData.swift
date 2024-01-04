@@ -10,10 +10,10 @@ import Foundation
 extension MovieResponseTMDB.Details {
     static let mockedData: MovieResponseTMDB.Details =
         MovieResponseTMDB.Details(
+            id: 0, 
             adult: true,
             backdropPath: nil,
             genreIDs: [],
-            id: 0,
             originalLanguage: "en-US",
             originalTitle: "Mock 1",
             overview: "Overview for Mock 1",

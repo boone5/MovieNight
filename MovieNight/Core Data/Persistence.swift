@@ -13,6 +13,7 @@ struct PersistenceController {
     let container: NSPersistentContainer
 
     init(inMemory: Bool = false) {
+        #warning("TODO: Support Versioning for the container name")
         // Name of the schema
         container = NSPersistentContainer(name: "MovieNight")
 
@@ -46,10 +47,10 @@ struct PersistenceController {
         let controller = PersistenceController(inMemory: true)
         let viewContext = controller.container.viewContext
 
-        for index in 1..<10 {
-            let newItem = CDMovieResult(context: viewContext)
-            newItem.titleText?.text = "Movie \(index)"
-        }
+//        for index in 1..<10 {
+//            let newItem = CDMovieResult(context: viewContext)
+//            newItem.titleText?.text = "Movie \(index)"
+//        }
 
         return controller
     }()

@@ -18,18 +18,20 @@ struct MovieResponseTMDB: Codable {
         case totalResults = "total_results"
     }
 
-    struct Details: Codable, Hashable {
+    struct Details: Codable, Hashable, Identifiable {
+        let id: Int
         let adult: Bool
         let backdropPath: String?
         let genreIDs: [Int]
-        let id: Int
         let originalLanguage, originalTitle, overview: String
         let popularity: Double
         let posterPath: String?
         let releaseDate, title: String
         let video: Bool
         let voteAverage: Double
-        let voteCount: Int
+        let voteCount: Int16
+
+        var posterData: Data?
 
         enum CodingKeys: String, CodingKey {
             case adult
@@ -44,6 +46,7 @@ struct MovieResponseTMDB: Codable {
             case title, video
             case voteAverage = "vote_average"
             case voteCount = "vote_count"
+            case posterData
         }
     }
 }

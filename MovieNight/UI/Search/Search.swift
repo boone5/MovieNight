@@ -10,7 +10,9 @@ import SwiftUI
 struct Search: View {
     @StateObject var searchViewModel: SearchViewModel = SearchViewModel()
 
-    @State var path: NavigationPath = NavigationPath()
+    @State private var path: NavigationPath = NavigationPath()
+
+    let provider = MovieProvider.shared
 
     var body: some View {
         NavigationStack(path: $path) {
@@ -32,14 +34,16 @@ struct Search: View {
 
                 List {
                     ForEach(searchViewModel.movie?.results ?? [], id: \.id) { details in
-                        SearchResult(searchViewModel: searchViewModel, details: details)
+                        MovieRowView(searchViewModel: searchViewModel, details: details)
                     }
                     .listRowBackground(Color.clear)
                 }
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
                 .navigationDestination(for: MovieResponseTMDB.Details.self) { details in
-                    MovieDetailView(path: $path, details: details)
+                    let movieDetails = MovieDetails.createMovie(from: details, in: provider.viewContext)
+
+                    MovieDetailView(vm: .init(movie: movieDetails, provider: provider), path: $path)
                 }
 
                 Spacer()
@@ -49,7 +53,7 @@ struct Search: View {
     }
 }
 
-struct SearchResult: View {
+struct MovieRowView: View {
     @ObservedObject var searchViewModel: SearchViewModel
 
     let details: MovieResponseTMDB.Details
@@ -76,11 +80,11 @@ struct SearchResult: View {
                 Spacer()
             }
             .frame(maxWidth: .infinity, alignment: .center)
-            .task {
+//            .task {
 //                if searchViewModel.shouldRequestNewPage(comparing: result), !searchViewModel.isFetching {
 //                    await searchViewModel.fetchNextPage()
 //                }
-            }
+//            }
         }
         .buttonStyle(PlainButtonStyle())
     }

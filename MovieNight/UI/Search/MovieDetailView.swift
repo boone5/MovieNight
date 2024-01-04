@@ -10,11 +10,32 @@ import SwiftUI
 // Lottie Animations: https://iconscout.com/lottie-animation-pack/emoji-282
 
 struct MovieDetailView: View {
+    @ObservedObject var vm: MovieDetailViewModel
+
     @Binding var path: NavigationPath
 
     @State private var showRatingSheet = false
+    @State private var rating = 3
+    @State private var didReview: Bool = false
 
-    let details: MovieResponseTMDB.Details
+    var imgData: Data? {
+        get {
+            if let _imgData {
+                return _imgData
+            }
+
+            let imgData = ImageCache.shared.getObject(forKey: vm.movie.posterPath)
+            
+            vm.movie.posterData = imgData
+
+            return imgData
+        } set {
+            _imgData = newValue
+        }
+    }
+
+    /// Used for quick access to the last read operation.
+    var _imgData: Data?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -35,8 +56,7 @@ struct MovieDetailView: View {
             .padding([.leading, .trailing], 30)
             .padding(.bottom, 20)
 
-            #warning("TODO: Match devices corner radius?")
-            if let imgData = ImageCache.shared.getObject(forKey: details.posterPath), let uiimage = UIImage(data: imgData) {
+            if let imgData, let uiimage = UIImage(data: imgData) {
                 Image(uiImage: uiimage)
                     .resizable()
                     .scaledToFit()
@@ -49,13 +69,13 @@ struct MovieDetailView: View {
                     .cornerRadius(15)
             }
 
-            Text(details.title)
+            Text(vm.movie.title)
                 .frame(maxWidth: 300)
                 .multilineTextAlignment(.center)
                 .font(.title)
                 .padding(.top, 20)
 
-            Text("Released in " + details.releaseDate)
+            Text("Released in " + vm.movie.releaseDate)
                 .font(.caption)
                 .fontWeight(.regular)
                 .foregroundStyle(Color(uiColor: UIColor.systemGray))
@@ -71,9 +91,10 @@ struct MovieDetailView: View {
                             .frame(height: 50)
                             .foregroundStyle(Color.black.opacity(0.10))
                     }
-                    .sheet(isPresented: $showRatingSheet) {
-                        RatingSheet()
-                            .presentationDetents([.medium])
+                    .sheet(isPresented: $showRatingSheet, onDismiss: onSheetDismiss) {
+                        RatingSheet(rating: $rating, didReview: $didReview)
+                            .presentationDetents([.fraction(0.3)])
+                            .presentationDragIndicator(.visible)
                     }
 
                     Text("Leave a rating")
@@ -86,17 +107,21 @@ struct MovieDetailView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .navigationBarBackButtonHidden()
     }
+
+    private func onSheetDismiss() {
+        if didReview {
+            do {
+                try vm.save()
+            } catch {
+                print("⛔️ Error saving Movie into Core Data: \(error)")
+            }
+        }
+    }
 }
 
 struct RatingSheet: View {
-    @State private var rating: Int = 3
-    @State private var isPressed: Bool = false
-
-    private static let font1 = Font.system(size: 20)
-    private static let font2 = Font.system(size: 45)
-
-    @State private var color = Color.red
-    @State private var currentFont = font1
+    @Binding var rating: Int
+    @Binding var didReview: Bool
 
     var ratingState: Rating {
         switch rating {
@@ -123,33 +148,25 @@ struct RatingSheet: View {
                 .font(.title2).fontWeight(.medium)
                 .padding(.bottom, 20)
 
-            Text(ratingState.image)
-                .font(.system(size: 80))
-                .padding(.bottom, 10)
-
-            RatingDetailsView(ratingState: ratingState)
-                .padding(.bottom, 20)
+            Spacer()
 
             HStack(spacing: 20) {
                 ForEach(1..<6) { index in
-                    #warning("TODO: Add particle animation in background on select")
                     Image(systemName: index <= rating ? "star.fill" : "star")
                         .resizable()
                         .frame(width: 42, height: 42)
                         .foregroundColor(ratingState.foregroundColor)
-                        .scaleEffect(isPressed ? 0.8 : 1.0)
+                        .scaleEffect(didReview ? 0.8 : 1.0)
                         .onTapGesture {
                             rating = (index == rating) ? index - 1 : index
                             
-                            withAnimation {
-                                isPressed.toggle()
-                            }
-                            withAnimation(.easeInOut(duration: 0.15).delay(0.1)) {
-                                isPressed.toggle()
-                            }
+                            didReview.toggle()
                         }
                 }
             }
+
+            RatingDetailsView(ratingState: ratingState)
+                .padding([.top, .bottom], 20)
 
             Spacer()
 
@@ -242,12 +259,12 @@ enum Rating {
     }
 }
 
-struct SearchResultDetailView_Previews: PreviewProvider {
-    static var previews: some View {
-        StatefulPreviewWrapper(NavigationPath()) { MovieDetailView(path: $0, details: MovieResponseTMDB.Details.mockedData) }
-//        RatingSheet()
-    }
-}
+//struct SearchResultDetailView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        StatefulPreviewWrapper(NavigationPath()) { MovieDetailView(vm: <#MovieDetailViewModel#>, path: $0) }
+////        RatingSheet()
+//    }
+//}
 
 struct StatefulPreviewWrapper<Value, Content: View>: View {
     @State var value: Value

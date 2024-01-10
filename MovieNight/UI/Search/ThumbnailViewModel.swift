@@ -12,7 +12,7 @@ final class ThumbnailViewModel: ObservableObject {
 
     private let networkManager: NetworkManager
 
-    init(networkManager: NetworkManager = NetworkManager.shared) {
+    init(networkManager: NetworkManager = NetworkManager()) {
         self.networkManager = networkManager
     }
 
@@ -22,12 +22,13 @@ final class ThumbnailViewModel: ObservableObject {
         guard let imgExtension else { return }
 
         if let imageData = cache.getObject(forKey: imgExtension) {
+            print("⬇️ Fetched Image from Cache for key: \(imgExtension)")
             self.data = imageData
             return
         }
 
         do {
-            let data = try await networkManager.request(Data.self, PosterEndpoint.poster(imgExtension))
+            let data = try await networkManager.request(PosterEndpoint.poster(imgExtension))
 
             cache.set(object: data, forKey: imgExtension)
 

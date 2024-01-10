@@ -9,16 +9,12 @@ import Foundation
 import Combine
 
 final public class NetworkManager {
-    static var shared = NetworkManager()
-
     let headers_TMDB = [
       "accept": "application/json",
       "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyYjVkNzgxYjVmNjYwNjU3N2YxMzc2OTlhMGQxNDExYyIsInN1YiI6IjY1ODc1Y2ZkMjJlNDgwN2YwZWMxMjBkZSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.x3vnp3acI4iTAPDAG8zvpv11NQlvnERpoSM936AYLO4"
     ]
 
-    private init() { }
-
-    public func request<T: Codable>(_ type: T.Type, _ endpoint: EndpointProviding) async throws -> Data {
+    public func request(_ endpoint: EndpointProviding) async throws -> Data {
         guard let url = try? createURL(from: endpoint) else { throw APIError.badURL }
 
         let req = createRequest(with: url)

@@ -32,12 +32,15 @@ struct Search: View {
 
                 Spacer()
 
-                List {
-                    ForEach(searchViewModel.movie?.results ?? [], id: \.id) { details in
-                        MovieRowView(searchViewModel: searchViewModel, details: details)
-                    }
-                    .listRowBackground(Color.clear)
+                List(searchViewModel.movieDetails) { details in
+                    MovieRowView(searchViewModel: searchViewModel, details: details)
+                        .task {
+                            if searchViewModel.shouldLoadMore(comparing: details), searchViewModel.state != .fetching {
+                                await searchViewModel.loadMore()
+                            }
+                        }
                 }
+                .listRowBackground(Color.clear)
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
                 .navigationDestination(for: MovieResponseTMDB.Details.self) { details in
@@ -80,11 +83,6 @@ struct MovieRowView: View {
                 Spacer()
             }
             .frame(maxWidth: .infinity, alignment: .center)
-//            .task {
-//                if searchViewModel.shouldRequestNewPage(comparing: result), !searchViewModel.isFetching {
-//                    await searchViewModel.fetchNextPage()
-//                }
-//            }
         }
         .buttonStyle(PlainButtonStyle())
     }

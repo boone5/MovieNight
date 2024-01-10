@@ -7,7 +7,7 @@
 
 import Foundation
 
-class ImageCache {
+public class ImageCache {
     // The key will be a String representation of the URL. The value will be the image object stored as Data.
     typealias CacheType = NSCache<NSString, NSData>
 
@@ -29,8 +29,7 @@ class ImageCache {
     // Get from Cache
     func getObject(forKey key: String?) -> Data? {
         guard let key else { return nil }
-
-        print("⬇️ Fetching Image from Cache for key: \(key)")
+        
         return cache.object(forKey: key as NSString) as? Data
     }
 

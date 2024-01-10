@@ -8,36 +8,33 @@
 import Combine
 import SwiftUI
 
+@MainActor
 class SearchViewModel: ObservableObject {
-    @Published var movie: MovieResponseTMDB?
-    @Published var state: LoadingState = .undefined
-
-    private var pageIsAvailable: Bool {
-        return false
-    }
+    @Published var state: LoadingState = .ready
+    @Published var currentTitle: String = ""
+    @Published var movieDetails: [MovieResponseTMDB.Details] = [MovieResponseTMDB.Details]()
 
     public var isLoading: Bool {
         state == .loading
     }
 
-    public var isFetching: Bool {
-        state == .fetching
-    }
-
     private var page: Int = 1
-    private var currentTitle: String = ""
+    private var networkManager = NetworkManager()
 
-    @MainActor
     func fetchMovieDetails(for title: String) async {
+        self.currentTitle = title
         self.state = .loading
 
         do {
-            let data = try await NetworkManager.shared.request(MovieResponseTMDB.self, SearchEndpoint.search(title: title))
+            let data = try await networkManager.request(SearchEndpoint.search(title: title, page: page))
 
-            let decoded = try JSONDecoder().decode(MovieResponseTMDB.self, from: data)
+            let response = try JSONDecoder().decode(MovieResponseTMDB.self, from: data)
 
-            self.movie = decoded
-            self.state = .completed
+            self.movieDetails = response.results
+
+            self.page += 1
+            self.state = (page > response.totalPages) ? .loadedAll : .ready
+
         } catch {
             if let error = error as? DecodingError {
                 print("⛔️ Decoding error: \(error)")
@@ -47,14 +44,38 @@ class SearchViewModel: ObservableObject {
         }
     }
 
-    public func shouldRequestNewPage(comparing movie: MovieResponseTMDB.Details) -> Bool {
-        self.pageIsAvailable && (self.movie?.results.last?.id == movie.id)
+    func loadMore() async {
+        self.state = .fetching
+
+        do {
+            let data = try await networkManager.request(SearchEndpoint.search(title: currentTitle, page: page))
+
+            let response = try JSONDecoder().decode(MovieResponseTMDB.self, from: data)
+
+            self.movieDetails.append(contentsOf: response.results)
+
+            self.page += 1
+            self.state = (page > response.totalPages) ? .loadedAll : .ready
+
+        } catch {
+            if let error = error as? DecodingError {
+                print("⛔️ Decoding error: \(error)")
+            } else {
+                print("⛔️ Network error: \(error)")
+            }
+        }
+    }
+
+    public func shouldLoadMore(comparing movie: MovieResponseTMDB.Details) -> Bool {
+        let count = movieDetails.count - 3
+
+        return self.movieDetails[count].id == movie.id
     }
 }
 
 enum LoadingState {
-    case undefined
+    case ready
     case fetching
     case loading
-    case completed
+    case loadedAll
 }

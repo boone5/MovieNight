@@ -16,6 +16,7 @@ struct LandingPage: View {
                 }
 
             Library()
+                .environment(\.managedObjectContext, MovieProvider.shared.viewContext)
                 .tabItem {
                     Label("", systemImage: "books.vertical")
                 }

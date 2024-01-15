@@ -26,24 +26,57 @@ final class MovieProvider {
     }
 
     private init() { 
-
         persistentContainer = NSPersistentContainer(name: "DetailsDataModel")
-        // whenever a change happens, it will automatically get saved
-        persistentContainer.viewContext.automaticallyMergesChangesFromParent = true
+        
         persistentContainer.loadPersistentStores { _, error in
             if let error {
                 fatalError("⛔️ Error loading store: \(error)")
             }
         }
+
+        viewContext.automaticallyMergesChangesFromParent = true
     }
 
-    func exists(_ movie: MovieDetails, in context: NSManagedObjectContext) -> MovieDetails? {
-        try? context.existingObject(with: movie.objectID) as? MovieDetails
-    }
+    func exists(id: Int64) -> MovieDetails? {
+        let fetchRequest: NSFetchRequest<MovieDetails> = MovieDetails.all()
+        fetchRequest.predicate = NSPredicate(format: "id == %d", id)
 
-    func persist(in context: NSManagedObjectContext) throws {
-        if context.hasChanges {
-            try context.save()
+        do {
+            let existingMovies = try viewContext.fetch(fetchRequest)
+            return existingMovies.first
+        } catch {
+            print("Error checking for existing movie: \(error)")
+            return nil
         }
+    }
+
+    func save() {
+        if viewContext.hasChanges {
+            do {
+                try viewContext.save()
+
+                print("✅ Successfully saved Movie into Core Data")
+            } catch {
+                print("⛔️ Error saving Movie into Core Data: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    func update(entity: MovieDetails, userRating: Int16) {
+        entity.userRating = userRating
+
+        self.save()
+    }
+
+    func fetch() -> [MovieDetails] {
+        var results: [MovieDetails] = []
+
+        do {
+            results = try viewContext.fetch(MovieDetails.all())
+        } catch {
+            print("⛔️ Error fetching Movie Details from Core Data: \(error.localizedDescription)")
+        }
+
+        return results
     }
 }

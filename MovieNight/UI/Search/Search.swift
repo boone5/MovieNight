@@ -44,9 +44,7 @@ struct Search: View {
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
                 .navigationDestination(for: MovieResponseTMDB.Details.self) { details in
-                    let movieDetails = MovieDetails.createMovie(from: details, in: provider.viewContext)
-
-                    MovieDetailView(vm: .init(movie: movieDetails, provider: provider), path: $path)
+                    MovieDetailView(path: $path, details: details)
                 }
 
                 Spacer()

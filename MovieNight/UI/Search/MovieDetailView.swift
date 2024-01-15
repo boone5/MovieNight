@@ -10,32 +10,19 @@ import SwiftUI
 // Lottie Animations: https://iconscout.com/lottie-animation-pack/emoji-282
 
 struct MovieDetailView: View {
-    @ObservedObject var vm: MovieDetailViewModel
-
     @Binding var path: NavigationPath
 
     @State private var showRatingSheet = false
-    @State private var rating = 3
+    @State private var rating: Int16 = 0
     @State private var didReview: Bool = false
+
+    var details: MovieResponseTMDB.Details
 
     var imgData: Data? {
         get {
-            if let _imgData {
-                return _imgData
-            }
-
-            let imgData = ImageCache.shared.getObject(forKey: vm.movie.posterPath)
-            
-            vm.movie.posterData = imgData
-
-            return imgData
-        } set {
-            _imgData = newValue
+            ImageCache.shared.getObject(forKey: details.posterPath)
         }
     }
-
-    /// Used for quick access to the last read operation.
-    var _imgData: Data?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -69,13 +56,13 @@ struct MovieDetailView: View {
                     .cornerRadius(15)
             }
 
-            Text(vm.movie.title)
+            Text(details.title)
                 .frame(maxWidth: 300)
                 .multilineTextAlignment(.center)
                 .font(.title)
                 .padding(.top, 20)
 
-            Text("Released in " + vm.movie.releaseDate)
+            Text("Released in " + details.releaseDate)
                 .font(.caption)
                 .fontWeight(.regular)
                 .foregroundStyle(Color(uiColor: UIColor.systemGray))
@@ -86,6 +73,7 @@ struct MovieDetailView: View {
                 ZStack {
                     Button {
                         self.showRatingSheet = true
+                        self.didReview = false
                     } label: {
                         Capsule()
                             .frame(height: 50)
@@ -110,17 +98,27 @@ struct MovieDetailView: View {
 
     private func onSheetDismiss() {
         if didReview {
-            do {
-                try vm.save()
-            } catch {
-                print("⛔️ Error saving Movie into Core Data: \(error)")
+            let id = details._id  // Replace with the actual attribute you want to use for checking duplicates
+
+            guard let movieDetails_CD = MovieProvider.shared.exists(id: id) else {
+                print("ℹ️ Movie doesn't exist in Core Data. Creating new object.")
+
+                let movieDetails = MovieDetails.createCoreDataModel(from: details, in: MovieProvider.shared.viewContext)
+                movieDetails.posterData = imgData
+                movieDetails.userRating = rating
+
+                return
             }
+
+            MovieProvider.shared.update(entity: movieDetails_CD, userRating: rating)
+        } else {
+            print("ℹ️ No review was submitted; no data will be saved.")
         }
     }
 }
 
 struct RatingSheet: View {
-    @Binding var rating: Int
+    @Binding var rating: Int16
     @Binding var didReview: Bool
 
     var ratingState: Rating {
@@ -156,11 +154,10 @@ struct RatingSheet: View {
                         .resizable()
                         .frame(width: 42, height: 42)
                         .foregroundColor(ratingState.foregroundColor)
-                        .scaleEffect(didReview ? 0.8 : 1.0)
                         .onTapGesture {
-                            rating = (index == rating) ? index - 1 : index
-                            
-                            didReview.toggle()
+                            let rating = (index == rating) ? index - 1 : index
+                            self.rating = Int16(rating)
+                            didReview = true
                         }
                 }
             }

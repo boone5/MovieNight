@@ -50,3 +50,9 @@ struct MovieResponseTMDB: Codable {
         }
     }
 }
+
+extension MovieResponseTMDB.Details {
+    var _id: Int64 {
+        Int64(self.id)
+    }
+}

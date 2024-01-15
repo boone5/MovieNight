@@ -8,49 +8,59 @@
 import SwiftUI
 
 struct Library: View {
-    let columns = Array(repeating: GridItem(.flexible(), spacing: 10, alignment: .center), count: 2)
+    @Environment(\.managedObjectContext) private var viewContext
+    @FetchRequest(fetchRequest: MovieDetails.all(), animation: .default) private var movies: FetchedResults<MovieDetails>
+
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 10, alignment: .center), count: 2)
 
     var body: some View {
-        ScrollView(.vertical) {
-            VStack(spacing: 5) {
-                Circle()
-                    .frame(width: 150, height: 150)
-
-                Text("{user_name}")
-                    .font(.title3)
-
-                HStack {
-                    VStack(alignment: .leading) {
-                        Text("Movie Library")
-                            .font(.title)
-                            .padding(.leading, 20)
-
-                        // Move to LazyHStack if performance becomes an issue
-                        // https://developer.apple.com/documentation/swiftui/creating-performant-scrollable-stacks
-                        LazyVGrid(columns: columns, spacing: 10) {
-                            ForEach(0..<5) { _ in
-                                MovieGridItem()
-                            }
-                        }
-                        .padding([.leading, .trailing], 20)
+        NavigationStack {
+            ScrollView(.vertical) {
+                // Move to LazyHStack if performance becomes an issue
+                // https://developer.apple.com/documentation/swiftui/creating-performant-scrollable-stacks
+                LazyVGrid(columns: columns, spacing: 10) {
+                    ForEach(movies, id: \.id) { movie in
+                        MovieGridItem(userRating: movie.userRating, imgData: movie.posterData)
                     }
                 }
-                .padding(.top, 20)
+                .padding([.leading, .trailing, .top], 20)
+                .navigationTitle("Library")
             }
         }
     }
 }
 
 struct MovieGridItem: View {
+    let userRating: Int16
+    let imgData: Data?
+
     var body: some View {
-        Rectangle()
-            .foregroundColor(.gray)
-            .frame(height: 240)
-            .frame(width: 175)
-            .cornerRadius(15)
-            .overlay(alignment: .bottom) {
-                RatingsPill()
-            }
+        if let imgData = imgData, let uiimage = UIImage(data: imgData) {
+            Image(uiImage: uiimage)
+                .resizable()
+                .frame(width: 175, height: 240)
+                .scaledToFit()
+                .cornerRadius(15)
+                .overlay(alignment: .bottom) {
+                    ZStack {
+                        Rectangle()
+                            .frame(height: 50)
+                            .cornerRadius(15)
+
+                        HStack {
+                            Text(String(userRating))
+                                .font(.title)
+                                .fontWeight(.bold)
+                                .foregroundColor(.black)
+
+                            Image(systemName: "star.fill")
+                                .foregroundColor(.blue)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.leading, 20)
+                    }
+                }
+        }
     }
 
     struct RatingsPill: View {

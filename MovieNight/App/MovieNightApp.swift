@@ -12,7 +12,6 @@ struct MovieNightApp: App {
     var body: some Scene {
         WindowGroup {
             LandingPage()
-                .environment(\.managedObjectContext, MovieProvider.shared.viewContext)
         }
     }
 }

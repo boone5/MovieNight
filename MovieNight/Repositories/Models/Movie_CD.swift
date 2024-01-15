@@ -12,6 +12,7 @@ import CoreData
 final class MovieDetails: NSManagedObject, Identifiable {
 
     // Movie Properties
+    @NSManaged var id: Int64
     @NSManaged var adult: Bool
     @NSManaged var originalLanguage: String
     @NSManaged var overview: String
@@ -24,7 +25,7 @@ final class MovieDetails: NSManagedObject, Identifiable {
     @NSManaged var posterPath: String?
 
     // Additional Properties
-    @NSManaged var userRating: Int
+    @NSManaged var userRating: Int16
     @NSManaged var posterData: Data?
 
     override func awakeFromInsert() {
@@ -38,8 +39,25 @@ final class MovieDetails: NSManagedObject, Identifiable {
 }
 
 extension MovieDetails {
-    static func createMovie(from details: MovieResponseTMDB.Details, in context: NSManagedObjectContext) -> MovieDetails {
+    private static var contactsFetchRequest: NSFetchRequest<MovieDetails> {
+        NSFetchRequest(entityName: "MovieDetails")
+    }
+
+    public static func all() -> NSFetchRequest<MovieDetails> {
+        let fetchRequest: NSFetchRequest<MovieDetails> = contactsFetchRequest
+
+        fetchRequest.sortDescriptors = [
+            NSSortDescriptor(keyPath: \MovieDetails.title, ascending: false)
+        ]
+
+        return fetchRequest
+    }
+}
+
+extension MovieDetails {
+    static func createCoreDataModel(from details: MovieResponseTMDB.Details, in context: NSManagedObjectContext) -> MovieDetails {
         let movie_CD = MovieDetails(context: context)
+        movie_CD.id = details._id
         movie_CD.adult = details.adult
         movie_CD.originalLanguage = details.originalLanguage
         movie_CD.overview = details.overview

@@ -3,3 +3,4 @@ MovieNight.xcodeproj/xcuserdata/*
 
 # Sensitive
 /APIKey.swift
+MovieNight/Network/APIKey.swift

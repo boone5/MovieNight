@@ -16,11 +16,17 @@ struct MovieDetailView: View {
     @State private var rating: Int16 = 0
     @State private var didReview: Bool = false
 
-    var details: MovieResponseTMDB.Details
+    var details: DetailViewRepresentable
 
-    var imgData: Data? {
+    private var imgData: Data? {
         get {
-            ImageCache.shared.getObject(forKey: details.posterPath)
+            // If its a CD model we want to return the poster data from that model. Otherwise, return whats in the cache from Search.
+            if let cdModel = details as? MovieDetails, let imgData = cdModel.posterData {
+                return imgData
+            } else {
+                return ImageCache.shared.getObject(forKey: details.posterPath)
+            }
+
         }
     }
 
@@ -98,7 +104,7 @@ struct MovieDetailView: View {
 
     private func onSheetDismiss() {
         if didReview {
-            let id = details._id  // Replace with the actual attribute you want to use for checking duplicates
+            let id = details.id
 
             guard let movieDetails_CD = MovieProvider.shared.exists(id: id) else {
                 print("ℹ️ Movie doesn't exist in Core Data. Creating new object.")

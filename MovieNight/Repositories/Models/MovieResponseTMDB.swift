@@ -18,8 +18,8 @@ struct MovieResponseTMDB: Codable {
         case totalResults = "total_results"
     }
 
-    struct Details: Codable, Hashable, Identifiable {
-        let id: Int
+    struct Details: DetailViewRepresentable, Codable, Hashable, Identifiable {
+        let id: Int64
         let adult: Bool
         let backdropPath: String?
         let genreIDs: [Int]
@@ -31,7 +31,9 @@ struct MovieResponseTMDB: Codable {
         let voteAverage: Double
         let voteCount: Int16
 
+        // Additional Properties
         var posterData: Data?
+        var userRating: Int16?
 
         enum CodingKeys: String, CodingKey {
             case adult
@@ -46,13 +48,6 @@ struct MovieResponseTMDB: Codable {
             case title, video
             case voteAverage = "vote_average"
             case voteCount = "vote_count"
-            case posterData
         }
-    }
-}
-
-extension MovieResponseTMDB.Details {
-    var _id: Int64 {
-        Int64(self.id)
     }
 }

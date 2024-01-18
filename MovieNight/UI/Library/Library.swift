@@ -11,17 +11,24 @@ struct Library: View {
     @Environment(\.managedObjectContext) private var viewContext
     @FetchRequest(fetchRequest: MovieDetails.all(), animation: .default) private var movies: FetchedResults<MovieDetails>
 
+    @State private var path: NavigationPath = NavigationPath()
+
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 10, alignment: .center), count: 2)
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             ScrollView(.vertical) {
                 // Move to LazyHStack if performance becomes an issue
                 // https://developer.apple.com/documentation/swiftui/creating-performant-scrollable-stacks
                 LazyVGrid(columns: columns, spacing: 10) {
                     ForEach(movies, id: \.id) { movie in
-                        MovieGridItem(userRating: movie.userRating, imgData: movie.posterData)
+                        NavigationLink(value: movie) {
+                            MovieGridItem(userRating: movie.userRating, imgData: movie.posterData)
+                        }
                     }
+                }
+                .navigationDestination(for: MovieDetails.self) { details in
+                    MovieDetailView(path: $path, details: details)
                 }
                 .padding([.leading, .trailing, .top], 20)
                 .navigationTitle("Library")

@@ -9,8 +9,7 @@ import Foundation
 import CoreData
 
 // Whenever we work with an object in CoreData it is a NSManagedObject
-final class MovieDetails: NSManagedObject, Identifiable {
-
+final class MovieDetails: NSManagedObject, DetailViewRepresentable, Identifiable {
     // Movie Properties
     @NSManaged var id: Int64
     @NSManaged var adult: Bool
@@ -25,7 +24,7 @@ final class MovieDetails: NSManagedObject, Identifiable {
     @NSManaged var posterPath: String?
 
     // Additional Properties
-    @NSManaged var userRating: Int16
+    @NSManaged var userRating: Int16    // cannot be marked optional due to ObjC limitations. Might be able to use NSNumber instead
     @NSManaged var posterData: Data?
 
     override func awakeFromInsert() {
@@ -55,9 +54,9 @@ extension MovieDetails {
 }
 
 extension MovieDetails {
-    static func createCoreDataModel(from details: MovieResponseTMDB.Details, in context: NSManagedObjectContext) -> MovieDetails {
+    static func createCoreDataModel(from details: DetailViewRepresentable, in context: NSManagedObjectContext) -> MovieDetails {
         let movie_CD = MovieDetails(context: context)
-        movie_CD.id = details._id
+        movie_CD.id = details.id
         movie_CD.adult = details.adult
         movie_CD.originalLanguage = details.originalLanguage
         movie_CD.overview = details.overview

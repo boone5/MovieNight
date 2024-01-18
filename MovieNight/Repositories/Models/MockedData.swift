@@ -23,5 +23,6 @@ extension MovieResponseTMDB.Details {
             title: "Mock 1",
             video: false,
             voteAverage: 4,
-            voteCount: 1000)
+            voteCount: 1000,
+            userRating: Int16(6))
 }

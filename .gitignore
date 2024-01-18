@@ -1,2 +1,5 @@
 MovieNight.xcodeproj/xcshareddata/*
 MovieNight.xcodeproj/xcuserdata/*
+
+# Sensitive
+/APIKey.swift

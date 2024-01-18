@@ -9,11 +9,6 @@ import Foundation
 import Combine
 
 final public class NetworkManager {
-    let headers_TMDB = [
-      "accept": "application/json",
-      "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyYjVkNzgxYjVmNjYwNjU3N2YxMzc2OTlhMGQxNDExYyIsInN1YiI6IjY1ODc1Y2ZkMjJlNDgwN2YwZWMxMjBkZSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.x3vnp3acI4iTAPDAG8zvpv11NQlvnERpoSM936AYLO4"
-    ]
-
     public func request(_ endpoint: EndpointProviding) async throws -> Data {
         guard let url = try? createURL(from: endpoint) else { throw APIError.badURL }
 
@@ -49,7 +44,7 @@ final public class NetworkManager {
     func createRequest(with url: URL) -> URLRequest {
         var request = URLRequest(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10)
         request.httpMethod = "GET"
-        request.allHTTPHeaderFields = headers_TMDB
+        request.allHTTPHeaderFields = APIKey.headers_TMDB
 
         return request
     }

@@ -1,5 +1,5 @@
 //
-//  Movie_CD.swift
+//  Details_CD.swift
 //  MovieNight
 //
 //  Created by Boone on 1/1/24.
@@ -9,7 +9,7 @@ import Foundation
 import CoreData
 
 // Whenever we work with an object in CoreData it is a NSManagedObject
-final class MovieDetails: NSManagedObject, DetailViewRepresentable, Identifiable {
+final class Details_CD: NSManagedObject, DetailViewRepresentable, Identifiable {
     // Movie Properties
     @NSManaged var id: Int64
     @NSManaged var adult: Bool
@@ -20,7 +20,7 @@ final class MovieDetails: NSManagedObject, DetailViewRepresentable, Identifiable
     @NSManaged var title: String
     @NSManaged var video: Bool
     @NSManaged var voteAverage: Double
-    @NSManaged var voteCount: Int16
+    @NSManaged var voteCount: Int64
     @NSManaged var posterPath: String?
 
     // Additional Properties
@@ -37,25 +37,25 @@ final class MovieDetails: NSManagedObject, DetailViewRepresentable, Identifiable
     }
 }
 
-extension MovieDetails {
-    private static var contactsFetchRequest: NSFetchRequest<MovieDetails> {
-        NSFetchRequest(entityName: "MovieDetails")
+extension Details_CD {
+    private static var contactsFetchRequest: NSFetchRequest<Details_CD> {
+        NSFetchRequest(entityName: "Details_CD")
     }
 
-    public static func all() -> NSFetchRequest<MovieDetails> {
-        let fetchRequest: NSFetchRequest<MovieDetails> = contactsFetchRequest
+    public static func all() -> NSFetchRequest<Details_CD> {
+        let fetchRequest: NSFetchRequest<Details_CD> = contactsFetchRequest
 
         fetchRequest.sortDescriptors = [
-            NSSortDescriptor(keyPath: \MovieDetails.title, ascending: false)
+            NSSortDescriptor(keyPath: \Details_CD.title, ascending: false)
         ]
 
         return fetchRequest
     }
 }
 
-extension MovieDetails {
-    static func createCoreDataModel(from details: DetailViewRepresentable, in context: NSManagedObjectContext) -> MovieDetails {
-        let movie_CD = MovieDetails(context: context)
+extension Details_CD {
+    static func createCoreDataModel(from details: DetailViewRepresentable, in context: NSManagedObjectContext) -> Details_CD {
+        let movie_CD = Details_CD(context: context)
         movie_CD.id = details.id
         movie_CD.adult = details.adult
         movie_CD.originalLanguage = details.originalLanguage

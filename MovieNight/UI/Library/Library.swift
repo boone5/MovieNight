@@ -9,7 +9,7 @@ import SwiftUI
 
 struct Library: View {
     @Environment(\.managedObjectContext) private var viewContext
-    @FetchRequest(fetchRequest: MovieDetails.all(), animation: .default) private var movies: FetchedResults<MovieDetails>
+    @FetchRequest(fetchRequest: Details_CD.all(), animation: .default) private var movies: FetchedResults<Details_CD>
 
     @State private var path: NavigationPath = NavigationPath()
 
@@ -27,8 +27,8 @@ struct Library: View {
                         }
                     }
                 }
-                .navigationDestination(for: MovieDetails.self) { details in
-                    MovieDetailView(path: $path, details: details)
+                .navigationDestination(for: Details_CD.self) { details in
+                    MovieDetailView(path: $path, viewModel: .init(details: details))
                 }
                 .padding([.leading, .trailing, .top], 20)
                 .navigationTitle("Library")

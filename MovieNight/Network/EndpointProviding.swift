@@ -14,6 +14,10 @@ public protocol EndpointProviding {
 }
 
 extension EndpointProviding {
+    public func host() -> String {
+        "api.themoviedb.org"
+    }
+
     func makePaginationParam(page: Int) -> URLQueryItem {
         return .init(name: "page", value: String(page))
     }

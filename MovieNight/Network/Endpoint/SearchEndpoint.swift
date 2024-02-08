@@ -12,15 +12,8 @@ public enum SearchEndpoint: EndpointProviding {
 }
 
 extension SearchEndpoint {
-    public func host() -> String {
-        "api.themoviedb.org"
-    }
-
     public func path() -> String {
-        switch self {
-        case .search:
-            return "/3/search/movie"
-        }
+        "/3/search/movie"
     }
 
     public func queryItems() -> [URLQueryItem]? {

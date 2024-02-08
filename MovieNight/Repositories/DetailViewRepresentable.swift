@@ -18,6 +18,9 @@ protocol DetailViewRepresentable {
     var title: String { get }
     var video: Bool { get }
     var voteAverage: Double { get }
-    var voteCount: Int16 { get }
-    var posterData: Data? { get }
+    var voteCount: Int64 { get }
+
+    // Additional Properties
+    var userRating: Int16 { get set }
+    var posterData: Data? { get set }
 }

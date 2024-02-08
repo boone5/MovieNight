@@ -9,18 +9,11 @@ import SwiftUI
 
 struct Search: View {
     @StateObject var searchViewModel: SearchViewModel = SearchViewModel()
-
     @State private var path: NavigationPath = NavigationPath()
-
-    let provider = MovieProvider.shared
-
+    
     var body: some View {
         NavigationStack(path: $path) {
             VStack(alignment: .leading, spacing: 0) {
-                SearchBox(searchViewModel: searchViewModel)
-                    .padding(.top, 30)
-                    .padding([.leading, .trailing], 20)
-
                 if searchViewModel.isLoading {
                     HStack {
                         Spacer()
@@ -29,13 +22,13 @@ struct Search: View {
                     }
                     .padding(.top, 30)
                 }
-
+                
                 Spacer()
-
+                
                 List(searchViewModel.movieDetails) { details in
                     MovieRowView(searchViewModel: searchViewModel, details: details)
                         .task {
-                            if searchViewModel.shouldLoadMore(comparing: details), searchViewModel.state != .fetching {
+                            if searchViewModel.shouldLoadMore(comparing: details) {
                                 await searchViewModel.loadMore()
                             }
                         }
@@ -44,13 +37,20 @@ struct Search: View {
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
                 .navigationDestination(for: MovieResponseTMDB.Details.self) { details in
-                    MovieDetailView(path: $path, details: details)
+                    MovieDetailView(path: $path, viewModel: .init(details: details))
                 }
-
+                
                 Spacer()
             }
             .frame(maxWidth: .infinity, alignment: .center)
+            .searchable(text: $searchViewModel.searchQuery)
+            .onSubmit(of: .search) {
+                Task {
+                    await searchViewModel.fetchMovieDetails(for: searchViewModel.searchQuery)
+                }
+            }
         }
+        
     }
 }
 
@@ -62,7 +62,7 @@ struct MovieRowView: View {
     var body: some View {
         NavigationLink(value: details) {
             HStack {
-                ThumbnailView(url: details.posterPath)
+                ThumbnailView(url: details.posterPath, width: 100, height: 150)
 
                 VStack(alignment: .leading, spacing: 5) {
                     Text(details.title)
@@ -83,31 +83,6 @@ struct MovieRowView: View {
             .frame(maxWidth: .infinity, alignment: .center)
         }
         .buttonStyle(PlainButtonStyle())
-    }
-}
-
-struct ThumbnailView: View {
-    @StateObject var thumbnailViewModel = ThumbnailViewModel()
-
-    let url: String?
-
-    var body: some View {
-        VStack(spacing: 0) {
-            if let imgData = thumbnailViewModel.data, let uiimage = UIImage(data: imgData) {
-                Image(uiImage: uiimage)
-                    .resizable()
-                    .frame(width: 100, height: 150)
-                    .scaledToFit()
-                    .cornerRadius(15)
-            } else {
-                Rectangle()
-                    .frame(width: 100, height: 150)
-                    .cornerRadius(15)
-            }
-        }
-        .task {
-            await thumbnailViewModel.load(url)
-        }
     }
 }
 

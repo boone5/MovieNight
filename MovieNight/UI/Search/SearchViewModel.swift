@@ -11,7 +11,7 @@ import SwiftUI
 @MainActor
 class SearchViewModel: ObservableObject {
     @Published var state: LoadingState = .ready
-    @Published var currentTitle: String = ""
+    @Published var searchQuery: String = ""
     @Published var movieDetails: [MovieResponseTMDB.Details] = [MovieResponseTMDB.Details]()
 
     public var isLoading: Bool {
@@ -22,8 +22,9 @@ class SearchViewModel: ObservableObject {
     private var networkManager = NetworkManager()
 
     func fetchMovieDetails(for title: String) async {
-        self.currentTitle = title
+        self.searchQuery = title
         self.state = .loading
+        self.page = 1
 
         do {
             let data = try await networkManager.request(SearchEndpoint.search(title: title, page: page))
@@ -31,16 +32,13 @@ class SearchViewModel: ObservableObject {
             let response = try JSONDecoder().decode(MovieResponseTMDB.self, from: data)
 
             self.movieDetails = response.results
-
             self.page += 1
-            self.state = (page > response.totalPages) ? .loadedAll : .ready
+            self.state = (page >= response.totalPages) ? .loadedAll : .ready
 
+        } catch let error as DecodingError {
+            print("⛔️ Decoding error: \(error)")
         } catch {
-            if let error = error as? DecodingError {
-                print("⛔️ Decoding error: \(error)")
-            } else {
-                print("⛔️ Network error: \(error)")
-            }
+            print("⛔️ Network error: \(error)")
         }
     }
 
@@ -48,7 +46,7 @@ class SearchViewModel: ObservableObject {
         self.state = .fetching
 
         do {
-            let data = try await networkManager.request(SearchEndpoint.search(title: currentTitle, page: page))
+            let data = try await networkManager.request(SearchEndpoint.search(title: searchQuery, page: page))
 
             let response = try JSONDecoder().decode(MovieResponseTMDB.self, from: data)
 
@@ -67,15 +65,14 @@ class SearchViewModel: ObservableObject {
     }
 
     public func shouldLoadMore(comparing movie: MovieResponseTMDB.Details) -> Bool {
-        let count = movieDetails.count - 3
+        guard self.state != .loadedAll, self.state != .fetching else { return false }
 
-        return self.movieDetails[count].id == movie.id
+        // Prefetching amount
+        if movieDetails.count > 2 {
+            let count = movieDetails.count - 3
+            return self.movieDetails[count].id == movie.id
+        } else {
+            return self.movieDetails.last?.id == movie.id
+        }
     }
-}
-
-enum LoadingState {
-    case ready
-    case fetching
-    case loading
-    case loadedAll
 }

@@ -64,15 +64,9 @@ class SearchViewModel: ObservableObject {
         }
     }
 
-    public func shouldLoadMore(comparing movie: MovieResponseTMDB.Details) -> Bool {
+    public func shouldLoadMore() -> Bool {
         guard self.state != .loadedAll, self.state != .fetching else { return false }
 
-        // Prefetching amount
-        if movieDetails.count > 2 {
-            let count = movieDetails.count - 3
-            return self.movieDetails[count].id == movie.id
-        } else {
-            return self.movieDetails.last?.id == movie.id
-        }
+        return true
     }
 }

@@ -22,16 +22,22 @@ struct Search: View {
                     }
                     .padding(.top, 30)
                 }
-                
+
                 Spacer()
-                
-                List(searchViewModel.movieDetails) { details in
-                    MovieRowView(searchViewModel: searchViewModel, details: details)
-                        .task {
-                            if searchViewModel.shouldLoadMore(comparing: details) {
-                                await searchViewModel.loadMore()
+
+                List {
+                    ForEach(searchViewModel.movieDetails) { detail in
+                        MovieRowView(searchViewModel: searchViewModel, details: detail)
+                    }
+
+                    if !searchViewModel.movieDetails.isEmpty {
+                        EmptyView()
+                            .task {
+                                if searchViewModel.shouldLoadMore() {
+                                    await searchViewModel.loadMore()
+                                }
                             }
-                        }
+                    }
                 }
                 .listRowBackground(Color.clear)
                 .listStyle(.plain)

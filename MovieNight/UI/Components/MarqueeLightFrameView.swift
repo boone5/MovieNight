@@ -21,7 +21,7 @@ struct MarqueeLightFrameView: View {
                     Circle()
                         .frame(width: 20, height: 20)
                         .foregroundStyle(Color("Gold"))
-                        .shadow(color: Color("Gold").opacity(0.8), radius: 8)
+                        .shadow(color: Color("Gold").opacity(0.7), radius: 8)
                 }
             }
         }
@@ -39,7 +39,7 @@ struct MarqueeLightFrameView: View {
                     Circle()
                         .frame(width: 20, height: 20)
                         .foregroundStyle(Color("Gold"))
-                        .shadow(color: Color("Gold").opacity(0.8), radius: 8)
+                        .shadow(color: Color("Gold").opacity(0.7), radius: 8)
                 }
             }
         }
@@ -57,7 +57,7 @@ struct MarqueeLightFrameView: View {
                     Circle()
                         .frame(width: 20, height: 20)
                         .foregroundStyle(Color("Gold"))
-                        .shadow(color: Color("Gold").opacity(0.8), radius: 8)
+                        .shadow(color: Color("Gold").opacity(0.7), radius: 8)
                 }
             }
         }
@@ -75,7 +75,7 @@ struct MarqueeLightFrameView: View {
                     Circle()
                         .frame(width: 20, height: 20)
                         .foregroundStyle(Color("Gold"))
-                        .shadow(color: Color("Gold").opacity(0.8), radius: 8)
+                        .shadow(color: Color("Gold").opacity(0.7), radius: 8)
                 }
             }
         }

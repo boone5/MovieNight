@@ -44,7 +44,6 @@ struct MovieDetailView: View {
                 .padding([.bottom, .leading, .trailing], 20)
 
                 ScrollView {
-
                     VStack(spacing: 0) {
                         if let imgData, let uiimage = UIImage(data: imgData) {
                             Image(uiImage: uiimage)
@@ -76,90 +75,66 @@ struct MovieDetailView: View {
                             .foregroundStyle(.white)
                             .padding(.top, 15)
 
-                        // Stars/Ratings + Optional(userRating)
-                        HStack(spacing: 30) {
-                            // Stars/Ratings Stack
-                            VStack {
-                                // Stars Stack
-                                HStack(spacing: 0) {
-                                    ForEach(0..<5) { index in
-                                        Image(systemName: index < viewModel.voteAverage ? "star.fill" : "star")
-                                            .resizable()
-                                            .frame(width: 18, height: 18)
-                                            .foregroundStyle(.white)
+                        Group {
+                            if !viewModel.didLeaveReview {
+                                ZStack {
+                                    Button {
+                                        self.showRatingSheet = true
+                                        self.didReview = false
+                                    } label: {
+                                        Rectangle()
+                                            .frame(height: 35)
+                                            .frame(maxWidth: 150)
+                                            .foregroundStyle(Color("BrightRed"))
+                                            .cornerRadius(8)
+                                            .shadow(color: Color.black.opacity(0.4), radius: 4, x: 0, y: 4)
                                     }
+                                    .sheet(isPresented: $showRatingSheet, onDismiss: onSheetDismiss) {
+                                        RatingSheet(rating: $localRating, didReview: $didReview)
+                                            .presentationDetents([.fraction(0.3)])
+                                            .presentationDragIndicator(.visible)
+                                    }
+
+                                    Text("Leave a rating")
+                                        .foregroundStyle(Color.white)
+                                        .font(.subheadline)
+                                        .fontWeight(.regular)
                                 }
-
-                                Text(String(viewModel.details?.voteCount ?? 0) + " ratings")
-                                    .font(.caption)
-                                    .fontWeight(.regular)
-                                    .foregroundStyle(.white)
-                            }
-
-                            // User Rating
-                            if viewModel.didLeaveReview {
+                            } else {
                                 ZStack {
                                     Rectangle()
-                                        .frame(width: 80)
+                                        .frame(width: 100, height: 35)
                                         .frame(maxHeight: .infinity)
-                                        .foregroundStyle(Color.clear)
+                                        .foregroundStyle(Color("BrightRed"))
                                         .cornerRadius(8)
-                                        .overlay {
-                                            RoundedRectangle(cornerRadius: 8)
-                                                .stroke(Color.black, style: StrokeStyle(lineWidth: 2))
-                                        }
+                                        .shadow(color: Color.black.opacity(0.4), radius: 6, x: 0, y: 4)
 
                                     HStack {
                                         Text(String(viewModel.userRating))
-                                            .font(.title3)
-                                            .fontWeight(.medium)
+                                            .foregroundStyle(Color.white)
+                                            .font(.title2)
+                                            .fontWeight(.bold)
 
                                         Image(systemName: "star.fill")
                                             .resizable()
-                                            .frame(width: 16, height: 16)
-                                            .foregroundColor(.black)
+                                            .frame(width: 20, height: 20)
+                                            .foregroundColor(Color("Gold"))
                                     }
                                 }
                                 .frame(alignment: .center)
                             }
                         }
-                        .padding(.top, 10)
-
-                        if !viewModel.didLeaveReview {
-                            ZStack {
-                                Button {
-                                    self.showRatingSheet = true
-                                    self.didReview = false
-                                } label: {
-                                    Rectangle()
-                                        .frame(height: 45)
-                                        .frame(maxWidth: 200)
-                                        .foregroundStyle(Color("BrightRed"))
-                                        .cornerRadius(8)
-                                }
-                                .sheet(isPresented: $showRatingSheet, onDismiss: onSheetDismiss) {
-                                    RatingSheet(rating: $localRating, didReview: $didReview)
-                                        .presentationDetents([.fraction(0.3)])
-                                        .presentationDragIndicator(.visible)
-                                }
-
-                                Text("Leave a rating")
-                                    .foregroundStyle(Color.white)
-                                    .font(.headline)
-                                    .fontWeight(.semibold)
-
-                            }
-                            .padding(.top, 10)
-                        }
+                        .padding(.top, 15)
 
                         Divider()
+                            .overlay(.white.opacity(0.3))
                             .padding([.top], 20)
                             .padding([.leading, .trailing], 30)
 
                         Text("Overview")
                             .foregroundStyle(.white)
                             .font(.headline)
-                            .fontWeight(.bold)
+                            .fontWeight(.semibold)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding([.leading, .trailing], 30)
                             .padding([.top], 20)
@@ -172,6 +147,7 @@ struct MovieDetailView: View {
                             .padding(.top, 10)
 
                         Divider()
+                            .overlay(.white.opacity(0.3))
                             .padding([.top], 20)
                             .padding([.leading, .trailing], 30)
 
@@ -180,23 +156,29 @@ struct MovieDetailView: View {
                                 Text("Genre")
                                     .foregroundStyle(.white)
                                     .frame(width: 100, alignment: .leading)
-                                    .font(.headline)
-                                    .fontWeight(.bold)
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
 
                                 Text("Duration")
                                     .foregroundStyle(.white)
                                     .frame(width: 100, alignment: .leading)
-                                    .font(.headline)
-                                    .fontWeight(.bold)
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
 
                                 Text("Released")
                                     .foregroundStyle(.white)
                                     .frame(width: 100, alignment: .leading)
-                                    .font(.headline)
-                                    .fontWeight(.bold)
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+
+                                Text("Ratings")
+                                    .foregroundStyle(.white)
+                                    .frame(width: 100, alignment: .leading)
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
                             }
 
-                            VStack(spacing: 10) {
+                            VStack(alignment: .leading, spacing: 10) {
                                 Text("Comedy, Romance")
                                     .foregroundStyle(.white)
                                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
@@ -211,6 +193,16 @@ struct MovieDetailView: View {
                                     .foregroundStyle(.white)
                                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                                     .font(.subheadline)
+
+                                // Stars Stack
+                                HStack(spacing: 5) {
+                                    ForEach(0..<5) { index in
+                                        Image(systemName: index < viewModel.voteAverage ? "star.fill" : "star")
+                                            .resizable()
+                                            .frame(width: 18, height: 18)
+                                            .foregroundStyle(Color("Gold"))
+                                    }
+                                }
                             }
 
                             Spacer()
@@ -219,13 +211,14 @@ struct MovieDetailView: View {
                         .padding([.leading, .trailing], 30)
 
                         Divider()
+                            .overlay(.white.opacity(0.3))
                             .padding([.top], 20)
                             .padding([.leading, .trailing], 30)
 
                         Text("You might also like")
                             .foregroundStyle(.white)
                             .font(.headline)
-                            .fontWeight(.bold)
+                            .fontWeight(.semibold)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding([.leading, .trailing], 30)
                             .padding([.top], 20)
@@ -246,13 +239,14 @@ struct MovieDetailView: View {
                         .padding([.top], 20)
 
                         Divider()
+                            .overlay(.white.opacity(0.3))
                             .padding([.top], 20)
                             .padding([.leading, .trailing], 30)
 
                         Text("Cast")
                             .foregroundStyle(.white)
                             .font(.headline)
-                            .fontWeight(.bold)
+                            .fontWeight(.semibold)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding([.leading, .trailing], 30)
                             .padding([.top], 20)

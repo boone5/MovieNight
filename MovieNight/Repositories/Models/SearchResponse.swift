@@ -7,9 +7,9 @@
 
 import Foundation
 
-struct MovieResponseTMDB: Codable {
+struct SearchResponse: Codable {
     let page: Int
-    let results: [Details]
+    let results: [Movie]
     let totalPages, totalResults: Int
 
     enum CodingKeys: String, CodingKey {
@@ -18,7 +18,7 @@ struct MovieResponseTMDB: Codable {
         case totalResults = "total_results"
     }
 
-    struct Details: DetailViewRepresentable, Codable, Hashable, Identifiable {
+    struct Movie: DetailViewRepresentable, Codable, Hashable, Identifiable {
         let id: Int64
         let adult: Bool
         let backdropPath: String?
@@ -52,7 +52,7 @@ struct MovieResponseTMDB: Codable {
         }
 
         init(from decoder: Decoder) throws {
-            let container: KeyedDecodingContainer<MovieResponseTMDB.Details.CodingKeys> = try decoder.container(keyedBy: MovieResponseTMDB.Details.CodingKeys.self)
+            let container: KeyedDecodingContainer<SearchResponse.Movie.CodingKeys> = try decoder.container(keyedBy: SearchResponse.Movie.CodingKeys.self)
 
             self.adult = try container.decode(Bool.self, forKey: .adult)
             self.backdropPath = try container.decodeIfPresent(String.self, forKey: .backdropPath)
@@ -105,7 +105,7 @@ struct MovieResponseTMDB: Codable {
     }
 }
 
-extension MovieResponseTMDB.Details {
-    static let mockedData: MovieResponseTMDB.Details =
-        MovieResponseTMDB.Details()
+extension SearchResponse.Movie {
+    static let mockedData: SearchResponse.Movie =
+        SearchResponse.Movie()
 }

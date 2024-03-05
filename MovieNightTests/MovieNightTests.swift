@@ -62,7 +62,7 @@ final class MovieNightTests: XCTestCase {
         }
         """
 
-        let movie = try JSONDecoder().decode(MovieResponse.self, from: jsonString.data(using: .utf8)!)
+//        let movie = try JSONDecoder().decode(MovieResponse.self, from: jsonString.data(using: .utf8)!)
 
 //        XCTAssertEqual(movie.results![0]?._id, "61e5cdf0d735dff3f953cd43")
 //        XCTAssertEqual(movie.results![0]?.id, "tt16152642")

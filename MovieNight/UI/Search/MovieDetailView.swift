@@ -12,246 +12,274 @@ import SwiftUI
 struct MovieDetailView: View {
     @Binding var path: NavigationPath
 
-    @StateObject var viewModel: MovieDetailViewModel
+    @StateObject var viewModel: MovieDetailViewModel = MovieDetailViewModel()
 
     @State private var showRatingSheet = false
     @State private var localRating: Int16 = 0
     @State private var didReview: Bool = false
 
-    private var imgData: Data? {
-        get {
-            viewModel.getImageData()
-        }
-    }
+    var imgData: Data?
+    var movieID: Int64
 
     var body: some View {
-        VStack(spacing: 0) {
-            HStack {
-                Button {
-                    self.path.removeLast()
-                } label: {
-                    Image(systemName: "chevron.left")
-                        .font(.title3)
-                        .foregroundStyle(.black)
-                }
+        ZStack {
+            Color("DarkRed")
+                .ignoresSafeArea()
 
-                Spacer()
-            }
-            .padding([.bottom, .leading, .trailing], 20)
-
-            ScrollView {
-                VStack(spacing: 0) {
-                    if let imgData, let uiimage = UIImage(data: imgData) {
-                        Image(uiImage: uiimage)
-                            .resizable()
-                            .scaledToFit()
-                            .cornerRadius(15)
-                            .frame(width: 300, height: 400)
-
-                    } else {
-                        Rectangle()
-                            .frame(width: 300, height: 400)
-                            .cornerRadius(15)
+            VStack(spacing: 0) {
+                HStack {
+                    Button {
+                        self.path.removeLast()
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .font(.title3)
+                            .foregroundStyle(.white)
                     }
 
-                    Text(viewModel.details.title)
-                        .frame(maxWidth: 300)
-                        .multilineTextAlignment(.center)
-                        .font(.largeTitle)
-                        .fontWeight(.semibold)
-                        .padding(.top, 20)
+                    Spacer()
+                }
+                .padding([.bottom, .leading, .trailing], 20)
 
-                    // Stars/Ratings + Optional(userRating)
-                    HStack(spacing: 30) {
-                        // Stars/Ratings Stack
-                        VStack {
-                            // Stars Stack
-                            HStack(spacing: 0) {
-                                ForEach(0..<5) { index in
-                                    Image(systemName: index < viewModel.voteAverage ? "star.fill" : "star")
-                                        .resizable()
-                                        .frame(width: 18, height: 18)
-                                        .foregroundColor(.black)
+                ScrollView {
+
+                    VStack(spacing: 0) {
+                        if let imgData, let uiimage = UIImage(data: imgData) {
+                            Image(uiImage: uiimage)
+                                .resizable()
+                                .frame(width: 175, height: 240)
+                                .scaledToFit()
+                                .cornerRadius(15)
+                                .overlay {
+                                    MarqueeLightFrameView()
                                 }
-                            }
+                                .padding(50)
 
-                            Text(String(viewModel.details.voteCount) + " ratings")
-                                .font(.caption)
-                                .fontWeight(.regular)
+                        } else {
+                            Rectangle()
+                                .frame(width: 175, height: 240)
+                                .foregroundColor(.blue)
+                                .cornerRadius(15)
+                                .overlay {
+                                    MarqueeLightFrameView()
+                                }
+                                .padding(50)
                         }
 
-                        // User Rating
-                        if viewModel.didLeaveReview {
-                            ZStack {
-                                Rectangle()
-                                    .frame(width: 80)
-                                    .frame(maxHeight: .infinity)
-                                    .foregroundStyle(Color.clear)
-                                    .cornerRadius(8)
-                                    .overlay {
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .stroke(Color.black, style: StrokeStyle(lineWidth: 2))
+                        Text(viewModel.details?.title ?? "Debug Title")
+                            .frame(maxWidth: 300)
+                            .multilineTextAlignment(.center)
+                            .font(.title)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.white)
+                            .padding(.top, 15)
+
+                        // Stars/Ratings + Optional(userRating)
+                        HStack(spacing: 30) {
+                            // Stars/Ratings Stack
+                            VStack {
+                                // Stars Stack
+                                HStack(spacing: 0) {
+                                    ForEach(0..<5) { index in
+                                        Image(systemName: index < viewModel.voteAverage ? "star.fill" : "star")
+                                            .resizable()
+                                            .frame(width: 18, height: 18)
+                                            .foregroundStyle(.white)
                                     }
+                                }
 
-                                HStack {
-                                    Text(String(viewModel.details.userRating))
-                                        .font(.title3)
-                                        .fontWeight(.medium)
+                                Text(String(viewModel.details?.voteCount ?? 0) + " ratings")
+                                    .font(.caption)
+                                    .fontWeight(.regular)
+                                    .foregroundStyle(.white)
+                            }
 
-                                    Image(systemName: "star.fill")
-                                        .resizable()
-                                        .frame(width: 16, height: 16)
-                                        .foregroundColor(.black)
+                            // User Rating
+                            if viewModel.didLeaveReview {
+                                ZStack {
+                                    Rectangle()
+                                        .frame(width: 80)
+                                        .frame(maxHeight: .infinity)
+                                        .foregroundStyle(Color.clear)
+                                        .cornerRadius(8)
+                                        .overlay {
+                                            RoundedRectangle(cornerRadius: 8)
+                                                .stroke(Color.black, style: StrokeStyle(lineWidth: 2))
+                                        }
+
+                                    HStack {
+                                        Text(String(viewModel.userRating))
+                                            .font(.title3)
+                                            .fontWeight(.medium)
+
+                                        Image(systemName: "star.fill")
+                                            .resizable()
+                                            .frame(width: 16, height: 16)
+                                            .foregroundColor(.black)
+                                    }
+                                }
+                                .frame(alignment: .center)
+                            }
+                        }
+                        .padding(.top, 10)
+
+                        if !viewModel.didLeaveReview {
+                            ZStack {
+                                Button {
+                                    self.showRatingSheet = true
+                                    self.didReview = false
+                                } label: {
+                                    Rectangle()
+                                        .frame(height: 45)
+                                        .frame(maxWidth: 200)
+                                        .foregroundStyle(Color("BrightRed"))
+                                        .cornerRadius(8)
+                                }
+                                .sheet(isPresented: $showRatingSheet, onDismiss: onSheetDismiss) {
+                                    RatingSheet(rating: $localRating, didReview: $didReview)
+                                        .presentationDetents([.fraction(0.3)])
+                                        .presentationDragIndicator(.visible)
+                                }
+
+                                Text("Leave a rating")
+                                    .foregroundStyle(Color.white)
+                                    .font(.headline)
+                                    .fontWeight(.semibold)
+
+                            }
+                            .padding(.top, 10)
+                        }
+
+                        Divider()
+                            .padding([.top], 20)
+                            .padding([.leading, .trailing], 30)
+
+                        Text("Overview")
+                            .foregroundStyle(.white)
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding([.leading, .trailing], 30)
+                            .padding([.top], 20)
+
+                        Text(viewModel.details?.overview ?? "N/A")
+                            .foregroundStyle(.white)
+                            .font(.subheadline)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding([.leading, .trailing], 30)
+                            .padding(.top, 10)
+
+                        Divider()
+                            .padding([.top], 20)
+                            .padding([.leading, .trailing], 30)
+
+                        HStack(alignment: .center, spacing: 0) {
+                            VStack(spacing: 10) {
+                                Text("Genre")
+                                    .foregroundStyle(.white)
+                                    .frame(width: 100, alignment: .leading)
+                                    .font(.headline)
+                                    .fontWeight(.bold)
+
+                                Text("Duration")
+                                    .foregroundStyle(.white)
+                                    .frame(width: 100, alignment: .leading)
+                                    .font(.headline)
+                                    .fontWeight(.bold)
+
+                                Text("Released")
+                                    .foregroundStyle(.white)
+                                    .frame(width: 100, alignment: .leading)
+                                    .font(.headline)
+                                    .fontWeight(.bold)
+                            }
+
+                            VStack(spacing: 10) {
+                                Text("Comedy, Romance")
+                                    .foregroundStyle(.white)
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                                    .font(.subheadline)
+
+                                Text("120 minutes")
+                                    .foregroundStyle(.white)
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                                    .font(.subheadline)
+
+                                Text("Jan. 24th, 2024")
+                                    .foregroundStyle(.white)
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                                    .font(.subheadline)
+                            }
+
+                            Spacer()
+                        }
+                        .padding([.top], 20)
+                        .padding([.leading, .trailing], 30)
+
+                        Divider()
+                            .padding([.top], 20)
+                            .padding([.leading, .trailing], 30)
+
+                        Text("You might also like")
+                            .foregroundStyle(.white)
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding([.leading, .trailing], 30)
+                            .padding([.top], 20)
+
+                        ScrollView(.horizontal) {
+                            LazyHStack(spacing: 10) {
+                                ForEach(viewModel.recommendedMovies) { movie in
+                                    ThumbnailView(url: movie.posterPath, width: 175, height: 250)
                                 }
                             }
-                            .frame(alignment: .center)
                         }
-                    }
-                    .padding(.top, 10)
-
-                    if !viewModel.didLeaveReview {
-                        ZStack {
-                            Button {
-                                self.showRatingSheet = true
-                                self.didReview = false
-                            } label: {
-                                Rectangle()
-                                    .frame(height: 50)
-                                    .frame(maxWidth: 300)
-                                    .foregroundStyle(Color.black)
-                                    .cornerRadius(8)
-                            }
-                            .sheet(isPresented: $showRatingSheet, onDismiss: onSheetDismiss) {
-                                RatingSheet(rating: $localRating, didReview: $didReview)
-                                    .presentationDetents([.fraction(0.3)])
-                                    .presentationDragIndicator(.visible)
-                            }
-
-                            Text("Leave a rating")
-                                .foregroundStyle(Color.white)
+                        .safeAreaInset(edge: .leading, spacing: 0) {
+                            VStack(spacing: 0) { }.padding(.leading, 30)
                         }
-                        .padding(.top, 10)
-                    }
-
-                    Divider()
-                        .padding([.top], 20)
-                        .padding([.leading, .trailing], 30)
-
-                    Text("Overview")
-                        .font(.headline)
-                        .fontWeight(.bold)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding([.leading, .trailing], 30)
-                        .padding([.top], 20)
-
-                    Text(viewModel.details.overview)
-                        .font(.subheadline)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding([.leading, .trailing], 30)
-                        .padding(.top, 10)
-
-                    Divider()
-                        .padding([.top], 20)
-                        .padding([.leading, .trailing], 30)
-
-                    HStack(alignment: .center, spacing: 0) {
-                        VStack(spacing: 10) {
-                            Text("Genre")
-                                .frame(width: 100, alignment: .leading)
-                                .font(.headline)
-                                .fontWeight(.bold)
-
-                            Text("Duration")
-                                .frame(width: 100, alignment: .leading)
-                                .font(.headline)
-                                .fontWeight(.bold)
-
-                            Text("Released")
-                                .frame(width: 100, alignment: .leading)
-                                .font(.headline)
-                                .fontWeight(.bold)
+                        .safeAreaInset(edge: .trailing, spacing: 0) {
+                            VStack { }.padding(.trailing, 30)
                         }
-
-                        VStack(spacing: 10) {
-                            Text("Comedy, Romance")
-                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                                .font(.subheadline)
-
-                            Text("120 minutes")
-                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                                .font(.subheadline)
-
-                            Text("Jan. 24th, 2024")
-                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                                .font(.subheadline)
-                        }
-
-                        Spacer()
-                    }
-                    .padding([.top], 20)
-                    .padding([.leading, .trailing], 30)
-
-                    Divider()
-                        .padding([.top], 20)
-                        .padding([.leading, .trailing], 30)
-
-                    Text("You might also like")
-                        .font(.headline)
-                        .fontWeight(.bold)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding([.leading, .trailing], 30)
                         .padding([.top], 20)
 
-                    ScrollView(.horizontal) {
-                        LazyHStack(spacing: 10) {
-                            ForEach(viewModel.recommendedMovies) { movie in
-                                ThumbnailView(url: movie.posterPath, width: 175, height: 250)
-                            }
-                        }
-                    }
-                    .safeAreaInset(edge: .leading, spacing: 0) {
-                        VStack(spacing: 0) { }.padding(.leading, 30)
-                    }
-                    .safeAreaInset(edge: .trailing, spacing: 0) {
-                        VStack { }.padding(.trailing, 30)
-                    }
-                    .padding([.top], 20)
+                        Divider()
+                            .padding([.top], 20)
+                            .padding([.leading, .trailing], 30)
 
-                    Divider()
-                        .padding([.top], 20)
-                        .padding([.leading, .trailing], 30)
-
-                    Text("Cast")
-                        .font(.headline)
-                        .fontWeight(.bold)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding([.leading, .trailing], 30)
-                        .padding([.top], 20)
+                        Text("Cast")
+                            .foregroundStyle(.white)
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding([.leading, .trailing], 30)
+                            .padding([.top], 20)
+                    }
+                    .frame(maxHeight: .infinity, alignment: .top)
                 }
-                .frame(maxHeight: .infinity, alignment: .top)
             }
         }
         .navigationBarBackButtonHidden()
         .task {
-            await viewModel.fetchRecommendedMovies()
+            await viewModel.fetchAdditionalDetails(movieID)
         }
     }
 
     private func onSheetDismiss() {
         if didReview {
-            let id = viewModel.details.id
+            let id = movieID
 
             guard let existing = MovieProvider.shared.exists(id: id) else {
                 print("ℹ️ Movie doesn't exist in Core Data. Creating new object.")
 
-                let movieDetails = Details_CD.createCoreDataModel(from: viewModel.details, in: MovieProvider.shared.viewContext)
+                let movieDetails = Movie_CD(context: MovieProvider.shared.viewContext)
                 movieDetails.posterData = imgData
                 movieDetails.userRating = localRating
+                movieDetails.id = movieID
 
                 MovieProvider.shared.save()
 
                 viewModel.didLeaveReview = true
-                viewModel.details.userRating = localRating
+                viewModel.userRating = localRating
 
                 return
             }
@@ -404,7 +432,7 @@ enum Rating {
 
 struct SearchResultDetailView_Previews: PreviewProvider {
     static var previews: some View {
-        StatefulPreviewWrapper(NavigationPath()) { MovieDetailView(path: $0, viewModel: .init(details: MovieResponseTMDB.Details.mockedData)) }
+        StatefulPreviewWrapper(NavigationPath()) { MovieDetailView(path: $0, movieID: Int64(123456)) }
 //        RatingSheet()
     }
 }

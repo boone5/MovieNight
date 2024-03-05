@@ -42,8 +42,9 @@ struct Search: View {
                 .listRowBackground(Color.clear)
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
-                .navigationDestination(for: MovieResponseTMDB.Details.self) { details in
-                    MovieDetailView(path: $path, viewModel: .init(details: details))
+                .navigationDestination(for: SearchResponse.Movie.self) { movie in
+                    let imgData = ImageCache.shared.getObject(forKey: movie.posterPath)
+                    MovieDetailView(path: $path, imgData: imgData, movieID: movie.id)
                 }
                 
                 Spacer()
@@ -63,7 +64,7 @@ struct Search: View {
 struct MovieRowView: View {
     @ObservedObject var searchViewModel: SearchViewModel
 
-    let details: MovieResponseTMDB.Details
+    let details: SearchResponse.Movie
 
     var body: some View {
         NavigationLink(value: details) {

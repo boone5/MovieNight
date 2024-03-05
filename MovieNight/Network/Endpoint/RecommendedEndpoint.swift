@@ -8,14 +8,14 @@
 import Foundation
 
 enum RecommendedEndpoint: EndpointProviding {
-    case recommendedMovies(movieID: Int64, page: Int)
+    case recommendedMovies(id: Int64, page: Int)
 }
 
 extension RecommendedEndpoint {
     func path() -> String {
         switch self {
-        case .recommendedMovies(let movieID, _):
-            return "/3/movie/\(movieID)/recommendations"
+        case .recommendedMovies(let id, _):
+            return "/3/movie/\(id)/recommendations"
         }
     }
     

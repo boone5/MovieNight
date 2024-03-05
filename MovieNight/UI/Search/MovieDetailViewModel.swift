@@ -9,38 +9,36 @@ import Foundation
 
 @MainActor
 class MovieDetailViewModel: ObservableObject {
-    @Published var details: DetailViewRepresentable
-    @Published var recommendedMovies: [MovieResponseTMDB.Details] = []
-    @Published var state: LoadingState = .ready
+    @Published var recommendedMovies: [SearchResponse.Movie] = []
+    @Published var details: MovieDetails?
 
     @Published var voteAverage: Int = 0
     @Published var didLeaveReview: Bool = false
+    @Published var userRating: Int16 = 0
 
-    private var movieActor: MovieActor = MovieActor()
     private var networkManager = NetworkManager()
 
     private var page: Int = 1
 
-    init(details: DetailViewRepresentable) {
-        self.details = details
+    public func fetchAdditionalDetails(_ id: Int64) async {
+        await self.fetchMovieDetails(id: id)
+        await self.fetchRecommendedMovies(id: id)
 
-        setUpView()
-
-        Task {
-            await movieActor.setMovieDetails(details)
+        if let movie = MovieProvider.shared.exists(id: id), movie.userRating != 0 {
+            self.didLeaveReview = true
+            self.userRating = movie.userRating
         }
     }
 
-    public func fetchRecommendedMovies() async {
-        guard let movieDetails = await movieActor.getMovie() else { return }
-
+    private func fetchMovieDetails(id: Int64) async {
         do {
-            let data = try await networkManager.request(RecommendedEndpoint.recommendedMovies(movieID: movieDetails.id, page: page))
+            let data = try await networkManager.request(DetailsEndpoint.movieDetails(id: id))
 
-            let response = try JSONDecoder().decode(MovieResponseTMDB.self, from: data)
+            let response = try JSONDecoder().decode(MovieDetails.self, from: data)
 
-            self.recommendedMovies = response.results
-            self.state = (page > response.totalPages) ? .loadedAll : .ready
+            self.details = response
+
+            self.convertWeightSystem(from: response.voteAverage)
 
         } catch let error as DecodingError {
             print("⛔️ Decoding error: \(error)")
@@ -48,24 +46,35 @@ class MovieDetailViewModel: ObservableObject {
             print("⛔️ Network error: \(error)")
         }
     }
-    
-    public func getImageData() -> Data? {
-        if let cdModel = details as? Details_CD, let imgData = cdModel.posterData {
-            return imgData
-        } else {
-            return ImageCache.shared.getObject(forKey: details.posterPath)
+
+    private func fetchRecommendedMovies(id: Int64) async {
+        do {
+            let data = try await networkManager.request(RecommendedEndpoint.recommendedMovies(id: id, page: 1))
+
+            let response = try JSONDecoder().decode(SearchResponse.self, from: data)
+
+            self.recommendedMovies = response.results
+
+        } catch let error as DecodingError {
+            print("⛔️ Decoding error: \(error)")
+        } catch {
+            print("⛔️ Network error: \(error)")
         }
     }
 
-    private func setUpView() {
-        self.getRating()
-        self.convertWeightSystem(from: details.voteAverage)
-    }
+    private func fetchCast(id: Int64) async {
+        do {
+            let data = try await networkManager.request(CastEndpoint.movieCredits(id: id))
 
-    private func getRating() {
-        // 1) User has left a rating
-        if details.userRating != 0 {
-            self.didLeaveReview = true
+            #warning("TODO: Create new model for cast response")
+            let response = try JSONDecoder().decode(SearchResponse.self, from: data)
+
+            self.recommendedMovies = response.results
+
+        } catch let error as DecodingError {
+            print("⛔️ Decoding error: \(error)")
+        } catch {
+            print("⛔️ Network error: \(error)")
         }
     }
 

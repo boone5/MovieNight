@@ -9,7 +9,7 @@ import SwiftUI
 
 struct Library: View {
     @Environment(\.managedObjectContext) private var viewContext
-    @FetchRequest(fetchRequest: Details_CD.all(), animation: .default) private var movies: FetchedResults<Details_CD>
+    @FetchRequest(fetchRequest: Movie_CD.all(), animation: .default) private var movies: FetchedResults<Movie_CD>
 
     @State private var path: NavigationPath = NavigationPath()
 
@@ -17,22 +17,36 @@ struct Library: View {
 
     var body: some View {
         NavigationStack(path: $path) {
-            ScrollView(.vertical) {
-                // Move to LazyHStack if performance becomes an issue
-                // https://developer.apple.com/documentation/swiftui/creating-performant-scrollable-stacks
-                LazyVGrid(columns: columns, spacing: 10) {
-                    ForEach(movies, id: \.id) { movie in
-                        NavigationLink(value: movie) {
-                            MovieGridItem(userRating: movie.userRating, imgData: movie.posterData)
+            ZStack {
+                Color("DarkRed")
+                    .ignoresSafeArea()
+
+                VStack {
+                    Text("Library")
+                        .foregroundStyle(.white)
+                        .font(.largeTitle)
+                        .bold()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding([.leading, .top], 20)
+
+                    ScrollView(.vertical) {
+                        // Move to LazyHStack if performance becomes an issue
+                        // https://developer.apple.com/documentation/swiftui/creating-performant-scrollable-stacks
+                        LazyVGrid(columns: columns, spacing: 10) {
+                            ForEach(movies, id: \.id) { movie in
+                                NavigationLink(value: movie) {
+                                    MovieGridItem(userRating: movie.userRating, imgData: movie.posterData)
+                                }
+                            }
                         }
+                        .navigationDestination(for: Movie_CD.self) { movie in
+                            MovieDetailView(path: $path, imgData: movie.posterData, movieID: movie.id)
+                        }
+                        .padding([.leading, .trailing, .top], 20)
                     }
                 }
-                .navigationDestination(for: Details_CD.self) { details in
-                    MovieDetailView(path: $path, viewModel: .init(details: details))
-                }
-                .padding([.leading, .trailing, .top], 20)
-                .navigationTitle("Library")
             }
+
         }
     }
 }
@@ -42,52 +56,34 @@ struct MovieGridItem: View {
     let imgData: Data?
 
     var body: some View {
-        if let imgData = imgData, let uiimage = UIImage(data: imgData) {
-            Image(uiImage: uiimage)
-                .resizable()
-                .frame(width: 175, height: 240)
-                .scaledToFit()
-                .cornerRadius(15)
-                .overlay(alignment: .bottom) {
-                    ZStack {
-                        Rectangle()
-                            .frame(height: 50)
-                            .cornerRadius(15)
+        VStack(spacing: 10) {
+            RatingCapsuleView()
 
-                        HStack {
-                            Text(String(userRating))
-                                .font(.title)
-                                .fontWeight(.bold)
-                                .foregroundColor(.black)
-
-                            Image(systemName: "star.fill")
-                                .foregroundColor(.blue)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.leading, 20)
-                    }
-                }
+            if let imgData = imgData, let uiimage = UIImage(data: imgData) {
+                Image(uiImage: uiimage)
+                    .resizable()
+                    .frame(width: 175, height: 240)
+                    .scaledToFit()
+                    .cornerRadius(15)
+            }
         }
     }
 
-    struct RatingsPill: View {
+    struct RatingCapsuleView: View {
         var body: some View {
             ZStack {
-                Rectangle()
-                    .frame(height: 50)
-                    .cornerRadius(15)
+                ButtonView()
 
                 HStack {
-                    Text("4")
-                        .font(.title)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
+                    ForEach(1..<6) { _ in
+                        Image(systemName: "star.fill")
+                            .resizable()
+                            .frame(width: 20, height: 20)
+                            .foregroundColor(Color("Gold"))
+                            .shadow(color: Color("Gold").opacity(0.5), radius: 6)
+                    }
 
-                    Image(systemName: "star.fill")
-                        .foregroundColor(.white)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.leading, 20)
             }
         }
     }

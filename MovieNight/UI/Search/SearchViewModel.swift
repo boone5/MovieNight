@@ -12,7 +12,7 @@ import SwiftUI
 class SearchViewModel: ObservableObject {
     @Published var state: LoadingState = .ready
     @Published var searchQuery: String = ""
-    @Published var movieDetails: [MovieResponseTMDB.Details] = [MovieResponseTMDB.Details]()
+    @Published var movieDetails: [SearchResponse.Movie] = [SearchResponse.Movie]()
 
     public var isLoading: Bool {
         state == .loading
@@ -29,7 +29,7 @@ class SearchViewModel: ObservableObject {
         do {
             let data = try await networkManager.request(SearchEndpoint.search(title: title, page: page))
 
-            let response = try JSONDecoder().decode(MovieResponseTMDB.self, from: data)
+            let response = try JSONDecoder().decode(SearchResponse.self, from: data)
 
             self.movieDetails = response.results
             self.page += 1
@@ -48,7 +48,7 @@ class SearchViewModel: ObservableObject {
         do {
             let data = try await networkManager.request(SearchEndpoint.search(title: searchQuery, page: page))
 
-            let response = try JSONDecoder().decode(MovieResponseTMDB.self, from: data)
+            let response = try JSONDecoder().decode(SearchResponse.self, from: data)
 
             self.movieDetails.append(contentsOf: response.results)
 

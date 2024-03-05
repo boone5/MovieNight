@@ -80,6 +80,13 @@ final class LeetCode: XCTestCase {
 
         XCTAssertEqual(lc.minEatingSpeed(input1, h1), 4)
     }
+
+    func testMinWindow() {
+        let answ = "BANC"
+        let res = lc.minWindow("ADOBECODEBANC", "ABC")
+
+        XCTAssertEqual(answ, res)
+    }
 }
 
 // https://leetcode.com/problems/sort-an-array/description/
@@ -201,6 +208,58 @@ class ValidParanthesis {
 
 class LeetCodeProblems {
     init() { }
+
+    func minWindow(_ s: String, _ t: String) -> String {
+        if t == "" {
+            return ""
+        }
+
+        var sArray = Array(s)
+        var tArray = Array(t)
+
+        var countT = [Character: Int]()
+        var window = [Character: Int]()
+
+        for c in tArray {
+            countT[c, default: 0] += 1
+        }
+
+        var have = 0
+        var need = countT.count
+        var res = (0, 0)
+        var resLen = Int.max
+
+        var l = 0
+        for r in 0..<sArray.count {
+            var c = sArray[r]
+            window[c, default: 0] += 1
+
+            if countT[c] != nil && window[c] == countT[c] {
+                have += 1
+            }
+
+            while have == need {
+                if r - l + 1 < resLen {
+                    res = (l, r)
+                    resLen = r - l + 1
+                }
+
+                window[sArray[l], default: 0] -= 1
+
+                if countT[sArray[l]] != nil && window[sArray[l]]! < countT[sArray[l]]! {
+                    have -= 1
+                }
+
+                l += 1
+            }
+        }
+
+        if resLen != Int.max {
+            return String(sArray[res.0...res.1])
+        } else {
+            return ""
+        }
+    }
 
     // https://leetcode.com/problems/evaluate-reverse-polish-notation/
     func evalRPN(_ tokens: [String]) -> Int {

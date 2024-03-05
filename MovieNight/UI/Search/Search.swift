@@ -13,47 +13,55 @@ struct Search: View {
     
     var body: some View {
         NavigationStack(path: $path) {
-            VStack(alignment: .leading, spacing: 0) {
-                if searchViewModel.isLoading {
-                    HStack {
-                        Spacer()
-                        ProgressView()
-                        Spacer()
+            ZStack {
+                Color.clear
+                    .background {
+                        LinearGradient(colors: [Color("BackgroundColor1"), Color("BackgroundColor2")], startPoint: .top, endPoint: .bottom)
                     }
-                    .padding(.top, 30)
-                }
+                    .ignoresSafeArea()
 
-                Spacer()
-
-                List {
-                    ForEach(searchViewModel.movieDetails) { detail in
-                        MovieRowView(searchViewModel: searchViewModel, details: detail)
+                VStack(alignment: .leading, spacing: 0) {
+                    if searchViewModel.isLoading {
+                        HStack {
+                            Spacer()
+                            ProgressView()
+                            Spacer()
+                        }
+                        .padding(.top, 30)
                     }
 
-                    if !searchViewModel.movieDetails.isEmpty {
-                        EmptyView()
-                            .task {
-                                if searchViewModel.shouldLoadMore() {
-                                    await searchViewModel.loadMore()
+                    Spacer()
+
+                    List {
+                        ForEach(searchViewModel.movieDetails) { detail in
+                            MovieRowView(searchViewModel: searchViewModel, details: detail)
+                        }
+
+                        if !searchViewModel.movieDetails.isEmpty {
+                            EmptyView()
+                                .task {
+                                    if searchViewModel.shouldLoadMore() {
+                                        await searchViewModel.loadMore()
+                                    }
                                 }
-                            }
+                        }
                     }
+                    .listRowBackground(Color.clear)
+                    .listStyle(.plain)
+                    .scrollContentBackground(.hidden)
+                    .navigationDestination(for: SearchResponse.Movie.self) { movie in
+                        let imgData = ImageCache.shared.getObject(forKey: movie.posterPath)
+                        MovieDetailView(path: $path, imgData: imgData, movieID: movie.id)
+                    }
+
+                    Spacer()
                 }
-                .listRowBackground(Color.clear)
-                .listStyle(.plain)
-                .scrollContentBackground(.hidden)
-                .navigationDestination(for: SearchResponse.Movie.self) { movie in
-                    let imgData = ImageCache.shared.getObject(forKey: movie.posterPath)
-                    MovieDetailView(path: $path, imgData: imgData, movieID: movie.id)
-                }
-                
-                Spacer()
-            }
-            .frame(maxWidth: .infinity, alignment: .center)
-            .searchable(text: $searchViewModel.searchQuery)
-            .onSubmit(of: .search) {
-                Task {
-                    await searchViewModel.fetchMovieDetails(for: searchViewModel.searchQuery)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .searchable(text: $searchViewModel.searchQuery)
+                .onSubmit(of: .search) {
+                    Task {
+                        await searchViewModel.fetchMovieDetails(for: searchViewModel.searchQuery)
+                    }
                 }
             }
         }

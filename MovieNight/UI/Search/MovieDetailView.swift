@@ -23,7 +23,10 @@ struct MovieDetailView: View {
 
     var body: some View {
         ZStack {
-            Color("DarkRed")
+            Color.clear
+                .background {
+                    LinearGradient(colors: [Color("BackgroundColor1"), Color("BackgroundColor2")], startPoint: .top, endPoint: .bottom)
+                }
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {

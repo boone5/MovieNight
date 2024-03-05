@@ -10,16 +10,19 @@ import SwiftUI
 struct LandingPage: View {
     var body: some View {
         TabView {
-            Search()
-                .tabItem {
-                    Label("", systemImage: "magnifyingglass")
-                }
+            Group {
+                Search()
+                    .tabItem {
+                        Label("", systemImage: "magnifyingglass")
+                    }
 
-            Library()
-                .environment(\.managedObjectContext, MovieProvider.shared.viewContext)
-                .tabItem {
-                    Label("", systemImage: "books.vertical")
-                }
+                Library()
+                    .environment(\.managedObjectContext, MovieProvider.shared.viewContext)
+                    .tabItem {
+                        Label("", systemImage: "books.vertical")
+                    }
+            }
+            .toolbarBackground(Color("BackgroundColor1"), for: .tabBar)
         }
     }
 }

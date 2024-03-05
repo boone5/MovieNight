@@ -11,8 +11,11 @@ struct LibraryTest: View {
     var body: some View {
 
         ZStack {
-//            Color("DarkRed")
-//                .ignoresSafeArea()
+            Color.clear
+                .background {
+                    LinearGradient(colors: [Color("BackgroundColor1"), Color("BackgroundColor2")], startPoint: .top, endPoint: .bottom)
+                }
+                .ignoresSafeArea()
 
             VStack {
                 Text("Library")
@@ -55,8 +58,8 @@ struct ItemView: View {
             Rectangle()
                 .foregroundColor(.gray)
                 .frame(width: 175, height: 240)
-                .scaledToFit()
                 .cornerRadius(15)
+                .shadow(color: Color.black.opacity(0.4), radius: 6, x: 0, y: 4)
         }
 
     }
@@ -68,7 +71,7 @@ struct ButtonView: View {
             RoundedRectangle(cornerRadius: 10, style: .continuous)
                 .fill(Color("OffBlack"))
                 .frame(width: 175, height: 35)
-                .shadow(color: Color.black.opacity(0.6), radius: 6, x: 0, y: 4)
+                .shadow(color: Color.black.opacity(0.4), radius: 6, x: 0, y: 4)
 
             Color.clear
                 .cornerRadius(10)

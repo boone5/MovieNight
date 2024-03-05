@@ -18,7 +18,10 @@ struct Library: View {
     var body: some View {
         NavigationStack(path: $path) {
             ZStack {
-                Color("DarkRed")
+                Color.clear
+                    .background {
+                        LinearGradient(colors: [Color("BackgroundColor1"), Color("BackgroundColor2")], startPoint: .top, endPoint: .bottom)
+                    }
                     .ignoresSafeArea()
 
                 VStack {
@@ -65,6 +68,7 @@ struct MovieGridItem: View {
                     .frame(width: 175, height: 240)
                     .scaledToFit()
                     .cornerRadius(15)
+                    .shadow(color: Color.black.opacity(0.4), radius: 6, x: 0, y: 4)
             }
         }
     }

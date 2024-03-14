@@ -11,7 +11,6 @@ import SwiftUI
 @MainActor
 class SearchViewModel: ObservableObject {
     @Published var state: LoadingState = .ready
-    @Published var searchQuery: String = ""
     @Published var movieDetails: [SearchResponse.Movie] = [SearchResponse.Movie]()
 
     public var isLoading: Bool {
@@ -20,6 +19,7 @@ class SearchViewModel: ObservableObject {
 
     private var page: Int = 1
     private var networkManager = NetworkManager()
+    private var searchQuery: String = ""
 
     func fetchMovieDetails(for title: String) async {
         self.searchQuery = title
@@ -65,7 +65,12 @@ class SearchViewModel: ObservableObject {
     }
 
     public func shouldLoadMore() -> Bool {
-        guard self.state != .loadedAll, self.state != .fetching else { return false }
+        guard self.state != .loadedAll, self.state != .fetching else {
+            print("Can't load more: \(self.state)")
+            return false
+        }
+
+        print("Loading more!")
 
         return true
     }

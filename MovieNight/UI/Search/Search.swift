@@ -10,17 +10,35 @@ import SwiftUI
 struct Search: View {
     @StateObject var searchViewModel: SearchViewModel = SearchViewModel()
     @State private var path: NavigationPath = NavigationPath()
-    
+    @State private var searchText: String = ""
+
     var body: some View {
         NavigationStack(path: $path) {
             ZStack {
                 Color.clear
                     .background {
-                        LinearGradient(colors: [Color("BackgroundColor1"), Color("BackgroundColor2")], startPoint: .top, endPoint: .bottom)
+                        LinearGradient(
+                            colors: [Color("BackgroundColor1"), Color("BackgroundColor2")],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
                     }
                     .ignoresSafeArea()
 
                 VStack(alignment: .leading, spacing: 0) {
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text("Explore")
+                            .foregroundStyle(.white)
+                            .font(.system(size: 42, weight: .bold))
+
+                        CustomSearchBar(vm: searchViewModel, searchText: $searchText)
+                        // no way to adjust default padding from UISearchBar https://stackoverflow.com/questions/55636460/remove-padding-around-uisearchbar-textfield
+                            .padding(.horizontal, -8)
+                    }
+                    .padding([.leading, .trailing], 15)
+
+                    Spacer()
+
                     if searchViewModel.isLoading {
                         HStack {
                             Spacer()
@@ -30,23 +48,21 @@ struct Search: View {
                         .padding(.top, 30)
                     }
 
-                    Spacer()
-
                     List {
                         ForEach(searchViewModel.movieDetails) { detail in
                             MovieRowView(searchViewModel: searchViewModel, details: detail)
+                                .listRowBackground(Color.clear)
                         }
 
-                        if !searchViewModel.movieDetails.isEmpty {
-                            EmptyView()
-                                .task {
-                                    if searchViewModel.shouldLoadMore() {
-                                        await searchViewModel.loadMore()
-                                    }
+                        Text("End of List")
+                            .foregroundStyle(.white)
+                            .listRowBackground(Color.clear)
+                            .task {
+                                if searchViewModel.shouldLoadMore() {
+                                    await searchViewModel.loadMore()
                                 }
-                        }
+                            }
                     }
-                    .listRowBackground(Color.clear)
                     .listStyle(.plain)
                     .scrollContentBackground(.hidden)
                     .navigationDestination(for: SearchResponse.Movie.self) { movie in
@@ -57,12 +73,7 @@ struct Search: View {
                     Spacer()
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
-                .searchable(text: $searchViewModel.searchQuery)
-                .onSubmit(of: .search) {
-                    Task {
-                        await searchViewModel.fetchMovieDetails(for: searchViewModel.searchQuery)
-                    }
-                }
+                .scrollDismissesKeyboard(.immediately)
             }
         }
         

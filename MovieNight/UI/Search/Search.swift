@@ -50,25 +50,39 @@ struct Search: View {
 
                     List {
                         ForEach(searchViewModel.movieDetails) { detail in
-                            MovieRowView(searchViewModel: searchViewModel, details: detail)
-                                .listRowBackground(Color.clear)
+                            Group {
+                                HStack {
+                                    switch detail {
+                                    case .movie(let movie):
+                                        MovieRowView(movie: movie)
+                                    case .tvShow(let tvShow):
+                                        TVShowRowView(tvShow: tvShow)
+                                    case .people(let actorResponse):
+                                        Text("Person")
+                                            .foregroundStyle(.white)
+                                    }
+
+                                    Spacer()
+                                }
+                                .frame(maxWidth: .infinity, alignment: .center)
+                            }
+                            .listRowBackground(Color.clear)
+                            .buttonStyle(PlainButtonStyle())
                         }
 
                         Text("End of List")
                             .foregroundStyle(.white)
                             .listRowBackground(Color.clear)
                             .task {
-                                if searchViewModel.shouldLoadMore() {
-                                    await searchViewModel.loadMore()
-                                }
+                                await searchViewModel.loadMore()
                             }
                     }
                     .listStyle(.plain)
                     .scrollContentBackground(.hidden)
-                    .navigationDestination(for: SearchResponse.Movie.self) { movie in
-                        let imgData = ImageCache.shared.getObject(forKey: movie.posterPath)
-                        MovieDetailView(path: $path, imgData: imgData, movieID: movie.id)
-                    }
+//                    .navigationDestination(for: MovieResponse.self) { movie in
+//                        let imgData = ImageCache.shared.getObject(forKey: movie.posterPath)
+//                        MovieDetailView(path: $path, imgData: imgData, movieID: movie.id)
+//                    }
 
                     Spacer()
                 }
@@ -76,39 +90,68 @@ struct Search: View {
                 .scrollDismissesKeyboard(.immediately)
             }
         }
-        
+    }
+}
+
+struct TVShowRowView: View {
+    let tvShow: TVShowResponse
+
+    var body: some View {
+        NavigationLink(value: tvShow) {
+            ThumbnailView(url: tvShow.posterPath, width: 100, height: 150)
+
+            VStack(alignment: .leading, spacing: 5) {
+                Text(tvShow.name)
+                    .font(.title2)
+                    .fontWeight(.medium)
+                    .lineLimit(2)
+                    .foregroundStyle(Color(uiColor: .white))
+                    .padding(.leading, 15)
+
+                Text(tvShow.firstAirDate)
+                    .font(.caption)
+                    .fontWeight(.regular)
+                    .foregroundStyle(Color(uiColor: .systemGray))
+                    .padding(.leading, 15)
+
+                Text(tvShow.mediaType)
+                    .font(.caption)
+                    .fontWeight(.regular)
+                    .foregroundStyle(Color(uiColor: .systemGray))
+                    .padding(.leading, 15)
+            }
+        }
     }
 }
 
 struct MovieRowView: View {
-    @ObservedObject var searchViewModel: SearchViewModel
-
-    let details: SearchResponse.Movie
+    let movie: MovieResponse
 
     var body: some View {
-        NavigationLink(value: details) {
-            HStack {
-                ThumbnailView(url: details.posterPath, width: 100, height: 150)
+        NavigationLink(value: movie) {
+            ThumbnailView(url: movie.posterPath, width: 100, height: 150)
 
-                VStack(alignment: .leading, spacing: 5) {
-                    Text(details.title)
-                        .font(.title2)
-                        .fontWeight(.medium)
-                        .lineLimit(2)
-                        .padding(.leading, 15)
+            VStack(alignment: .leading, spacing: 5) {
+                Text(movie.title)
+                    .font(.title2)
+                    .fontWeight(.medium)
+                    .lineLimit(2)
+                    .foregroundStyle(Color(uiColor: .white))
+                    .padding(.leading, 15)
 
-                    Text(details.releaseDate)
-                        .font(.caption)
-                        .fontWeight(.regular)
-                        .foregroundStyle(Color(uiColor: UIColor.systemGray))
-                        .padding(.leading, 15)
-                }
+                Text(movie.releaseDate)
+                    .font(.caption)
+                    .fontWeight(.regular)
+                    .foregroundStyle(Color(uiColor: .systemGray))
+                    .padding(.leading, 15)
 
-                Spacer()
+                Text(movie.mediaType)
+                    .font(.caption)
+                    .fontWeight(.regular)
+                    .foregroundStyle(Color(uiColor: .systemGray))
+                    .padding(.leading, 15)
             }
-            .frame(maxWidth: .infinity, alignment: .center)
         }
-        .buttonStyle(PlainButtonStyle())
     }
 }
 

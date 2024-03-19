@@ -9,7 +9,7 @@ import Foundation
 
 @MainActor
 class MovieDetailViewModel: ObservableObject {
-    @Published var recommendedMovies: [SearchResponse.Movie] = []
+    @Published var recommendedMovies: [MovieResponse] = []
     @Published var details: MovieDetails?
 
     @Published var voteAverage: Int = 0
@@ -53,7 +53,7 @@ class MovieDetailViewModel: ObservableObject {
 
             let response = try JSONDecoder().decode(SearchResponse.self, from: data)
 
-            self.recommendedMovies = response.results
+//            self.recommendedMovies = response.results
 
         } catch let error as DecodingError {
             print("⛔️ Decoding error: \(error)")
@@ -69,7 +69,7 @@ class MovieDetailViewModel: ObservableObject {
             #warning("TODO: Create new model for cast response")
             let response = try JSONDecoder().decode(SearchResponse.self, from: data)
 
-            self.recommendedMovies = response.results
+//            self.recommendedMovies = response.results
 
         } catch let error as DecodingError {
             print("⛔️ Decoding error: \(error)")

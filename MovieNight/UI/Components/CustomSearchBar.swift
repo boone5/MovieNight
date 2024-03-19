@@ -28,7 +28,7 @@ struct CustomSearchBar: UIViewRepresentable {
         func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
             print("searching for: \(searchText)")
             Task {
-                await vm.fetchMovieDetails(for: searchText)
+                await vm.fetchAllResults(for: searchText)
             }
         }
     }

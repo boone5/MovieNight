@@ -11,7 +11,7 @@ import SwiftUI
 @MainActor
 class SearchViewModel: ObservableObject {
     @Published var state: LoadingState = .ready
-    @Published var movieDetails: [SearchResponse.Movie] = [SearchResponse.Movie]()
+    @Published var movieDetails: [ResponseType] = [ResponseType]()
 
     public var isLoading: Bool {
         state == .loading
@@ -21,14 +21,13 @@ class SearchViewModel: ObservableObject {
     private var networkManager = NetworkManager()
     private var searchQuery: String = ""
 
-    func fetchMovieDetails(for title: String) async {
-        self.searchQuery = title
+    func fetchAllResults(for query: String) async {
+        self.searchQuery = query
         self.state = .loading
         self.page = 1
 
         do {
-            let data = try await networkManager.request(SearchEndpoint.search(title: title, page: page))
-
+            let data = try await networkManager.request(SearchEndpoint.multi(query: query, page: page))
             let response = try JSONDecoder().decode(SearchResponse.self, from: data)
 
             self.movieDetails = response.results
@@ -43,11 +42,14 @@ class SearchViewModel: ObservableObject {
     }
 
     func loadMore() async {
+        guard !self.movieDetails.isEmpty else { return }
+
+        print("Loading more!")
+
         self.state = .fetching
 
         do {
-            let data = try await networkManager.request(SearchEndpoint.search(title: searchQuery, page: page))
-
+            let data = try await networkManager.request(SearchEndpoint.multi(query: searchQuery, page: page))
             let response = try JSONDecoder().decode(SearchResponse.self, from: data)
 
             self.movieDetails.append(contentsOf: response.results)
@@ -55,23 +57,10 @@ class SearchViewModel: ObservableObject {
             self.page += 1
             self.state = (page > response.totalPages) ? .loadedAll : .ready
 
+        } catch let error as DecodingError {
+            print("⛔️ Decoding error: \(error)")
         } catch {
-            if let error = error as? DecodingError {
-                print("⛔️ Decoding error: \(error)")
-            } else {
-                print("⛔️ Network error: \(error)")
-            }
+            print("⛔️ Network error: \(error)")
         }
-    }
-
-    public func shouldLoadMore() -> Bool {
-        guard self.state != .loadedAll, self.state != .fetching else {
-            print("Can't load more: \(self.state)")
-            return false
-        }
-
-        print("Loading more!")
-
-        return true
     }
 }

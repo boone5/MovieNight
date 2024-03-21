@@ -27,7 +27,7 @@ final public class NetworkManager {
         }
     }
 
-    public func createURL(from endpoint: EndpointProviding) throws -> URL {
+    private func createURL(from endpoint: EndpointProviding) throws -> URL {
         var urlComponents = URLComponents()
         urlComponents.scheme = "https"
         urlComponents.host = endpoint.host()
@@ -41,7 +41,7 @@ final public class NetworkManager {
         return url
     }
 
-    func createRequest(with url: URL) -> URLRequest {
+    private func createRequest(with url: URL) -> URLRequest {
         var request = URLRequest(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10)
         request.httpMethod = "GET"
         request.allHTTPHeaderFields = APIKey.headers_TMDB

@@ -6,7 +6,7 @@
 //
 
 struct ActorResponse: Codable, Hashable, Identifiable {
-    let id: Int
+    let id: Int64
     let adult: Bool
     let name: String
     let originalName: String

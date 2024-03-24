@@ -12,16 +12,6 @@ import CoreData
 final class Movie_CD: NSManagedObject, Identifiable {
     // Movie Properties
     @NSManaged var id: Int64
-//    @NSManaged var adult: Bool
-//    @NSManaged var originalLanguage: String
-//    @NSManaged var overview: String
-//    @NSManaged var popularity: Double
-//    @NSManaged var releaseDate: String
-//    @NSManaged var title: String
-//    @NSManaged var video: Bool
-//    @NSManaged var voteAverage: Double
-//    @NSManaged var voteCount: Int64
-//    @NSManaged var posterPath: String?
 
     // Additional Properties
     @NSManaged var userRating: Int16    // cannot be marked optional due to ObjC limitations. Might be able to use NSNumber instead
@@ -32,7 +22,6 @@ final class Movie_CD: NSManagedObject, Identifiable {
 
         // set default values for optional params
         setPrimitiveValue(nil, forKey: "posterData")
-//        setPrimitiveValue(nil, forKey: "posterPath")
         setPrimitiveValue(3, forKey: "userRating")
     }
 }

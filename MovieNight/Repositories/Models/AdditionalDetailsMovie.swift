@@ -1,5 +1,5 @@
 //
-//  MovieDetails.swift
+//  AdditionalDetailsMovie.swift
 //  MovieNight
 //
 //  Created by Boone on 2/8/24.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct MovieDetails: Codable {
+struct AdditionalDetailsMovie: Codable {
     let adult: Bool
     let backdropPath: String
     let belongsToCollection: MovieCollection?

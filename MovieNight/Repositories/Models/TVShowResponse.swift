@@ -6,11 +6,11 @@
 //
 
 struct TVShowResponse: Codable, Hashable, Identifiable {
-    let id: Int
+    let id: Int64
     let adult: Bool
     let backdropPath: String?
     let posterPath: String?
-    let name, originalName: String
+    let title, originalTitle: String
     let originalLanguage: String
     let overview: String
     let mediaType: String
@@ -26,8 +26,8 @@ struct TVShowResponse: Codable, Hashable, Identifiable {
         case adult
         case backdropPath = "backdrop_path"
         case posterPath = "poster_path"
-        case name
-        case originalName = "original_name"
+        case title = "name"
+        case originalTitle = "original_name"
         case originalLanguage = "original_language"
         case overview
         case mediaType = "media_type"

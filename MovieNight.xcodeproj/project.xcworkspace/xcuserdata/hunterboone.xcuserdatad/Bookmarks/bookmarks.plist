@@ -57,15 +57,15 @@
 				<key>location-parameters</key>
 				<dict>
 					<key>EndingColumnNumber</key>
-					<string>68</string>
+					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>59</string>
+					<string>60</string>
 					<key>StartingColumnNumber</key>
-					<string>36</string>
+					<string>0</string>
 					<key>StartingLineNumber</key>
 					<string>59</string>
 					<key>Timestamp</key>
-					<string>732560330.039893</string>
+					<string>732683764.669113</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -81,15 +81,16 @@
 			<key>text-context</key>
 			<dict>
 				<key>focused</key>
-				<string>case .people(let actorResponse):</string>
+				<string>                                    case .people(let actorResponse):
+</string>
 				<key>leading</key>
 				<string>                                    case .tvShow(let tvShow):
                                         TVShowRowView(tvShow: tvShow)
-                                    </string>
+</string>
 				<key>trailing</key>
-				<string>
-                                        Text("Person")
+				<string>                                        Text("Person")
                                             .foregroundStyle(.white)
+                                    }
 </string>
 			</dict>
 			<key>title</key>

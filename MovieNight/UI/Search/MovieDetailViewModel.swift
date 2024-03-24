@@ -1,5 +1,5 @@
 //
-//  MovieDetailViewModel.swift
+//  MovieDetailScreenModel.swift
 //  MovieNight
 //
 //  Created by Boone on 1/23/24.
@@ -10,50 +10,29 @@ import Foundation
 @MainActor
 class MovieDetailViewModel: ObservableObject {
     @Published var recommendedMovies: [MovieResponse] = []
-    @Published var details: MovieDetails?
-
     @Published var voteAverage: Int = 0
-    @Published var didLeaveReview: Bool = false
-    @Published var userRating: Int16 = 0
+    @Published var movieImage: Data?
 
     private var networkManager = NetworkManager()
 
     private var page: Int = 1
+    public var movie: MovieResponse
 
-    public func fetchAdditionalDetails(_ id: Int64) async {
-        await self.fetchMovieDetails(id: id)
-        await self.fetchRecommendedMovies(id: id)
-
-        if let movie = MovieProvider.shared.exists(id: id), movie.userRating != 0 {
-            self.didLeaveReview = true
-            self.userRating = movie.userRating
-        }
+    init(movie: MovieResponse) {
+        self.movie = movie
     }
 
-    private func fetchMovieDetails(id: Int64) async {
+    public func fetchAddtionalDetails() async {
         do {
-            let data = try await networkManager.request(DetailsEndpoint.movieDetails(id: id))
+            let detailsData = try await networkManager.request(DetailsEndpoint.movieDetails(id: movie.id))
+            let details = try JSONDecoder().decode(AdditionalDetailsMovie.self, from: detailsData)
 
-            let response = try JSONDecoder().decode(MovieDetails.self, from: data)
+            self.convertWeightSystem(from: details.voteAverage)
 
-            self.details = response
+            let recommendedData = try await networkManager.request(RecommendedEndpoint.recommendedMovies(id: movie.id, page: 1))
+            let recommended = try JSONDecoder().decode(MovieResponse.self, from: recommendedData)
 
-            self.convertWeightSystem(from: response.voteAverage)
-
-        } catch let error as DecodingError {
-            print("⛔️ Decoding error: \(error)")
-        } catch {
-            print("⛔️ Network error: \(error)")
-        }
-    }
-
-    private func fetchRecommendedMovies(id: Int64) async {
-        do {
-            let data = try await networkManager.request(RecommendedEndpoint.recommendedMovies(id: id, page: 1))
-
-            let response = try JSONDecoder().decode(SearchResponse.self, from: data)
-
-//            self.recommendedMovies = response.results
+            self.recommendedMovies = [recommended]
 
         } catch let error as DecodingError {
             print("⛔️ Decoding error: \(error)")

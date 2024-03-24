@@ -1,25 +1,24 @@
 //
-//  MovieDetailView.swift
+//  MovieDetailScreen.swift
 //  MovieNight
 //
 //  Created by Boone on 10/18/23.
 //
 
 import SwiftUI
+import UIKit
 
 // Lottie Animations: https://iconscout.com/lottie-animation-pack/emoji-282
 
-struct MovieDetailView: View {
-    @Binding var path: NavigationPath
+struct MovieDetailScreen: View {
+    @ObservedObject var viewModel: MovieDetailViewModel
 
-    @StateObject var viewModel: MovieDetailViewModel = MovieDetailViewModel()
+    @Binding var path: NavigationPath
 
     @State private var showRatingSheet = false
     @State private var localRating: Int16 = 0
     @State private var didReview: Bool = false
-
-    var imgData: Data?
-    var movieID: Int64
+    @State private var storedRating: Int16?
 
     var body: some View {
         ZStack {
@@ -45,8 +44,8 @@ struct MovieDetailView: View {
 
                 ScrollView {
                     VStack(spacing: 0) {
-                        if let imgData, let uiimage = UIImage(data: imgData) {
-                            Image(uiImage: uiimage)
+                        if let image = makeUIImage() {
+                            Image(uiImage: image)
                                 .resizable()
                                 .frame(width: 175, height: 240)
                                 .scaledToFit()
@@ -67,7 +66,7 @@ struct MovieDetailView: View {
                                 .padding(50)
                         }
 
-                        Text(viewModel.details?.title ?? "Debug Title")
+                        Text(viewModel.movie.title)
                             .frame(maxWidth: 300)
                             .multilineTextAlignment(.center)
                             .font(.title)
@@ -76,7 +75,29 @@ struct MovieDetailView: View {
                             .padding(.top, 15)
 
                         Group {
-                            if !viewModel.didLeaveReview {
+                            if let storedRating {
+                                ZStack {
+                                    Rectangle()
+                                        .frame(width: 100, height: 35)
+                                        .frame(maxHeight: .infinity)
+                                        .foregroundStyle(Color("BrightRed"))
+                                        .cornerRadius(8)
+                                        .shadow(color: Color.black.opacity(0.4), radius: 6, x: 0, y: 4)
+
+                                    HStack {
+                                        Text(String(storedRating))
+                                            .foregroundStyle(Color.white)
+                                            .font(.title2)
+                                            .fontWeight(.bold)
+
+                                        Image(systemName: "star.fill")
+                                            .resizable()
+                                            .frame(width: 20, height: 20)
+                                            .foregroundColor(Color("Gold"))
+                                    }
+                                }
+                                .frame(alignment: .center)
+                            } else {
                                 ZStack {
                                     Button {
                                         self.showRatingSheet = true
@@ -100,28 +121,6 @@ struct MovieDetailView: View {
                                         .font(.subheadline)
                                         .fontWeight(.regular)
                                 }
-                            } else {
-                                ZStack {
-                                    Rectangle()
-                                        .frame(width: 100, height: 35)
-                                        .frame(maxHeight: .infinity)
-                                        .foregroundStyle(Color("BrightRed"))
-                                        .cornerRadius(8)
-                                        .shadow(color: Color.black.opacity(0.4), radius: 6, x: 0, y: 4)
-
-                                    HStack {
-                                        Text(String(viewModel.userRating))
-                                            .foregroundStyle(Color.white)
-                                            .font(.title2)
-                                            .fontWeight(.bold)
-
-                                        Image(systemName: "star.fill")
-                                            .resizable()
-                                            .frame(width: 20, height: 20)
-                                            .foregroundColor(Color("Gold"))
-                                    }
-                                }
-                                .frame(alignment: .center)
                             }
                         }
                         .padding(.top, 15)
@@ -139,7 +138,7 @@ struct MovieDetailView: View {
                             .padding([.leading, .trailing], 30)
                             .padding([.top], 20)
 
-                        Text(viewModel.details?.overview ?? "N/A")
+                        Text(viewModel.movie.overview)
                             .foregroundStyle(.white)
                             .font(.subheadline)
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -257,26 +256,44 @@ struct MovieDetailView: View {
         }
         .navigationBarBackButtonHidden()
         .task {
-            await viewModel.fetchAdditionalDetails(movieID)
+//            switch type {
+//            case .movie(let movie):
+//                await viewModel.addtionalDetailsForMovie(movie.id)
+//
+//                if let movie = MovieProvider.shared.exists(id: movie.id), movie.userRating != 0 {
+//                    self.storedRating = movie.userRating
+//                }
+//            case .tvShow(let tvShow):
+//                <#code#>
+//            case .people(let person):
+//                <#code#>
+//            }
         }
+    }
+
+    private func makeUIImage() -> UIImage? {
+        guard let data = ImageCache.shared.getObject(forKey: viewModel.movie.posterPath) else { return nil }
+
+        return UIImage(data: data)
     }
 
     private func onSheetDismiss() {
         if didReview {
-            let id = movieID
+            let id = viewModel.movie.id
 
+            // MARK: TODO - Need to create new core data object for each content type (Movie, TV Show, Person). ID: 59941 is the same for a TV Show and Person on the API
             guard let existing = MovieProvider.shared.exists(id: id) else {
                 print("ℹ️ Movie doesn't exist in Core Data. Creating new object.")
 
                 let movieDetails = Movie_CD(context: MovieProvider.shared.viewContext)
-                movieDetails.posterData = imgData
+                movieDetails.posterData = nil
                 movieDetails.userRating = localRating
-                movieDetails.id = movieID
+                movieDetails.id = id
 
                 MovieProvider.shared.save()
 
-                viewModel.didLeaveReview = true
-                viewModel.userRating = localRating
+                self.didReview = true
+                self.storedRating = localRating
 
                 return
             }
@@ -410,29 +427,14 @@ enum Rating {
             .green
         }
     }
-
-    var image: String {
-        switch self {
-        case .horrible:
-            "😡"
-        case .notRecommend:
-            "😴"
-        case .neutral:
-            "😳"
-        case .recommend:
-            "🙂"
-        case .amazing:
-            "😍"
-        }
-    }
 }
 
-struct SearchResultDetailView_Previews: PreviewProvider {
-    static var previews: some View {
-        StatefulPreviewWrapper(NavigationPath()) { MovieDetailView(path: $0, movieID: Int64(123456)) }
-//        RatingSheet()
-    }
-}
+//struct SearchResultDetailView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        StatefulPreviewWrapper(NavigationPath()) { MovieDetailScreen(path: $0, movieID: Int64(123456)) }
+////        RatingSheet()
+//    }
+//}
 
 struct StatefulPreviewWrapper<Value, Content: View>: View {
     @State var value: Value

@@ -68,6 +68,17 @@ struct Search: View {
                             }
                             .listRowBackground(Color.clear)
                             .buttonStyle(PlainButtonStyle())
+                            .navigationDestination(for: ResponseType.self) { type in
+                                switch type {
+                                case .movie(let movie):
+                                    MovieDetailScreen(viewModel: MovieDetailViewModel(movie: movie), path: $path)
+                                case .tvShow(let tvShow):
+                                    TVShowDetailScreen(viewModel: TVShowDetailViewModel(tvShow: tvShow), path: $path)
+                                case .people(let person):
+                                    // ActorDetailView(viewModel: ActorViewModel(actor: actor))
+                                    Text("Person")
+                                }
+                            }
                         }
 
                         Text("End of List")
@@ -79,10 +90,6 @@ struct Search: View {
                     }
                     .listStyle(.plain)
                     .scrollContentBackground(.hidden)
-//                    .navigationDestination(for: MovieResponse.self) { movie in
-//                        let imgData = ImageCache.shared.getObject(forKey: movie.posterPath)
-//                        MovieDetailView(path: $path, imgData: imgData, movieID: movie.id)
-//                    }
 
                     Spacer()
                 }
@@ -101,7 +108,7 @@ struct TVShowRowView: View {
             ThumbnailView(url: tvShow.posterPath, width: 100, height: 150)
 
             VStack(alignment: .leading, spacing: 5) {
-                Text(tvShow.name)
+                Text(tvShow.title)
                     .font(.title2)
                     .fontWeight(.medium)
                     .lineLimit(2)

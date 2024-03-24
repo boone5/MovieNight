@@ -43,9 +43,9 @@ struct Library: View {
                                 }
                             }
                         }
-                        .navigationDestination(for: Movie_CD.self) { movie in
-                            MovieDetailView(path: $path, imgData: movie.posterData, movieID: movie.id)
-                        }
+//                        .navigationDestination(for: Movie_CD.self) { movie in
+//                            MovieDetailScreen(viewModel: .init(movie: movie), path: $path)
+//                        }
                         .padding([.leading, .trailing, .top], 20)
                     }
                 }

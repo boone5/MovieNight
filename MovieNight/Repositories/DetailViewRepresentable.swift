@@ -9,7 +9,7 @@ import Foundation
 
 protocol DetailViewRepresentable {
     var id: Int64 { get }
-    var adult: Bool { get }
+    var adult: Bool? { get }
     var originalLanguage: String { get }
     var overview: String { get }
     var popularity: Double { get }

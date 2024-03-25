@@ -9,6 +9,7 @@ import Foundation
 
 enum DetailsEndpoint: EndpointProviding {
     case movieDetails(id: Int64)
+    case tvShowDetails(id: Int64)
 }
 
 extension DetailsEndpoint {
@@ -16,6 +17,8 @@ extension DetailsEndpoint {
         switch self {
         case .movieDetails(let id):
             "/3/movie/\(id)"
+        case .tvShowDetails(let id):
+            "/3/tv/\(id)"
         }
     }
 

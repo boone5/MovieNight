@@ -12,7 +12,7 @@ struct CustomSearchBar: UIViewRepresentable {
     @Binding var searchText: String
 
     class Coordinator: NSObject, UISearchBarDelegate {
-        @ObservedObject var vm: SearchViewModel
+        var vm: SearchViewModel
         @Binding var searchText: String
 
         init(searchText: Binding<String>, searchViewModel: SearchViewModel) {

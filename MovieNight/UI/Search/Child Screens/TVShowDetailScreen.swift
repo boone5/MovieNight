@@ -26,19 +26,6 @@ struct TVShowDetailScreen: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                HStack {
-                    Button {
-                        self.path.removeLast()
-                    } label: {
-                        Image(systemName: "chevron.left")
-                            .font(.title3)
-                            .foregroundStyle(.white)
-                    }
-
-                    Spacer()
-                }
-                .padding([.bottom, .leading, .trailing], 20)
-
                 ScrollView {
                     VStack(spacing: 0) {
                         if let image = makeUIImage() {
@@ -191,14 +178,14 @@ struct TVShowDetailScreen: View {
                                     .font(.subheadline)
 
                                 // Stars Stack
-//                                HStack(spacing: 5) {
-//                                    ForEach(0..<5) { index in
-//                                        Image(systemName: index < viewModel.voteAverage ? "star.fill" : "star")
-//                                            .resizable()
-//                                            .frame(width: 18, height: 18)
-//                                            .foregroundStyle(Color("Gold"))
-//                                    }
-//                                }
+                                HStack(spacing: 5) {
+                                    ForEach(0..<5) { index in
+                                        Image(systemName: index < viewModel.voteAverage ? "star.fill" : "star")
+                                            .resizable()
+                                            .frame(width: 18, height: 18)
+                                            .foregroundStyle(Color("Gold"))
+                                    }
+                                }
                             }
 
                             Spacer()
@@ -219,20 +206,20 @@ struct TVShowDetailScreen: View {
                             .padding([.leading, .trailing], 30)
                             .padding([.top], 20)
 
-//                        ScrollView(.horizontal) {
-//                            LazyHStack(spacing: 10) {
-//                                ForEach(viewModel.recommendedMovies) { movie in
-//                                    ThumbnailView(url: movie.posterPath, width: 175, height: 250)
-//                                }
-//                            }
-//                        }
-//                        .safeAreaInset(edge: .leading, spacing: 0) {
-//                            VStack(spacing: 0) { }.padding(.leading, 30)
-//                        }
-//                        .safeAreaInset(edge: .trailing, spacing: 0) {
-//                            VStack { }.padding(.trailing, 30)
-//                        }
-//                        .padding([.top], 20)
+                        ScrollView(.horizontal) {
+                            LazyHStack(spacing: 10) {
+                                ForEach(viewModel.recommendedTVShows) { movie in
+                                    ThumbnailView(url: movie.posterPath, width: 175, height: 250)
+                                }
+                            }
+                        }
+                        .safeAreaInset(edge: .leading, spacing: 0) {
+                            VStack(spacing: 0) { }.padding(.leading, 30)
+                        }
+                        .safeAreaInset(edge: .trailing, spacing: 0) {
+                            VStack { }.padding(.trailing, 30)
+                        }
+                        .padding([.top], 20)
 
                         Divider()
                             .overlay(.white.opacity(0.3))
@@ -251,20 +238,8 @@ struct TVShowDetailScreen: View {
                 }
             }
         }
-        .navigationBarBackButtonHidden()
         .task {
-//            switch type {
-//            case .movie(let movie):
-//                await viewModel.addtionalDetailsForMovie(movie.id)
-//
-//                if let movie = MovieProvider.shared.exists(id: movie.id), movie.userRating != 0 {
-//                    self.storedRating = movie.userRating
-//                }
-//            case .tvShow(let tvShow):
-//                <#code#>
-//            case .people(let person):
-//                <#code#>
-//            }
+            await viewModel.fetchAddtionalDetails()
         }
     }
 

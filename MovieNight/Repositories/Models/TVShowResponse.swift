@@ -7,10 +7,11 @@
 
 struct TVShowResponse: Codable, Hashable, Identifiable {
     let id: Int64
-    let adult: Bool
+    let adult: Bool?
     let backdropPath: String?
     let posterPath: String?
-    let title, originalTitle: String
+    let title: String
+    let originalTitle: String
     let originalLanguage: String
     let overview: String
     let mediaType: String

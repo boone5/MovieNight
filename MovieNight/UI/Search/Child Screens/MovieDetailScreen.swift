@@ -29,19 +29,6 @@ struct MovieDetailScreen: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                HStack {
-                    Button {
-                        self.path.removeLast()
-                    } label: {
-                        Image(systemName: "chevron.left")
-                            .font(.title3)
-                            .foregroundStyle(.white)
-                    }
-
-                    Spacer()
-                }
-                .padding([.bottom, .leading, .trailing], 20)
-
                 ScrollView {
                     VStack(spacing: 0) {
                         if let image = makeUIImage() {
@@ -254,20 +241,8 @@ struct MovieDetailScreen: View {
                 }
             }
         }
-        .navigationBarBackButtonHidden()
         .task {
-//            switch type {
-//            case .movie(let movie):
-//                await viewModel.addtionalDetailsForMovie(movie.id)
-//
-//                if let movie = MovieProvider.shared.exists(id: movie.id), movie.userRating != 0 {
-//                    self.storedRating = movie.userRating
-//                }
-//            case .tvShow(let tvShow):
-//                <#code#>
-//            case .people(let person):
-//                <#code#>
-//            }
+            await viewModel.fetchAddtionalDetails()
         }
     }
 

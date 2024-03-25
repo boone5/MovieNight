@@ -9,7 +9,7 @@ import Foundation
 
 struct MovieResponse: DetailViewRepresentable, Codable, Hashable, Identifiable {
     let id: Int64
-    let adult: Bool
+    let adult: Bool?
     let backdropPath: String?
     let genreIDs: [Int]
     let originalLanguage, originalTitle, overview: String

@@ -54,9 +54,17 @@ struct Search: View {
                                 HStack {
                                     switch detail {
                                     case .movie(let movie):
-                                        MovieRowView(movie: movie)
+                                        NavigationLink {
+                                            MovieDetailScreen(viewModel: MovieDetailViewModel(movie: movie), path: $path)
+                                        } label: {
+                                            MovieRowView(movie: movie)
+                                        }
                                     case .tvShow(let tvShow):
-                                        TVShowRowView(tvShow: tvShow)
+                                        NavigationLink {
+                                            TVShowDetailScreen(viewModel: TVShowDetailViewModel(tvShow: tvShow), path: $path)
+                                        } label: {
+                                            TVShowRowView(tvShow: tvShow)
+                                        }
                                     case .people(let actorResponse):
                                         Text("Person")
                                             .foregroundStyle(.white)
@@ -68,17 +76,6 @@ struct Search: View {
                             }
                             .listRowBackground(Color.clear)
                             .buttonStyle(PlainButtonStyle())
-                            .navigationDestination(for: ResponseType.self) { type in
-                                switch type {
-                                case .movie(let movie):
-                                    MovieDetailScreen(viewModel: MovieDetailViewModel(movie: movie), path: $path)
-                                case .tvShow(let tvShow):
-                                    TVShowDetailScreen(viewModel: TVShowDetailViewModel(tvShow: tvShow), path: $path)
-                                case .people(let person):
-                                    // ActorDetailView(viewModel: ActorViewModel(actor: actor))
-                                    Text("Person")
-                                }
-                            }
                         }
 
                         Text("End of List")
@@ -104,29 +101,27 @@ struct TVShowRowView: View {
     let tvShow: TVShowResponse
 
     var body: some View {
-        NavigationLink(value: tvShow) {
-            ThumbnailView(url: tvShow.posterPath, width: 100, height: 150)
+        ThumbnailView(url: tvShow.posterPath, width: 100, height: 150)
 
-            VStack(alignment: .leading, spacing: 5) {
-                Text(tvShow.title)
-                    .font(.title2)
-                    .fontWeight(.medium)
-                    .lineLimit(2)
-                    .foregroundStyle(Color(uiColor: .white))
-                    .padding(.leading, 15)
+        VStack(alignment: .leading, spacing: 5) {
+            Text(tvShow.title)
+                .font(.title2)
+                .fontWeight(.medium)
+                .lineLimit(2)
+                .foregroundStyle(Color(uiColor: .white))
+                .padding(.leading, 15)
 
-                Text(tvShow.firstAirDate)
-                    .font(.caption)
-                    .fontWeight(.regular)
-                    .foregroundStyle(Color(uiColor: .systemGray))
-                    .padding(.leading, 15)
+            Text(tvShow.firstAirDate)
+                .font(.caption)
+                .fontWeight(.regular)
+                .foregroundStyle(Color(uiColor: .systemGray))
+                .padding(.leading, 15)
 
-                Text(tvShow.mediaType)
-                    .font(.caption)
-                    .fontWeight(.regular)
-                    .foregroundStyle(Color(uiColor: .systemGray))
-                    .padding(.leading, 15)
-            }
+            Text(tvShow.mediaType)
+                .font(.caption)
+                .fontWeight(.regular)
+                .foregroundStyle(Color(uiColor: .systemGray))
+                .padding(.leading, 15)
         }
     }
 }
@@ -135,29 +130,27 @@ struct MovieRowView: View {
     let movie: MovieResponse
 
     var body: some View {
-        NavigationLink(value: movie) {
-            ThumbnailView(url: movie.posterPath, width: 100, height: 150)
+        ThumbnailView(url: movie.posterPath, width: 100, height: 150)
 
-            VStack(alignment: .leading, spacing: 5) {
-                Text(movie.title)
-                    .font(.title2)
-                    .fontWeight(.medium)
-                    .lineLimit(2)
-                    .foregroundStyle(Color(uiColor: .white))
-                    .padding(.leading, 15)
+        VStack(alignment: .leading, spacing: 5) {
+            Text(movie.title)
+                .font(.title2)
+                .fontWeight(.medium)
+                .lineLimit(2)
+                .foregroundStyle(Color(uiColor: .white))
+                .padding(.leading, 15)
 
-                Text(movie.releaseDate)
-                    .font(.caption)
-                    .fontWeight(.regular)
-                    .foregroundStyle(Color(uiColor: .systemGray))
-                    .padding(.leading, 15)
+            Text(movie.releaseDate)
+                .font(.caption)
+                .fontWeight(.regular)
+                .foregroundStyle(Color(uiColor: .systemGray))
+                .padding(.leading, 15)
 
-                Text(movie.mediaType)
-                    .font(.caption)
-                    .fontWeight(.regular)
-                    .foregroundStyle(Color(uiColor: .systemGray))
-                    .padding(.leading, 15)
-            }
+            Text(movie.mediaType)
+                .font(.caption)
+                .fontWeight(.regular)
+                .foregroundStyle(Color(uiColor: .systemGray))
+                .padding(.leading, 15)
         }
     }
 }

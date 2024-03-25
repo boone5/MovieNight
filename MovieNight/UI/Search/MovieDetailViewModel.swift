@@ -11,7 +11,6 @@ import Foundation
 class MovieDetailViewModel: ObservableObject {
     @Published var recommendedMovies: [MovieResponse] = []
     @Published var voteAverage: Int = 0
-    @Published var movieImage: Data?
 
     private var networkManager = NetworkManager()
 
@@ -29,10 +28,18 @@ class MovieDetailViewModel: ObservableObject {
 
             self.convertWeightSystem(from: details.voteAverage)
 
-            let recommendedData = try await networkManager.request(RecommendedEndpoint.recommendedMovies(id: movie.id, page: 1))
-            let recommended = try JSONDecoder().decode(MovieResponse.self, from: recommendedData)
-
-            self.recommendedMovies = [recommended]
+            // Supports pagination so the decoded response is wrong currently
+            let recommendedData = try await networkManager.request(RecommendedEndpoint.movies(id: movie.id, page: 1))
+            let recommended = try JSONDecoder().decode(SearchResponse.self, from: recommendedData)
+            
+            recommended.results.forEach { type in
+                switch type {
+                case .movie(let movie):
+                    self.recommendedMovies.append(movie)
+                default:
+                    assertionFailure("Wrong type")
+                }
+            }
 
         } catch let error as DecodingError {
             print("⛔️ Decoding error: \(error)")

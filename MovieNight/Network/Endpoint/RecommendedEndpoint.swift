@@ -8,20 +8,31 @@
 import Foundation
 
 enum RecommendedEndpoint: EndpointProviding {
-    case recommendedMovies(id: Int64, page: Int)
+    case movies(id: Int64, page: Int)
+    case tvShows(id: Int64, page: Int)
 }
 
 extension RecommendedEndpoint {
     func path() -> String {
         switch self {
-        case .recommendedMovies(let id, _):
+        case .movies(let id, _):
             return "/3/movie/\(id)/recommendations"
+        case .tvShows(let id, _):
+            return "/3/tv/\(id)/recommendations"
         }
     }
     
     func queryItems() -> [URLQueryItem]? {
         switch self {
-        case .recommendedMovies(_, let page):
+        case .movies(_, let page):
+            let queryItems: [URLQueryItem] = [
+                .init(name: "language", value: "en-US"),
+                makePaginationParam(page: page)
+            ]
+
+            return queryItems
+
+        case .tvShows(_, let page):
             let queryItems: [URLQueryItem] = [
                 .init(name: "language", value: "en-US"),
                 makePaginationParam(page: page)

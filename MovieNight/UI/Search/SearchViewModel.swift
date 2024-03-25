@@ -11,7 +11,7 @@ import SwiftUI
 @MainActor
 class SearchViewModel: ObservableObject {
     @Published var state: LoadingState = .ready
-    @Published var movieDetails: [ResponseType] = [ResponseType]()
+    @Published var movieDetails: [ResponseType] = []
 
     public var isLoading: Bool {
         state == .loading

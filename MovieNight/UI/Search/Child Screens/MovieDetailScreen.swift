@@ -11,9 +11,10 @@ import UIKit
 // Lottie Animations: https://iconscout.com/lottie-animation-pack/emoji-282
 
 struct MovieDetailScreen: View {
-    @ObservedObject var viewModel: MovieDetailViewModel
+    @StateObject var viewModel: MovieDetailViewModel = MovieDetailViewModel()
 
-    @Binding var path: NavigationPath
+    public var id: Int64
+    public var posterPath: String?
 
     @State private var showRatingSheet = false
     @State private var localRating: Int16 = 0
@@ -53,7 +54,7 @@ struct MovieDetailScreen: View {
                                 .padding(50)
                         }
 
-                        Text(viewModel.movie.title)
+                        Text(viewModel.movie?.title ?? "")
                             .frame(maxWidth: 300)
                             .multilineTextAlignment(.center)
                             .font(.title)
@@ -125,7 +126,7 @@ struct MovieDetailScreen: View {
                             .padding([.leading, .trailing], 30)
                             .padding([.top], 20)
 
-                        Text(viewModel.movie.overview)
+                        Text(viewModel.movie?.overview ?? "Not available.")
                             .foregroundStyle(.white)
                             .font(.subheadline)
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -170,12 +171,12 @@ struct MovieDetailScreen: View {
                                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                                     .font(.subheadline)
 
-                                Text("120 minutes")
+                                Text(String(viewModel.movie?.runtime ?? 0))
                                     .foregroundStyle(.white)
                                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                                     .font(.subheadline)
 
-                                Text("Jan. 24th, 2024")
+                                Text(viewModel.movie?.releaseDate ?? "Not available.")
                                     .foregroundStyle(.white)
                                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                                     .font(.subheadline)
@@ -220,7 +221,7 @@ struct MovieDetailScreen: View {
                             VStack(spacing: 0) { }.padding(.leading, 30)
                         }
                         .safeAreaInset(edge: .trailing, spacing: 0) {
-                            VStack { }.padding(.trailing, 30)
+                            VStack(spacing: 0) { }.padding(.trailing, 30)
                         }
                         .padding([.top], 20)
 
@@ -242,20 +243,18 @@ struct MovieDetailScreen: View {
             }
         }
         .task {
-            await viewModel.fetchAddtionalDetails()
+            await viewModel.fetchAddtionalDetails(id)
         }
     }
 
     private func makeUIImage() -> UIImage? {
-        guard let data = ImageCache.shared.getObject(forKey: viewModel.movie.posterPath) else { return nil }
+        guard let data = ImageCache.shared.getObject(forKey: posterPath) else { return nil }
 
         return UIImage(data: data)
     }
 
     private func onSheetDismiss() {
         if didReview {
-            let id = viewModel.movie.id
-
             // MARK: TODO - Need to create new core data object for each content type (Movie, TV Show, Person). ID: 59941 is the same for a TV Show and Person on the API
             guard let existing = MovieProvider.shared.exists(id: id) else {
                 print("ℹ️ Movie doesn't exist in Core Data. Creating new object.")

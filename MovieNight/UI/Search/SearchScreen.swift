@@ -26,16 +26,40 @@ struct Search: View {
                     .ignoresSafeArea()
 
                 VStack(alignment: .leading, spacing: 0) {
-                    VStack(alignment: .leading, spacing: 0) {
+                    VStack(alignment: .leading, spacing: 7) {
                         Text("Explore")
                             .foregroundStyle(.white)
                             .font(.system(size: 42, weight: .bold))
+                            .padding([.leading, .trailing], 15)
 
                         CustomSearchBar(vm: searchViewModel, searchText: $searchText)
                         // no way to adjust default padding from UISearchBar https://stackoverflow.com/questions/55636460/remove-padding-around-uisearchbar-textfield
                             .padding(.horizontal, -8)
+                            .padding([.leading, .trailing], 15)
+
+                        if !searchViewModel.movieDetails.isEmpty {
+                            ScrollView(.horizontal) {
+                                HStack {
+                                    ForEach(1..<5) { _ in
+                                        ZStack {
+                                            Text("TV Shows")
+                                                .font(.system(size: 12, weight: .regular))
+                                                .foregroundColor(.white)
+                                                .padding(10) // Adjust the overall padding as needed
+                                                .background(Capsule().foregroundColor(Color("BrightRed")))
+                                        }
+                                    }
+                                }
+                            }
+                            .safeAreaInset(edge: .leading, spacing: 0) {
+                                VStack(spacing: 0) { }.padding(.leading, 15)
+                            }
+                            .safeAreaInset(edge: .trailing, spacing: 0) {
+                                VStack(spacing: 0) { }.padding(.trailing, 15)
+                            }
+                            .padding(.bottom, 10)
+                        }
                     }
-                    .padding([.leading, .trailing], 15)
 
                     Spacer()
 
@@ -55,13 +79,13 @@ struct Search: View {
                                     switch detail {
                                     case .movie(let movie):
                                         NavigationLink {
-                                            MovieDetailScreen(viewModel: MovieDetailViewModel(movie: movie), path: $path)
+                                            MovieDetailScreen(id: movie.id, posterPath: movie.posterPath)
                                         } label: {
                                             MovieRowView(movie: movie)
                                         }
                                     case .tvShow(let tvShow):
                                         NavigationLink {
-                                            TVShowDetailScreen(viewModel: TVShowDetailViewModel(tvShow: tvShow), path: $path)
+                                            TVShowDetailScreen(id: tvShow.id, posterPath: tvShow.posterPath)
                                         } label: {
                                             TVShowRowView(tvShow: tvShow)
                                         }

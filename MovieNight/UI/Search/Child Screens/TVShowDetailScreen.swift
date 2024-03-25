@@ -8,9 +8,10 @@
 import SwiftUI
 
 struct TVShowDetailScreen: View {
-    @ObservedObject var viewModel: TVShowDetailViewModel
+    @StateObject var viewModel: TVShowDetailViewModel = TVShowDetailViewModel()
 
-    @Binding var path: NavigationPath
+    public var id: Int64
+    public var posterPath: String?
 
     @State private var showRatingSheet = false
     @State private var localRating: Int16 = 0
@@ -50,7 +51,7 @@ struct TVShowDetailScreen: View {
                                 .padding(50)
                         }
 
-                        Text(viewModel.tvShow.title)
+                        Text(viewModel.tvShow?.title ?? "")
                             .frame(maxWidth: 300)
                             .multilineTextAlignment(.center)
                             .font(.title)
@@ -122,7 +123,7 @@ struct TVShowDetailScreen: View {
                             .padding([.leading, .trailing], 30)
                             .padding([.top], 20)
 
-                        Text(viewModel.tvShow.overview)
+                        Text(viewModel.tvShow?.overview ?? "Not available.")
                             .foregroundStyle(.white)
                             .font(.subheadline)
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -142,13 +143,7 @@ struct TVShowDetailScreen: View {
                                     .font(.subheadline)
                                     .fontWeight(.semibold)
 
-                                Text("Duration")
-                                    .foregroundStyle(.white)
-                                    .frame(width: 100, alignment: .leading)
-                                    .font(.subheadline)
-                                    .fontWeight(.semibold)
-
-                                Text("Released")
+                                Text("Seasons")
                                     .foregroundStyle(.white)
                                     .frame(width: 100, alignment: .leading)
                                     .font(.subheadline)
@@ -167,12 +162,7 @@ struct TVShowDetailScreen: View {
                                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                                     .font(.subheadline)
 
-                                Text("120 minutes")
-                                    .foregroundStyle(.white)
-                                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                                    .font(.subheadline)
-
-                                Text("Jan. 24th, 2024")
+                                Text(String(viewModel.tvShow?.numberOfSeasons ?? 0))
                                     .foregroundStyle(.white)
                                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                                     .font(.subheadline)
@@ -239,20 +229,18 @@ struct TVShowDetailScreen: View {
             }
         }
         .task {
-            await viewModel.fetchAddtionalDetails()
+            await viewModel.fetchAddtionalDetails(id)
         }
     }
 
     private func makeUIImage() -> UIImage? {
-        guard let data = ImageCache.shared.getObject(forKey: viewModel.tvShow.posterPath) else { return nil }
+        guard let data = ImageCache.shared.getObject(forKey: posterPath) else { return nil }
 
         return UIImage(data: data)
     }
 
     private func onSheetDismiss() {
         if didReview {
-            let id = viewModel.tvShow.id
-
             // MARK: TODO - Need to create new core data object for each content type (Movie, TV Show, Person). ID: 59941 is the same for a TV Show and Person on the API
             guard let existing = MovieProvider.shared.exists(id: id) else {
                 print("ℹ️ Movie doesn't exist in Core Data. Creating new object.")

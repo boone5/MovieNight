@@ -11,25 +11,21 @@ import Foundation
 class MovieDetailViewModel: ObservableObject {
     @Published var recommendedMovies: [MovieResponse] = []
     @Published var voteAverage: Int = 0
+    @Published var movie: AdditionalDetailsMovie?
 
     private var networkManager = NetworkManager()
-
     private var page: Int = 1
-    public var movie: MovieResponse
 
-    init(movie: MovieResponse) {
-        self.movie = movie
-    }
-
-    public func fetchAddtionalDetails() async {
+    public func fetchAddtionalDetails(_ id: Int64) async {
         do {
-            let detailsData = try await networkManager.request(DetailsEndpoint.movieDetails(id: movie.id))
+            let detailsData = try await networkManager.request(DetailsEndpoint.movieDetails(id: id))
             let details = try JSONDecoder().decode(AdditionalDetailsMovie.self, from: detailsData)
-
+            
+            self.movie = details
             self.convertWeightSystem(from: details.voteAverage)
 
             // Supports pagination so the decoded response is wrong currently
-            let recommendedData = try await networkManager.request(RecommendedEndpoint.movies(id: movie.id, page: 1))
+            let recommendedData = try await networkManager.request(RecommendedEndpoint.movies(id: id, page: 1))
             let recommended = try JSONDecoder().decode(SearchResponse.self, from: recommendedData)
             
             recommended.results.forEach { type in

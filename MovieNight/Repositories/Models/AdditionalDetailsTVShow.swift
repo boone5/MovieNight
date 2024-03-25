@@ -20,12 +20,12 @@ struct AdditionalDetailsTVShow: Codable {
     let languages: [String]
     let lastAirDate: String
     let lastEpisodeToAir: Episode
-    let name: String
+    let title: String
     let nextEpisodeToAir: Episode?
     let networks: [Network]
     let numberOfEpisodes, numberOfSeasons: Int
     let originCountry: [String]
-    let originalLanguage, originalName, overview: String
+    let originalLanguage, originalTitle, overview: String
     let popularity: Double
     let posterPath: String?
     let seasons: [Season]?
@@ -45,14 +45,14 @@ struct AdditionalDetailsTVShow: Codable {
         case languages
         case lastAirDate = "last_air_date"
         case lastEpisodeToAir = "last_episode_to_air"
-        case name
+        case title = "name"
         case nextEpisodeToAir = "next_episode_to_air"
         case networks
         case numberOfEpisodes = "number_of_episodes"
         case numberOfSeasons = "number_of_seasons"
         case originCountry = "origin_country"
         case originalLanguage = "original_language"
-        case originalName = "original_name"
+        case originalTitle = "original_name"
         case overview, popularity
         case posterPath = "poster_path"
         case seasons

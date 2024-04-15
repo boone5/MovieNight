@@ -16,7 +16,7 @@ struct AdditionalDetailsMovie: Codable {
     let imdbID: String?
     let originalLanguage, originalTitle, overview: String
     let popularity: Double
-    let posterPath: String
+    let posterPath: String?
     let releaseDate: String
     let revenue, runtime: Int
     let spokenLanguages: [SpokenLanguage]

@@ -12,6 +12,7 @@ import UIKit
 
 struct MovieDetailScreen: View {
     @StateObject var viewModel: MovieDetailViewModel = MovieDetailViewModel()
+    @Environment(\.imageLoader) private var imageLoader
 
     public var id: Int64
     public var posterPath: String?
@@ -32,8 +33,8 @@ struct MovieDetailScreen: View {
             VStack(spacing: 0) {
                 ScrollView {
                     VStack(spacing: 0) {
-                        if let image = makeUIImage() {
-                            Image(uiImage: image)
+                        if let data = viewModel.data, let uiimage = UIImage(data: data) {
+                            Image(uiImage: uiimage)
                                 .resizable()
                                 .frame(width: 175, height: 240)
                                 .scaledToFit()
@@ -243,14 +244,9 @@ struct MovieDetailScreen: View {
             }
         }
         .task {
+            async let _ = viewModel.fetchPoster(posterPath, imageLoader: imageLoader)
             await viewModel.fetchAddtionalDetails(id)
         }
-    }
-
-    private func makeUIImage() -> UIImage? {
-        guard let data = ImageCache.shared.getObject(forKey: posterPath) else { return nil }
-
-        return UIImage(data: data)
     }
 
     private func onSheetDismiss() {

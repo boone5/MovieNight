@@ -12,6 +12,7 @@ class TVShowDetailViewModel: ObservableObject {
     @Published var recommendedTVShows: [TVShowResponse] = []
     @Published var voteAverage: Int = 0
     @Published var tvShow: AdditionalDetailsTVShow?
+    @Published var data: Data?
 
     private var networkManager = NetworkManager()
     private var page: Int = 1
@@ -41,6 +42,16 @@ class TVShowDetailViewModel: ObservableObject {
             print("⛔️ Decoding error: \(error)")
         } catch {
             print("⛔️ Network error: \(error)")
+        }
+    }
+
+    public func fetchPoster(_ imgExtension: String?, imageLoader: ImageLoader) async {
+        guard let imgExtension else { return }
+
+        do {
+            data = try await imageLoader.load(imgExtension)
+        } catch {
+            print("⛔️ Error fetching image: \(error)")
         }
     }
 

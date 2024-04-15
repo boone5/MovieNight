@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct ThumbnailView: View {
-    @StateObject var thumbnailViewModel = ThumbnailViewModel()
+    @Environment(\.imageLoader) private var imageLoader
+    @State private var uiimage: UIImage?
 
     let url: String?
     let width: CGFloat
@@ -16,7 +17,7 @@ struct ThumbnailView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            if let imgData = thumbnailViewModel.data, let uiimage = UIImage(data: imgData) {
+            if let uiimage {
                 Image(uiImage: uiimage)
                     .resizable()
                     .frame(width: width, height: height)
@@ -29,8 +30,28 @@ struct ThumbnailView: View {
             }
         }
         .task {
-            await thumbnailViewModel.load(url)
+            await loadImage(url: url)
         }
+    }
+
+    private func loadImage(url: String?) async {
+        do {
+            guard let data = try await imageLoader.load(url) else { return }
+            uiimage = UIImage(data: data)
+        } catch {
+            print("⛔️ Error loading image: \(error)")
+        }
+    }
+}
+
+struct ImageLoaderKey: EnvironmentKey {
+    static let defaultValue = ImageLoader()
+}
+
+extension EnvironmentValues {
+    var imageLoader: ImageLoader {
+        get { self[ImageLoaderKey.self] }
+        set { self[ImageLoaderKey.self ] = newValue}
     }
 }
 

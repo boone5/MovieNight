@@ -41,13 +41,11 @@ struct Search: View {
                             ScrollView(.horizontal) {
                                 HStack {
                                     ForEach(1..<5) { _ in
-                                        ZStack {
-                                            Text("TV Shows")
-                                                .font(.system(size: 12, weight: .regular))
-                                                .foregroundColor(.white)
-                                                .padding(10) // Adjust the overall padding as needed
-                                                .background(Capsule().foregroundColor(Color("BrightRed")))
-                                        }
+                                        Text("TV Shows")
+                                            .font(.system(size: 12, weight: .regular))
+                                            .foregroundColor(.white)
+                                            .padding(10) // Adjust the overall padding as needed
+                                            .background(Capsule().foregroundColor(Color("BrightRed")))
                                     }
                                 }
                             }

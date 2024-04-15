@@ -87,6 +87,13 @@ final class LeetCode: XCTestCase {
 
         XCTAssertEqual(answ, res)
     }
+
+    func testMaxFreq() {
+        let answ = 2
+        let res = lc.maxFrequency([3 ,9,6], 2)
+
+        XCTAssertEqual(answ, res)
+    }
 }
 
 // https://leetcode.com/problems/sort-an-array/description/
@@ -208,6 +215,22 @@ class ValidParanthesis {
 
 class LeetCodeProblems {
     init() { }
+
+    func maxFrequency(_ nums: [Int], _ k: Int) -> Int {
+        let nums = nums.sorted()
+        var left = 0, windowSum = 0
+
+        for (right, num) in nums.enumerated() {
+            windowSum += num
+            if ((right - left + 1) * num - windowSum > k)
+            {
+                windowSum -= nums[left]
+                left += 1
+            }
+        }
+
+        return nums.count - left
+    }
 
     func minWindow(_ s: String, _ t: String) -> String {
         if t == "" {

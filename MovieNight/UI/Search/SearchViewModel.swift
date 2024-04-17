@@ -8,15 +8,14 @@
 import Combine
 import SwiftUI
 
-@MainActor
 class SearchViewModel: ObservableObject {
-    @Published var state: LoadingState = .ready
-    @Published var movieDetails: [ResponseType] = []
+    @Published var results: [ResponseType] = []
 
     public var isLoading: Bool {
         state == .loading
     }
 
+    private var state: LoadingState = .ready
     private var page: Int = 1
     private var networkManager = NetworkManager()
     private var searchQuery: String = ""
@@ -29,10 +28,15 @@ class SearchViewModel: ObservableObject {
         do {
             let data = try await networkManager.request(SearchEndpoint.multi(query: query, page: page))
             let response = try JSONDecoder().decode(SearchResponse.self, from: data)
+            
+            let cleanResults = response.results.filter { $0 != .empty }
 
-            self.movieDetails = response.results
             self.page += 1
-            self.state = (page >= response.totalPages) ? .loadedAll : .ready
+            self.state = (page > response.totalPages) ? .loadedAll : .ready
+
+            await MainActor.run {
+                self.results = cleanResults
+            }
 
         } catch let error as DecodingError {
             print("⛔️ Decoding error: \(error)")
@@ -42,7 +46,7 @@ class SearchViewModel: ObservableObject {
     }
 
     func loadMore() async {
-        guard !self.movieDetails.isEmpty else { return }
+        guard self.state != .loadedAll else { return }
 
         print("Loading more!")
 
@@ -52,10 +56,14 @@ class SearchViewModel: ObservableObject {
             let data = try await networkManager.request(SearchEndpoint.multi(query: searchQuery, page: page))
             let response = try JSONDecoder().decode(SearchResponse.self, from: data)
 
-            self.movieDetails.append(contentsOf: response.results)
+            let cleanResults = response.results.filter { $0 != .empty }
 
             self.page += 1
             self.state = (page > response.totalPages) ? .loadedAll : .ready
+
+            await MainActor.run {
+                self.results.append(contentsOf: cleanResults)
+            }
 
         } catch let error as DecodingError {
             print("⛔️ Decoding error: \(error)")

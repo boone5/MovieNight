@@ -23,6 +23,7 @@ enum ResponseType: Decodable, Hashable {
     case movie(MovieResponse)
     case tvShow(TVShowResponse)
     case people(ActorResponse)
+    case empty
 
     enum CodingKeys: String, CodingKey {
         case mediaType = "media_type"
@@ -35,9 +36,13 @@ enum ResponseType: Decodable, Hashable {
 
         switch type {
         case "movie":
-            self = .movie(try singleContainer.decode(MovieResponse.self))
+            let movieResponse = try singleContainer.decode(MovieResponse.self)
+            self = movieResponse.isValid() ? .movie(movieResponse) : .empty
+
         case "tv":
-            self = .tvShow(try singleContainer.decode(TVShowResponse.self))
+            let tvShowResponse = try singleContainer.decode(TVShowResponse.self)
+            self = tvShowResponse.isValid() ? .tvShow(tvShowResponse) : .empty
+
         case "person":
             self = .people(try singleContainer.decode(ActorResponse.self))
         default:

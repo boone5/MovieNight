@@ -12,7 +12,6 @@ class MovieDetailViewModel: ObservableObject {
     @Published var recommendedMovies: [MovieResponse] = []
     @Published var voteAverage: Int = 0
     @Published var movie: AdditionalDetailsMovie?
-    @Published var data: Data?
 
     private var networkManager = NetworkManager()
     private var page: Int = 1
@@ -31,12 +30,9 @@ class MovieDetailViewModel: ObservableObject {
             self.movie = details
             self.convertWeightSystem(from: details.voteAverage)
 
-            recommended.results.forEach { type in
-                switch type {
-                case .movie(let movie):
+            recommended.results.forEach { movie in
+                if case let .movie(movie) = movie {
                     self.recommendedMovies.append(movie)
-                default:
-                    assertionFailure("Wrong type")
                 }
             }
 

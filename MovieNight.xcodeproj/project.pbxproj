@@ -147,8 +147,8 @@
 				D5E6920E2B37F47900466A34 /* SearchResponse.swift */,
 				D5A8B5B62BA3952600369737 /* ActorResponse.swift */,
 				D5A8B5B82BA3982C00369737 /* MovieResponse.swift */,
-				D5D06EDC2B75D8D300548157 /* AdditionalDetailsMovie.swift */,
 				D5A8B5BA2BA3989C00369737 /* TVShowResponse.swift */,
+				D5D06EDC2B75D8D300548157 /* AdditionalDetailsMovie.swift */,
 				D5F18D1F2BB0E6AB0067F719 /* AdditionalDetailsTVShow.swift */,
 			);
 			path = Models;
@@ -221,10 +221,8 @@
 			isa = PBXGroup;
 			children = (
 				D5F9AB822A888AA900C076CD /* SearchScreen.swift */,
-				D5F18D172BB0B9070067F719 /* Child Screens */,
 				D51FF6E62A95B352007A3EA5 /* SearchViewModel.swift */,
-				D529AE172B60B70200A2F746 /* MovieDetailViewModel.swift */,
-				D5F18D1A2BB0BA020067F719 /* TVShowDetailViewModel.swift */,
+				D5F18D172BB0B9070067F719 /* Child Screens */,
 			);
 			path = Search;
 			sourceTree = "<group>";
@@ -261,6 +259,8 @@
 		D5F18D172BB0B9070067F719 /* Child Screens */ = {
 			isa = PBXGroup;
 			children = (
+				D5F18D1A2BB0BA020067F719 /* TVShowDetailViewModel.swift */,
+				D529AE172B60B70200A2F746 /* MovieDetailViewModel.swift */,
 				D5976B552AE0CA0A004992E2 /* MovieDetailScreen.swift */,
 				D5F18D182BB0B9AA0067F719 /* TVShowDetailScreen.swift */,
 			);

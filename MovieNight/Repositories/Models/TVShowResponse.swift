@@ -40,3 +40,9 @@ struct TVShowResponse: Codable, Hashable, Identifiable {
         case originCountry = "origin_country"
     }
 }
+
+extension TVShowResponse {
+    func isValid() -> Bool {
+        self.posterPath != nil
+    }
+}

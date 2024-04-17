@@ -37,7 +37,7 @@ struct Search: View {
                             .padding(.horizontal, -8)
                             .padding([.leading, .trailing], 15)
 
-                        if !searchViewModel.movieDetails.isEmpty {
+                        if !searchViewModel.results.isEmpty {
                             ScrollView(.horizontal) {
                                 HStack {
                                     ForEach(1..<5) { _ in
@@ -71,23 +71,26 @@ struct Search: View {
                     }
 
                     List {
-                        ForEach(searchViewModel.movieDetails) { detail in
+                        ForEach(searchViewModel.results) { detail in
                             Group {
                                 HStack {
-                                    switch detail {
-                                    case .movie(let movie):
+                                    if case let .movie(movie) = detail {
                                         NavigationLink {
                                             MovieDetailScreen(id: movie.id, posterPath: movie.posterPath)
                                         } label: {
                                             MovieRowView(movie: movie)
                                         }
-                                    case .tvShow(let tvShow):
+                                    }
+
+                                    if case let .tvShow(tvShow) = detail {
                                         NavigationLink {
                                             TVShowDetailScreen(id: tvShow.id, posterPath: tvShow.posterPath)
                                         } label: {
                                             TVShowRowView(tvShow: tvShow)
                                         }
-                                    case .people(let actorResponse):
+                                    }
+
+                                    if case let .people(person) = detail {
                                         Text("Person")
                                             .foregroundStyle(.white)
                                     }

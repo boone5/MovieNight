@@ -62,3 +62,9 @@ extension MovieResponse {
         userRating: 1
     )
 }
+
+extension MovieResponse {
+    func isValid() -> Bool {
+        self.posterPath != nil
+    }
+}

@@ -12,7 +12,6 @@ class TVShowDetailViewModel: ObservableObject {
     @Published var tvShow: AdditionalDetailsTVShow?
     @Published var recommendedTVShows: [TVShowResponse] = []
     @Published var voteAverage: Int = 0
-    @Published var data: Data?
 
     private var networkManager = NetworkManager()
 
@@ -29,12 +28,9 @@ class TVShowDetailViewModel: ObservableObject {
             self.tvShow = details
             self.convertWeightSystem(from: details.voteAverage)
 
-            recommended.results.forEach { type in
-                switch type {
-                case .tvShow(let tvShow):
+            recommended.results.forEach { tvShow in
+                if case let .tvShow(tvShow) = tvShow {
                     self.recommendedTVShows.append(tvShow)
-                default:
-                    assertionFailure("Wrong type")
                 }
             }
 

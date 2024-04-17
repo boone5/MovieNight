@@ -121,7 +121,7 @@ struct Network: Codable {
 
 // MARK: - Season
 struct Season: Codable {
-    let airDate: String
+    let airDate: String?
     let episodeCount, id: Int
     let name, overview: String
     let posterPath: String?

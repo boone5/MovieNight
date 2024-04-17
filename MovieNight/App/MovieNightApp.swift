@@ -12,6 +12,7 @@ struct MovieNightApp: App {
     var body: some Scene {
         WindowGroup {
             LandingPage()
+//            TestLoginScreen()
         }
     }
 }

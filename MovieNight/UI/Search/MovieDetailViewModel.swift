@@ -19,16 +19,18 @@ class MovieDetailViewModel: ObservableObject {
 
     public func fetchAddtionalDetails(_ id: Int64) async {
         do {
-            let detailsData = try await networkManager.request(DetailsEndpoint.movieDetails(id: id))
-            let details = try JSONDecoder().decode(AdditionalDetailsMovie.self, from: detailsData)
-            
+            async let detailsData = try await networkManager.request(DetailsEndpoint.movieDetails(id: id))
+            async let recommendedData = try await networkManager.request(RecommendedEndpoint.movies(id: id, page: 1))
+//            let castData = try await networkManager.request(CastEndpoint.movieCredits(id: id))
+
+            // Supports pagination so the decoded response is wrong currently
+            let details = try JSONDecoder().decode(AdditionalDetailsMovie.self, from: await detailsData)
+            let recommended = try JSONDecoder().decode(SearchResponse.self, from: await recommendedData)
+//            let cast = try JSONDecoder().decode(SearchResponse.self, from: await castData)
+
             self.movie = details
             self.convertWeightSystem(from: details.voteAverage)
 
-            // Supports pagination so the decoded response is wrong currently
-            let recommendedData = try await networkManager.request(RecommendedEndpoint.movies(id: id, page: 1))
-            let recommended = try JSONDecoder().decode(SearchResponse.self, from: recommendedData)
-            
             recommended.results.forEach { type in
                 switch type {
                 case .movie(let movie):
@@ -45,29 +47,14 @@ class MovieDetailViewModel: ObservableObject {
         }
     }
     
-    public func fetchPoster(_ imgExtension: String?, imageLoader: ImageLoader) async {
-        guard let imgExtension else { return }
+    public func fetchPoster(_ imgExtension: String?, imageLoader: ImageLoader) async -> Data? {
+        guard let imgExtension else { return nil }
 
         do {
-            data = try await imageLoader.load(imgExtension)
+            return try await imageLoader.load(imgExtension)
         } catch {
             print("⛔️ Error fetching image: \(error)")
-        }
-    }
-
-    private func fetchCast(id: Int64) async {
-        do {
-            let data = try await networkManager.request(CastEndpoint.movieCredits(id: id))
-
-            #warning("TODO: Create new model for cast response")
-            let response = try JSONDecoder().decode(SearchResponse.self, from: data)
-
-//            self.recommendedMovies = response.results
-
-        } catch let error as DecodingError {
-            print("⛔️ Decoding error: \(error)")
-        } catch {
-            print("⛔️ Network error: \(error)")
+            return nil
         }
     }
 

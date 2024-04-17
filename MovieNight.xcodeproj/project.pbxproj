@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D51FA58E2BCCC6D40063BBDA /* TestLoginScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D51FA58D2BCCC6D40063BBDA /* TestLoginScreen.swift */; };
 		D51FF6E72A95B352007A3EA5 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D51FF6E62A95B352007A3EA5 /* SearchViewModel.swift */; };
 		D529AE182B60B70200A2F746 /* MovieDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D529AE172B60B70200A2F746 /* MovieDetailViewModel.swift */; };
 		D52FD4F72B1D70E100386841 /* ImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = D52FD4F62B1D70E100386841 /* ImageLoader.swift */; };
@@ -68,6 +69,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D51FA58D2BCCC6D40063BBDA /* TestLoginScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestLoginScreen.swift; sourceTree = "<group>"; };
 		D51FF6E62A95B352007A3EA5 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
 		D529AE172B60B70200A2F746 /* MovieDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieDetailViewModel.swift; sourceTree = "<group>"; };
 		D52FD4F62B1D70E100386841 /* ImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLoader.swift; sourceTree = "<group>"; };
@@ -143,9 +145,9 @@
 			isa = PBXGroup;
 			children = (
 				D5E6920E2B37F47900466A34 /* SearchResponse.swift */,
-				D5D06EDC2B75D8D300548157 /* AdditionalDetailsMovie.swift */,
 				D5A8B5B62BA3952600369737 /* ActorResponse.swift */,
 				D5A8B5B82BA3982C00369737 /* MovieResponse.swift */,
+				D5D06EDC2B75D8D300548157 /* AdditionalDetailsMovie.swift */,
 				D5A8B5BA2BA3989C00369737 /* TVShowResponse.swift */,
 				D5F18D1F2BB0E6AB0067F719 /* AdditionalDetailsTVShow.swift */,
 			);
@@ -192,6 +194,7 @@
 			isa = PBXGroup;
 			children = (
 				D5F9AB802A888AA900C076CD /* MovieNightApp.swift */,
+				D51FA58D2BCCC6D40063BBDA /* TestLoginScreen.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -476,6 +479,7 @@
 				D5DDF4B32B58D35F003EE010 /* DetailViewRepresentable.swift in Sources */,
 				D5D06EDD2B75D8D300548157 /* AdditionalDetailsMovie.swift in Sources */,
 				D5C811322B9528E4005E206C /* MarqueeLightFrameView.swift in Sources */,
+				D51FA58E2BCCC6D40063BBDA /* TestLoginScreen.swift in Sources */,
 				D5D7B6282AA68FA400BA6619 /* Library.swift in Sources */,
 				D5D06EDF2B75E11C00548157 /* DetailsEndpoint.swift in Sources */,
 				D5F18D1B2BB0BA020067F719 /* TVShowDetailViewModel.swift in Sources */,

@@ -21,6 +21,7 @@ struct MovieDetailScreen: View {
     @State private var localRating: Int16 = 0
     @State private var didReview: Bool = false
     @State private var storedRating: Int16?
+    @State private var imgData: Data? = nil
 
     var body: some View {
         ZStack {
@@ -33,7 +34,7 @@ struct MovieDetailScreen: View {
             VStack(spacing: 0) {
                 ScrollView {
                     VStack(spacing: 0) {
-                        if let data = viewModel.data, let uiimage = UIImage(data: data) {
+                        if let data = imgData, let uiimage = UIImage(data: data) {
                             Image(uiImage: uiimage)
                                 .resizable()
                                 .frame(width: 175, height: 240)
@@ -55,7 +56,7 @@ struct MovieDetailScreen: View {
                                 .padding(50)
                         }
 
-                        Text(viewModel.movie?.title ?? "")
+                        Text(viewModel.movie?.title ?? "Not available.")
                             .frame(maxWidth: 300)
                             .multilineTextAlignment(.center)
                             .font(.title)
@@ -244,7 +245,9 @@ struct MovieDetailScreen: View {
             }
         }
         .task {
-            async let _ = viewModel.fetchPoster(posterPath, imageLoader: imageLoader)
+            async let imgData = viewModel.fetchPoster(posterPath, imageLoader: imageLoader)
+            self.imgData = await imgData
+
             await viewModel.fetchAddtionalDetails(id)
         }
     }

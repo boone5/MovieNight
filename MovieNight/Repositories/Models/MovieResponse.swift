@@ -65,6 +65,10 @@ extension MovieResponse {
 
 extension MovieResponse {
     func isValid() -> Bool {
-        self.posterPath != nil
+        let isReleased = !(self.releaseDate.isEmpty)
+        let hasPoster = self.posterPath != nil
+        let hasRatings = self.voteCount > 100
+
+        return isReleased && hasPoster && hasRatings
     }
 }

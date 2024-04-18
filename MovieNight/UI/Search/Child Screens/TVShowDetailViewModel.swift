@@ -22,6 +22,9 @@ class TVShowDetailViewModel: ObservableObject {
 //            let castData = try await networkManager.request(CastEndpoint.movieCredits(id: id))
 
             let details = try JSONDecoder().decode(AdditionalDetailsTVShow.self, from: await detailsData)
+
+            print(details)
+            
             let recommended = try JSONDecoder().decode(SearchResponse.self, from: await recommendedData)
 //            let cast = try JSONDecoder().decode(SearchResponse.self, from: await castData)
 

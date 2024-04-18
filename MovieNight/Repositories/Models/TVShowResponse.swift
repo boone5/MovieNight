@@ -43,6 +43,10 @@ struct TVShowResponse: Codable, Hashable, Identifiable {
 
 extension TVShowResponse {
     func isValid() -> Bool {
-        self.posterPath != nil
+        let isReleased = !(self.firstAirDate.isEmpty)
+        let hasPoster = self.posterPath != nil
+        let hasRatings = self.voteCount > 10
+
+        return isReleased && hasPoster && hasRatings
     }
 }

@@ -24,6 +24,9 @@ class MovieDetailViewModel: ObservableObject {
 
             // Supports pagination so the decoded response is wrong currently
             let details = try JSONDecoder().decode(AdditionalDetailsMovie.self, from: await detailsData)
+
+            print(details)
+            
             let recommended = try JSONDecoder().decode(SearchResponse.self, from: await recommendedData)
 //            let cast = try JSONDecoder().decode(SearchResponse.self, from: await castData)
 

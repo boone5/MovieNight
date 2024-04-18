@@ -95,6 +95,9 @@ struct Search: View {
                                             .foregroundStyle(.white)
                                     }
 
+                                    Image(systemName: "chevron.right")
+                                        .foregroundColor(.white)
+
                                     Spacer()
                                 }
                                 .frame(maxWidth: .infinity, alignment: .center)

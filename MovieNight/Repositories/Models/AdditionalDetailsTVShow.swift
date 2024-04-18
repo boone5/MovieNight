@@ -12,16 +12,11 @@ struct AdditionalDetailsTVShow: Codable {
     let adult: Bool
     let backdropPath: String?
     let createdBy: [CreatedBy]
-    let episodeRunTime: [Int]
-    let firstAirDate: String
     let genres: [Genre]
     let id: Int
     let inProduction: Bool
     let languages: [String]
-    let lastAirDate: String
-    let lastEpisodeToAir: Episode
     let title: String
-    let nextEpisodeToAir: Episode?
     let networks: [Network]
     let numberOfEpisodes, numberOfSeasons: Int
     let originCountry: [String]
@@ -29,24 +24,28 @@ struct AdditionalDetailsTVShow: Codable {
     let popularity: Double
     let posterPath: String?
     let seasons: [Season]?
-    let spokenLanguages: [SpokenLanguage]
+    let firstAirDate: String
+
     let status, tagline: String
     let voteAverage: Double
     let voteCount: Int
+
+    // Not using from API
+    //    let episodeRunTime: [Int]
+    //    let lastAirDate: String
+    //    let lastEpisodeToAir: Episode
+    //    let nextEpisodeToAir: Episode?
+    //    let spokenLanguages: [SpokenLanguage]
 
     enum CodingKeys: String, CodingKey {
         case adult
         case backdropPath = "backdrop_path"
         case createdBy = "created_by"
-        case episodeRunTime = "episode_run_time"
         case firstAirDate = "first_air_date"
         case genres, id
         case inProduction = "in_production"
         case languages
-        case lastAirDate = "last_air_date"
-        case lastEpisodeToAir = "last_episode_to_air"
         case title = "name"
-        case nextEpisodeToAir = "next_episode_to_air"
         case networks
         case numberOfEpisodes = "number_of_episodes"
         case numberOfSeasons = "number_of_seasons"
@@ -56,7 +55,6 @@ struct AdditionalDetailsTVShow: Codable {
         case overview, popularity
         case posterPath = "poster_path"
         case seasons
-        case spokenLanguages = "spoken_languages"
         case status, tagline
         case voteAverage = "vote_average"
         case voteCount = "vote_count"

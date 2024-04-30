@@ -26,9 +26,8 @@ class SearchViewModel: ObservableObject {
         self.page = 1
 
         do {
-            let data = try await networkManager.request(SearchEndpoint.multi(query: query, page: page))
-            let response = try JSONDecoder().decode(SearchResponse.self, from: data)
-            
+            let response: SearchResponse = try await networkManager.request(SearchEndpoint.multi(query: query, page: page))
+
             let cleanResults = response.results.filter { $0 != .empty }
 
             self.page += 1
@@ -53,8 +52,7 @@ class SearchViewModel: ObservableObject {
         self.state = .fetching
 
         do {
-            let data = try await networkManager.request(SearchEndpoint.multi(query: searchQuery, page: page))
-            let response = try JSONDecoder().decode(SearchResponse.self, from: data)
+            let response: SearchResponse = try await networkManager.request(SearchEndpoint.multi(query: searchQuery, page: page))
 
             let cleanResults = response.results.filter { $0 != .empty }
 

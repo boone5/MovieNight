@@ -13,6 +13,14 @@ public enum SearchEndpoint: EndpointProviding {
 }
 
 extension SearchEndpoint {
+    public var apiKey: String {
+        APIKey.authorization_TMDB
+    }
+
+    public func host() -> String {
+        "api.themoviedb.org"
+    }
+    
     public func path() -> String {
         switch self {
         case .search:

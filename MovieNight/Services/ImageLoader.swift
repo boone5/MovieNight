@@ -51,7 +51,7 @@ actor ImageLoader {
 
         // 3) Request image
         let task: Task<Data, Error> = Task {
-            let data = try await self.networkManager.request(PosterEndpoint.poster(imgExtension))
+            let data = try await self.networkManager.requestData(PosterEndpoint.poster(imgExtension))
             set(object: data, forKey: imgExtension)
             return data
         }

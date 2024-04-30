@@ -13,6 +13,14 @@ enum RecommendedEndpoint: EndpointProviding {
 }
 
 extension RecommendedEndpoint {
+    var apiKey: String {
+        APIKey.authorization_TMDB
+    }
+    
+    public func host() -> String {
+        "api.themoviedb.org"
+    }
+    
     func path() -> String {
         switch self {
         case .movies(let id, _):

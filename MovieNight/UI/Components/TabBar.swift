@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct LandingPage: View {
+struct TabBarView: View {
     var body: some View {
         TabView {
             Group {
@@ -21,6 +21,11 @@ struct LandingPage: View {
                     .tabItem {
                         Label("", systemImage: "books.vertical")
                     }
+
+                SocialScreen()
+                    .tabItem {
+                        Label("", systemImage: "books.vertical")
+                    }
             }
             .toolbarBackground(Color("BackgroundColor1"), for: .tabBar)
         }
@@ -29,6 +34,6 @@ struct LandingPage: View {
 
 struct LandingPage_Previews: PreviewProvider {
     static var previews: some View {
-        LandingPage()
+        LandingPageScreen()
     }
 }

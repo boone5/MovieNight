@@ -9,6 +9,16 @@ import Foundation
 
 enum CastEndpoint: EndpointProviding {
     case movieCredits(id: Int64)
+}
+
+extension CastEndpoint {
+    var apiKey: String {
+        APIKey.authorization_TMDB
+    }
+    
+    public func host() -> String {
+        "api.themoviedb.org"
+    }
 
     func path() -> String {
         switch self {
@@ -16,7 +26,7 @@ enum CastEndpoint: EndpointProviding {
             return "/3/movie/\(id)/credits"
         }
     }
-    
+
     func queryItems() -> [URLQueryItem]? {
         return nil
     }

@@ -7,7 +7,6 @@
 
 import Foundation
 
-@MainActor
 class MovieDetailViewModel: ObservableObject {
     @Published var recommendedMovies: [MovieResponse] = []
     @Published var voteAverage: Int = 0
@@ -18,24 +17,24 @@ class MovieDetailViewModel: ObservableObject {
 
     public func fetchAddtionalDetails(_ id: Int64) async {
         do {
-            async let detailsData = try await networkManager.request(DetailsEndpoint.movieDetails(id: id))
-            async let recommendedData = try await networkManager.request(RecommendedEndpoint.movies(id: id, page: 1))
+            async let detailsResponse: AdditionalDetailsMovie = try await networkManager.request(DetailsEndpoint.movieDetails(id: id))
+            async let recommendedResponse: SearchResponse = try await networkManager.request(RecommendedEndpoint.movies(id: id, page: 1))
 //            let castData = try await networkManager.request(CastEndpoint.movieCredits(id: id))
 
-            // Supports pagination so the decoded response is wrong currently
-            let details = try JSONDecoder().decode(AdditionalDetailsMovie.self, from: await detailsData)
+//            let cast = try JSONDecoder().decode(SearchResponse.self, from: await castData)
+            let details = try await detailsResponse
+            let recommended = try await recommendedResponse
 
             print(details)
-            
-            let recommended = try JSONDecoder().decode(SearchResponse.self, from: await recommendedData)
-//            let cast = try JSONDecoder().decode(SearchResponse.self, from: await castData)
 
-            self.movie = details
-            self.convertWeightSystem(from: details.voteAverage)
+            await MainActor.run {
+                self.movie = details
+                self.convertWeightSystem(from: details.voteAverage)
 
-            recommended.results.forEach { movie in
-                if case let .movie(movie) = movie {
-                    self.recommendedMovies.append(movie)
+                recommended.results.forEach { movie in
+                    if case let .movie(movie) = movie {
+                        self.recommendedMovies.append(movie)
+                    }
                 }
             }
 
@@ -58,20 +57,13 @@ class MovieDetailViewModel: ObservableObject {
     }
 
     private func convertWeightSystem(from avg: Double) {
-        print(avg)
         switch avg {
-        case 0..<3:
-            self.voteAverage = 1
-        case 3..<5:
-            self.voteAverage = 2
-        case 5..<7:
-            self.voteAverage = 3
-        case 7..<9:
-            self.voteAverage = 4
-        case 9..<10:
-            self.voteAverage = 5
-        default:
-            break
+        case 0..<3:     self.voteAverage = 1
+        case 3..<5:     self.voteAverage = 2
+        case 5..<7:     self.voteAverage = 3
+        case 7..<9:     self.voteAverage = 4
+        case 9..<10:    self.voteAverage = 5
+        default:        break
         }
     }
 }

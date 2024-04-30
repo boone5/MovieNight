@@ -13,6 +13,14 @@ enum DetailsEndpoint: EndpointProviding {
 }
 
 extension DetailsEndpoint {
+    var apiKey: String {
+        APIKey.authorization_TMDB
+    }
+    
+    public func host() -> String {
+        "api.themoviedb.org"
+    }
+    
     func path() -> String {
         switch self {
         case .movieDetails(let id):

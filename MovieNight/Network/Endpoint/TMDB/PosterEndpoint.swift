@@ -15,6 +15,10 @@ enum PosterEndpoint: EndpointProviding {
 }
 
 extension PosterEndpoint {
+    var apiKey: String {
+        APIKey.authorization_TMDB
+    }
+
     func host() -> String {
         return "image.tmdb.org" // might not want to hardcode this
     }

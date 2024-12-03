@@ -10,8 +10,8 @@ import CoreData
 
 // Help us manage and interact with Data
 // Should only have one instance to interact with memory
-final class MovieProvider {
-    static let shared = MovieProvider()
+final class CoreDataManager {
+    static let shared = CoreDataManager()
 
     private let persistentContainer: NSPersistentContainer
 
@@ -26,7 +26,7 @@ final class MovieProvider {
     }
 
     private init(inMemory: Bool = false) {
-        persistentContainer = NSPersistentContainer(name: "DetailsDataModel")
+        persistentContainer = NSPersistentContainer(name: "FilmContainer")
 
         if inMemory {
             // tells Core Data to not actaully use a file (don't store something)
@@ -42,7 +42,21 @@ final class MovieProvider {
         viewContext.automaticallyMergesChangesFromParent = true
     }
 
-    // MARK: SwiftUI Preview
+    func saveContext() {
+        if viewContext.hasChanges {
+            do {
+                try viewContext.save()
+
+                print("✅ Successfully saved Movie into Core Data")
+            } catch {
+                print("⛔️ Error saving Movie into Core Data: \(error.localizedDescription)")
+            }
+        }
+    }
+}
+
+// MARK: SwiftUI Preview
+extension CoreDataManager {
 //    static var preview: MovieProvider = {
 //        let controller = MovieProvider(inMemory: true)
 //        let viewContext = controller.viewContext
@@ -84,50 +98,4 @@ final class MovieProvider {
 //
 //        return movie_CD
 //    }()
-
-    func exists(id: Int64) -> Movie_CD? {
-        let fetchRequest: NSFetchRequest<Movie_CD> = Movie_CD.all()
-        fetchRequest.predicate = NSPredicate(format: "id == %d", id)
-
-        do {
-            let existingMovies = try viewContext.fetch(fetchRequest)
-
-            print("✅ Movie exists in Core Data!")
-
-            return existingMovies.first
-        } catch {
-            print("⛔️ Error checking for existing movie: \(error)")
-            return nil
-        }
-    }
-
-    func save() {
-        if viewContext.hasChanges {
-            do {
-                try viewContext.save()
-
-                print("✅ Successfully saved Movie into Core Data")
-            } catch {
-                print("⛔️ Error saving Movie into Core Data: \(error.localizedDescription)")
-            }
-        }
-    }
-
-    func update(entity: Movie_CD, userRating: Int16) {
-        entity.userRating = userRating
-
-        self.save()
-    }
-
-    func fetch() -> [Movie_CD] {
-        var results: [Movie_CD] = []
-
-        do {
-            results = try viewContext.fetch(Movie_CD.all())
-        } catch {
-            print("⛔️ Error fetching Movie Details from Core Data: \(error.localizedDescription)")
-        }
-
-        return results
-    }
 }

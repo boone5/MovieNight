@@ -8,26 +8,21 @@
 import SwiftUI
 
 struct TabBarView: View {
+    private let movieDataStore = MovieDataStore()
+
     var body: some View {
         TabView {
-            Group {
-                Search()
-                    .tabItem {
-                        Label("", systemImage: "magnifyingglass")
-                    }
+            MockLibraryScreen(movieDataStore: movieDataStore)
+                .tabItem {
+                    Label("", systemImage: "books.vertical")
+                }
+//                .toolbarBackground(Color("BackgroundColor1"), for: .tabBar)
 
-                Library()
-                    .environment(\.managedObjectContext, MovieProvider.shared.viewContext)
-                    .tabItem {
-                        Label("", systemImage: "books.vertical")
-                    }
-
-                SocialScreen()
-                    .tabItem {
-                        Label("", systemImage: "books.vertical")
-                    }
-            }
-            .toolbarBackground(Color("BackgroundColor1"), for: .tabBar)
+            SearchScreen(movieDataStore: movieDataStore)
+                .tabItem {
+                    Label("", systemImage: "magnifyingglass")
+                }
+//                .toolbarBackground(Color("BackgroundColor1"), for: .tabBar)
         }
     }
 }

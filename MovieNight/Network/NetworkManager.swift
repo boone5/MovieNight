@@ -18,6 +18,8 @@ final public class NetworkManager {
             throw URLError(.badServerResponse)
         }
 
+        print("making network request")
+
         let decoder = JSONDecoder()
         return try decoder.decode(T.self, from: data)
     }

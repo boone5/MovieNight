@@ -12,21 +12,26 @@ struct ThumbnailView: View {
     @State private var uiimage: UIImage?
 
     let url: String?
+    let id: Int64
     let width: CGFloat
     let height: CGFloat
 
+    let namespace: Namespace.ID
+
     var body: some View {
-        VStack(spacing: 0) {
+        Group {
             if let uiimage {
                 Image(uiImage: uiimage)
                     .resizable()
+                    .clipShape(RoundedRectangle(cornerRadius: 15))
+                    .matchedGeometryEffect(id: "thumbnail" + String(id), in: namespace)
                     .frame(width: width, height: height)
                     .scaledToFit()
-                    .cornerRadius(15)
             } else {
-                Rectangle()
+                RoundedRectangle(cornerRadius: 15)
+                    .matchedGeometryEffect(id: "thumbnail" + String(id), in: namespace)
                     .frame(width: width, height: height)
-                    .cornerRadius(15)
+                    .foregroundStyle(.gray)
             }
         }
         .task {
@@ -55,6 +60,6 @@ extension EnvironmentValues {
     }
 }
 
-#Preview {
-    ThumbnailView(url: nil, width: 100, height: 150)
-}
+//#Preview {
+//    ThumbnailView(url: nil, width: 100, height: 150)
+//}

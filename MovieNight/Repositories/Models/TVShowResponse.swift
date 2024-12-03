@@ -5,6 +5,8 @@
 //  Created by Boone on 3/14/24.
 //
 
+import UIKit
+
 struct TVShowResponse: Codable, Hashable, Identifiable {
     let id: Int64
     let adult: Bool?
@@ -21,6 +23,8 @@ struct TVShowResponse: Codable, Hashable, Identifiable {
     let voteAverage: Double
     let voteCount: Int
     let originCountry: [String]
+
+    var averageColor: UIColor?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -43,10 +47,8 @@ struct TVShowResponse: Codable, Hashable, Identifiable {
 
 extension TVShowResponse {
     func isValid() -> Bool {
-        let isReleased = !(self.firstAirDate.isEmpty)
         let hasPoster = self.posterPath != nil
-        let hasRatings = self.voteCount > 10
 
-        return isReleased && hasPoster && hasRatings
+        return hasPoster
     }
 }

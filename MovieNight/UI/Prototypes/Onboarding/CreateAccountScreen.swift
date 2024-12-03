@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct CreateAccountScreen: View {
+    @State private var name: String = ""
+    @State private var email: String = ""
     @State private var username: String = ""
     @State private var password: String = ""
     @State private var confirmPassword: String = ""
@@ -29,6 +31,44 @@ struct CreateAccountScreen: View {
                     .foregroundStyle(.white)
                     .font(.system(size: 42, weight: .bold))
                     .padding([.leading, .trailing], 15)
+
+                Text("Name")
+                    .foregroundStyle(.white)
+                    .fontWeight(.bold)
+                    .padding([.leading, .trailing], 45)
+
+                Rectangle()
+                    .frame(height: 45)
+                    .foregroundStyle(Color(uiColor: UIColor.systemGray4))
+                    .cornerRadius(.infinity)
+                    .shadow(color: Color.black.opacity(0.4), radius: 6, x: 0, y: 4)
+                    .overlay {
+                        TextField("Name", text: $name)
+                            .padding(15)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding([.leading, .trailing], 30)
+                    .padding([.top], -10)
+                    .textFieldStyle(.plain)
+
+                Text("Email")
+                    .foregroundStyle(.white)
+                    .fontWeight(.bold)
+                    .padding([.leading, .trailing], 45)
+
+                Rectangle()
+                    .frame(height: 45)
+                    .foregroundStyle(Color(uiColor: UIColor.systemGray4))
+                    .cornerRadius(.infinity)
+                    .shadow(color: Color.black.opacity(0.4), radius: 6, x: 0, y: 4)
+                    .overlay {
+                        TextField("Email", text: $email)
+                            .padding(15)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding([.leading, .trailing], 30)
+                    .padding([.top], -10)
+                    .textFieldStyle(.plain)
 
                 Text("Username")
                     .foregroundStyle(.white)
@@ -68,28 +108,13 @@ struct CreateAccountScreen: View {
                     .padding([.top], -10)
                     .textFieldStyle(.plain)
 
-                Text("Confirm Password")
-                    .foregroundStyle(.white)
-                    .fontWeight(.bold)
-                    .padding([.leading, .trailing], 45)
-
-                Rectangle()
-                    .frame(height: 45)
-                    .foregroundStyle(Color(uiColor: UIColor.systemGray4))
-                    .cornerRadius(.infinity)
-                    .shadow(color: Color.black.opacity(0.4), radius: 6, x: 0, y: 4)
-                    .overlay {
-                        TextField("Confirm Password", text: $confirmPassword)
-                            .padding(15)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding([.leading, .trailing], 30)
-                    .padding([.top], -10)
-                    .textFieldStyle(.plain)
-
                 Button {
-                    // TODO: Network request to backend
                     print("Attempting to Create Account")
+
+//                    Task {
+//                        await createAccount()
+//                    }
+
                 } label: {
                     ZStack {
                         Rectangle()
@@ -116,10 +141,15 @@ struct CreateAccountScreen: View {
 
     private func createAccount() async {
         do {
-            let loginRequest = LoginRequest(username: username, password: password)
+            let loginRequest = LoginRequest(
+                name: name,
+                email: email,
+                username: username,
+                password: password
+            )
             let encoded = try JSONEncoder().encode(loginRequest)
 
-            let url = try NetworkManager().createURL(from: LoginEndpoint.login)
+            let url = try NetworkManager().createURL(from: LoginEndpoint.register)
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
             request.setValue(APIKey.key_AWS, forHTTPHeaderField: "x-api-key")
@@ -127,7 +157,8 @@ struct CreateAccountScreen: View {
 
             let (data, res) = try await URLSession.shared.data(for: request)
 
-            guard let res = res as? HTTPURLResponse else {
+            guard let res = res as? HTTPURLResponse, res.statusCode == 200 else {
+                print("Bad status code")
                 return
             }
 
@@ -138,6 +169,8 @@ struct CreateAccountScreen: View {
     }
 
     struct LoginRequest: Encodable {
+        let name: String
+        let email: String
         let username: String
         let password: String
     }

@@ -9,7 +9,7 @@ import SwiftUI
 
 struct Library: View {
     @Environment(\.managedObjectContext) private var viewContext
-    @FetchRequest(fetchRequest: Movie_CD.all(), animation: .default) private var movies: FetchedResults<Movie_CD>
+//    @FetchRequest(fetchRequest: Movie_CD.all(), animation: .default) private var movies: FetchedResults<Movie_CD>
 
     @State private var path: NavigationPath = NavigationPath()
 
@@ -25,13 +25,11 @@ struct Library: View {
                     }
                     .ignoresSafeArea()
 
-                VStack {
+                VStack(alignment: .leading, spacing: 0) {
                     Text("Library")
                         .foregroundStyle(.white)
-                        .font(.largeTitle)
-                        .bold()
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding([.leading, .top], 20)
+                        .font(.system(size: 42, weight: .bold))
+                        .padding([.leading, .trailing], 15)
 
                     ScrollView(.vertical) {
                         // Move to LazyHStack if performance becomes an issue
@@ -83,7 +81,7 @@ struct MovieGridItem: View {
 
         var body: some View {
             ZStack {
-                ButtonView()
+//                ButtonView()
 
                 HStack {
                     ForEach(1..<6) { index in

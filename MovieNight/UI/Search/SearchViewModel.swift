@@ -11,6 +11,9 @@ import SwiftUI
 class SearchViewModel: ObservableObject {
     @Published var results: [ResponseType] = []
 
+    // Explore
+    @Published var trendingMovies = [ResponseType]()
+
     public var isLoading: Bool {
         state == .loading
     }
@@ -28,6 +31,7 @@ class SearchViewModel: ObservableObject {
         do {
             let response: SearchResponse = try await networkManager.request(SearchEndpoint.multi(query: query, page: page))
 
+            // this causes problems w/ pagination if cleanResults are less than 3
             let cleanResults = response.results.filter { $0 != .empty }
 
             self.page += 1
@@ -45,7 +49,7 @@ class SearchViewModel: ObservableObject {
     }
 
     func loadMore() async {
-        guard self.state != .loadedAll else { return }
+        guard self.state != .loadedAll, !results.isEmpty else { return }
 
         print("Loading more!")
 
@@ -67,6 +71,28 @@ class SearchViewModel: ObservableObject {
             print("⛔️ Decoding error: \(error)")
         } catch {
             print("⛔️ Network error: \(error)")
+        }
+    }
+
+    public func getTrendingMovies() async -> [ResponseType] {
+        do {
+            let response: SearchResponse = try await networkManager.request(TrendingEndpoint.movies)
+
+            return response.results
+        } catch {
+            print("⛔️ Error fetching trending movies: \(error)")
+            return []
+        }
+    }
+
+    public func getTrendingTVShows() async -> [ResponseType] {
+        do {
+            let response: SearchResponse = try await networkManager.request(TrendingEndpoint.tvShow)
+
+            return response.results
+        } catch {
+            print("⛔️ Error fetching trending tv shows: \(error)")
+            return []
         }
     }
 }

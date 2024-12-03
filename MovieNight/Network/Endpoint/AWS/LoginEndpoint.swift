@@ -9,6 +9,7 @@ import Foundation
 
 enum LoginEndpoint: EndpointProviding {
     case login
+    case register
 }
 
 extension LoginEndpoint {
@@ -17,7 +18,13 @@ extension LoginEndpoint {
     }
 
     func path() -> String {
-        "/prod/login"
+        switch self {
+        case .login:
+            "/prod/login"
+        case .register:
+            "/prod/register"
+        }
+
     }
 
     func queryItems() -> [URLQueryItem]? {

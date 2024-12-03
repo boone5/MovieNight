@@ -5,7 +5,7 @@
 //  Created by Boone on 12/23/23.
 //
 
-import Foundation
+import UIKit
 
 struct SearchResponse: Decodable {
     let page: Int
@@ -52,7 +52,71 @@ enum ResponseType: Decodable, Hashable {
 }
 
 extension ResponseType: Identifiable {
-    var id: String {
-        UUID().uuidString
+    var id: Int64 {
+        switch self {
+        case .movie(let movieResponse):
+            movieResponse.id
+        case .tvShow(let tvShowResponse):
+            tvShowResponse.id
+        case .people(let actorResponse):
+            actorResponse.id
+        case .empty:
+            0
+        }
+    }
+
+    var posterPath: String? {
+        switch self {
+        case .movie(let movieResponse):
+            movieResponse.posterPath
+        case .tvShow(let tVShowResponse):
+            tVShowResponse.posterPath
+        case .people, .empty:
+            nil
+        }
+    }
+
+    var averageColor: UIColor? {
+        switch self {
+        case .movie(let movieResponse):
+            movieResponse.averageColor
+        case .tvShow(let tVShowResponse):
+            tVShowResponse.averageColor
+        case .people, .empty:
+            nil
+        }
+    }
+
+    var title: String? {
+        switch self {
+        case .movie(let movieResponse):
+            movieResponse.title
+        case .tvShow(let tVShowResponse):
+            tVShowResponse.title
+        case .people, .empty:
+            nil
+        }
+    }
+
+    var overview: String? {
+        switch self {
+        case .movie(let movieResponse):
+            movieResponse.overview
+        case .tvShow(let tVShowResponse):
+            tVShowResponse.overview
+        case .people, .empty:
+            nil
+        }
+    }
+
+    var mediaType: String? {
+        switch self {
+        case .movie(let movieResponse):
+            movieResponse.mediaType
+        case .tvShow(let tVShowResponse):
+            tVShowResponse.mediaType
+        case .people, .empty:
+            nil
+        }
     }
 }

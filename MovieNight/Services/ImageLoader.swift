@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 
+// https://www.andyibanez.com/posts/caching-content-with-nscache/
 actor ImageLoader {
     // The key will be a String representation of the URL. The value will be the image object stored as Data.
     typealias CacheType = NSCache<NSString, NSData>

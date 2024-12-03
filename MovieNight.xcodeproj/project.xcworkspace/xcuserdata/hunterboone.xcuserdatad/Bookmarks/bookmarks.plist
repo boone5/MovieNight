@@ -12,13 +12,13 @@
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>43</string>
+					<string>64</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>42</string>
+					<string>63</string>
 					<key>Timestamp</key>
-					<string>733006270.650999</string>
+					<string>750313077.25188</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -34,11 +34,11 @@
 			<key>text-context</key>
 			<dict>
 				<key>focused</key>
-				<string>        searchBar.setImage(UIImage(systemName: "trash.circle"), for: .clear, state: .normal)
+				<string>        searchBar.searchTextField.textColor = .white
 </string>
 				<key>leading</key>
-				<string>        searchBar.searchTextField.leftView?.tintColor = .white
-        searchBar.searchTextField.textColor = .white
+				<string>        searchBar.searchTextField.rightViewMode = .always
+//        searchBar.setRightImage(image)
 </string>
 				<key>trailing</key>
 				<string>

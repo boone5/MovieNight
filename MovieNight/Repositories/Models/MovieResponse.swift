@@ -5,9 +5,9 @@
 //  Created by Boone on 3/14/24.
 //
 
-import Foundation
+import UIKit
 
-struct MovieResponse: DetailViewRepresentable, Codable, Hashable, Identifiable {
+struct MovieResponse: DetailViewRepresentable, Codable, Hashable, Identifiable {    
     let id: Int64
     let adult: Bool?
     let backdropPath: String?
@@ -24,6 +24,7 @@ struct MovieResponse: DetailViewRepresentable, Codable, Hashable, Identifiable {
     // Additional Properties
     var posterData: Data?
     var userRating: Int16 = 0
+    var averageColor: UIColor?
 
     enum CodingKeys: String, CodingKey {
         case adult
@@ -41,6 +42,8 @@ struct MovieResponse: DetailViewRepresentable, Codable, Hashable, Identifiable {
         case mediaType = "media_type"
     }
 }
+
+// MARK: Mocked Data
 
 extension MovieResponse {
     static let mockedData = MovieResponse(
@@ -65,10 +68,8 @@ extension MovieResponse {
 
 extension MovieResponse {
     func isValid() -> Bool {
-        let isReleased = !(self.releaseDate.isEmpty)
         let hasPoster = self.posterPath != nil
-        let hasRatings = self.voteCount > 100
 
-        return isReleased && hasPoster && hasRatings
+        return hasPoster
     }
 }

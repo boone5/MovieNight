@@ -7,13 +7,13 @@
 
 import SwiftUI
 
-struct MockLibraryScreen: View {
-    @StateObject private var viewModel: MockLibraryScreen.ViewModel
+struct LibraryScreen: View {
+    @StateObject private var viewModel: LibraryScreen.ViewModel
 
     @Namespace private var namespace
 
     init(movieDataStore: MovieDataStore) {
-        _viewModel = StateObject(wrappedValue: MockLibraryScreen.ViewModel(movieDataStore: movieDataStore))
+        _viewModel = StateObject(wrappedValue: LibraryScreen.ViewModel(movieDataStore: movieDataStore))
     }
 
     let layout = [
@@ -197,7 +197,7 @@ struct MockLibraryScreen: View {
 //    MockLibraryScreen()
 //}
 
-extension MockLibraryScreen {
+extension LibraryScreen {
     class ViewModel: ObservableObject {
         @Published var movies: [MovieData] = []
         private let movieDataStore: MovieDataStore

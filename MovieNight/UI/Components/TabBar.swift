@@ -12,7 +12,7 @@ struct TabBarView: View {
 
     var body: some View {
         TabView {
-            MockLibraryScreen(movieDataStore: movieDataStore)
+            LibraryScreen(movieDataStore: movieDataStore)
                 .tabItem {
                     Label("", systemImage: "books.vertical")
                 }

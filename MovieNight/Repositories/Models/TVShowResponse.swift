@@ -24,6 +24,9 @@ struct TVShowResponse: Codable, Hashable, Identifiable {
     let voteCount: Int
     let originCountry: [String]
 
+    // Additional Properties
+    var posterData: Data?
+    var userRating: Int16 = 0
     var averageColor: UIColor?
 
     enum CodingKeys: String, CodingKey {

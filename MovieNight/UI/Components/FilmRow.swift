@@ -9,12 +9,14 @@ import SwiftUI
 import SwiftUITrackableScrollView
 
 struct FilmRow: View {
+    @StateObject private var viewModel = ThumbnailView.ViewModel()
+
     public var items: [ResponseType]
 
     @Binding public var isExpanded: Bool
     @Binding public var selectedFilm: SelectedFilm?
 
-    var namespace: Namespace.ID
+    let namespace: Namespace.ID
 
     var body: some View {
         ScrollView(.horizontal) {
@@ -25,44 +27,19 @@ struct FilmRow: View {
                             .foregroundStyle(.clear)
                             .frame(width: 175, height: 250)
                     } else {
-                        filmRowCell(film: film)
+                        ThumbnailView(viewModel: viewModel, filmID: film.id, posterPath: film.posterPath, namespace: namespace)
+                            .onTapGesture {
+                                withAnimation(.spring()) {
+                                    isExpanded = true
+                                    selectedFilm = SelectedFilm(id: film.id, type: film, posterImage: viewModel.posterImage(for: film.posterPath))
+                                }
+                            }
                     }
                 }
             }
             .padding([.leading, .trailing], 15)
         }
         .toolbar(isExpanded ? .hidden : .visible, for: .tabBar)
-    }
-
-    @ViewBuilder
-    private func filmRowCell(film: ResponseType) -> some View {
-        ZStack(alignment: .bottomTrailing) {
-            RoundedRectangle(cornerRadius: 15)
-                .matchedGeometryEffect(id: "background" + String(film.id), in: namespace)
-                .foregroundStyle(.clear)
-                .frame(width: 175, height: 250)
-
-            ThumbnailView(
-                url: film.posterPath,
-                id: film.id,
-                width: 175,
-                height: 250,
-                namespace: namespace
-            )
-            .onTapGesture {
-                withAnimation(.spring()) {
-                    isExpanded = true
-                    selectedFilm = SelectedFilm(id: film.id, type: film)
-                }
-            }
-            .shadow(radius: 4, y: 5)
-
-            Circle()
-                .matchedGeometryEffect(id: "info" + String(film.id), in: namespace)
-                .frame(width: 50, height: 20)
-                .foregroundStyle(.clear)
-                .padding([.bottom, .trailing], 15)
-        }
     }
 }
 

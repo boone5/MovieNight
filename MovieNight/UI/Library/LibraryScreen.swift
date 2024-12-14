@@ -9,7 +9,10 @@ import SwiftUI
 
 struct LibraryScreen: View {
     @StateObject private var viewModel: LibraryScreen.ViewModel
+    @StateObject private var thumbnailViewModel = ThumbnailView.ViewModel()
 
+    @State var isExpanded: Bool = false
+    @State var selectedFilm: SelectedFilm?
     @Namespace private var namespace
 
     init(movieDataStore: MovieDataStore) {
@@ -74,18 +77,6 @@ struct LibraryScreen: View {
                         Text("hunter")
                             .foregroundStyle(.white)
                             .font(.system(size: 18, weight: .regular))
-
-                        Spacer()
-
-                        Button {
-                            //
-                        } label: {
-
-                            Image(systemName: "plus")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 20)
-                        }
                     }
                     .padding(.top, 15)
                 }
@@ -97,9 +88,10 @@ struct LibraryScreen: View {
 
                 if viewModel.movies.isEmpty {
                     Spacer()
-                    Text("Start watching Movies and TV shows to build your library.")
+                    Text("Start watching films to build your library.")
                         .font(.system(size: 14, weight: .semibold))
                         .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity, alignment: .center)
                         .padding(.horizontal, 15)
                     Spacer()
 
@@ -112,18 +104,22 @@ struct LibraryScreen: View {
                                 .padding([.leading, .bottom], 15)
                                 .padding(.top, 15)
 
-                            
-
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 10) {
                                     ForEach(viewModel.movies, id: \.id) { movie in
-                                        ThumbnailView(
-                                            url: movie.posterPath,
-                                            id: movie.id,
-                                            width: 175,
-                                            height: 250,
-                                            namespace: namespace
-                                        )
+                                        if selectedFilm?.id == movie.id, isExpanded {
+                                            RoundedRectangle(cornerRadius: 15)
+                                                .foregroundStyle(.clear)
+                                                .frame(width: 175, height: 250)
+                                        } else {
+                                            ThumbnailView(viewModel: thumbnailViewModel, filmID: movie.id, posterPath: movie.posterPath, namespace: namespace)
+                                                .onTapGesture {
+                                                    withAnimation(.spring()) {
+                                                        isExpanded = true
+                                                        selectedFilm = SelectedFilm(id: movie.id, type: ResponseType(movieData: movie), posterImage: thumbnailViewModel.posterImage(for: movie.posterPath))
+                                                    }
+                                                }
+                                        }
                                     }
                                 }
                                 .padding(.leading, 15)
@@ -136,56 +132,70 @@ struct LibraryScreen: View {
                                 .padding(.bottom, 20)
                                 .padding([.leading, .trailing], 15)
 
-                            LazyVGrid(columns: layout) {
-                                // Movies, TV Shows, Watch Later
-                                ForEach(MovieCollection.allCases) { type in
-                                    HStack {
-                                        ZStack {
-                                            RoundedRectangle(cornerRadius: 8)
-                                                .frame(width: 40, height: 60)
-                                                .foregroundStyle(.red)
-                                                .scaleEffect(0.8)
-                                                .offset(x: 15)
-
-                                            RoundedRectangle(cornerRadius: 8)
-                                                .frame(width: 40, height: 60)
-                                                .foregroundStyle(.blue)
-                                                .scaleEffect(0.9)
-                                                .offset(x: 8)
-
-                                            RoundedRectangle(cornerRadius: 8)
-                                                .frame(width: 40, height: 60)
-                                                .foregroundStyle(.green)
-                                        }
-
-                                        VStack(alignment: .leading, spacing: 5) {
-                                            Text(type.title)
-                                                .foregroundStyle(Color(uiColor: MovieNightColors.subtitle))
-                                                .font(.system(size: 12, weight: .medium))
-
-                                            // MARK: TODO - Add red background for Watch Later
-                                            Text(String(type.count))
-                                                .foregroundStyle(Color(uiColor: MovieNightColors.body))
-                                                .font(.system(size: 10, weight: .regular))
-                                        }
-                                        .padding(.leading, 20)
-
-                                        Spacer()
-                                    }
-                                    .padding(15)
-                                    .background {
-                                        RoundedRectangle(cornerRadius: 25)
-                                            .foregroundStyle(Color(.brightRed).opacity(0.4))
-                                    }
-                                }
-                            }
-                            .padding([.leading, .trailing], 15)
+                            // TODO: Causing issues when opening film detail view
+//                            LazyVGrid(columns: layout) {
+//                                // Movies, TV Shows, Watch Later
+//                                ForEach(MovieCollection.allCases) { type in
+//                                    HStack {
+//                                        ZStack {
+//                                            RoundedRectangle(cornerRadius: 8)
+//                                                .frame(width: 40, height: 60)
+//                                                .foregroundStyle(.red)
+//                                                .scaleEffect(0.8)
+//                                                .offset(x: 15)
+//
+//                                            RoundedRectangle(cornerRadius: 8)
+//                                                .frame(width: 40, height: 60)youtube 
+//                                                .foregroundStyle(.blue)
+//                                                .scaleEffect(0.9)
+//                                                .offset(x: 8)
+//
+//                                            RoundedRectangle(cornerRadius: 8)
+//                                                .frame(width: 40, height: 60)
+//                                                .foregroundStyle(.green)
+//                                        }
+//
+//                                        VStack(alignment: .leading, spacing: 5) {
+//                                            Text(type.title)
+//                                                .foregroundStyle(Color(uiColor: MovieNightColors.subtitle))
+//                                                .font(.system(size: 12, weight: .medium))
+//
+//                                            // MARK: TODO - Add red background for Watch Later
+//                                            Text(String(type.count))
+//                                                .foregroundStyle(Color(uiColor: MovieNightColors.body))
+//                                                .font(.system(size: 10, weight: .regular))
+//                                        }
+//                                        .padding(.leading, 20)
+//
+//                                        Spacer()
+//                                    }
+//                                    .padding(15)
+//                                    .background {
+//                                        RoundedRectangle(cornerRadius: 25)
+//                                            .foregroundStyle(Color(.brightRed).opacity(0.4))
+//                                    }
+//                                }
+//                            }
+//                            .padding([.leading, .trailing], 15)
 
                         }
                     }
                 }
             }
-
+            .opacity(isExpanded ? 0 : 1)
+            .overlay {
+                if let selectedFilm, isExpanded {
+                    FilmDetailView(
+                        movieDataStore: viewModel.movieDataStore,
+                        film: selectedFilm.type,
+                        namespace: namespace,
+                        isExpanded: $isExpanded,
+                        uiImage: selectedFilm.posterImage
+                    )
+                    .transition(.asymmetric(insertion: .identity, removal: .opacity))
+                }
+            }
+            .toolbar(isExpanded ? .hidden : .visible, for: .tabBar)
         }
         .onAppear {
             viewModel.fetchRecentlyWatched()
@@ -200,7 +210,7 @@ struct LibraryScreen: View {
 extension LibraryScreen {
     class ViewModel: ObservableObject {
         @Published var movies: [MovieData] = []
-        private let movieDataStore: MovieDataStore
+        public let movieDataStore: MovieDataStore
 
         init(movieDataStore: MovieDataStore = MovieDataStore()) {
             self.movieDataStore = movieDataStore

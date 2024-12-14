@@ -49,6 +49,10 @@ enum ResponseType: Decodable, Hashable {
             throw DecodingError.valueNotFound(Self.self, .init(codingPath: [], debugDescription: "⛔️ Type: \(type) NOT found!"))
         }
     }
+
+    init(movieData: MovieData) {
+        self = .movie(MovieResponse(movieData: movieData))
+    }
 }
 
 extension ResponseType: Identifiable {
@@ -115,6 +119,17 @@ extension ResponseType: Identifiable {
             movieResponse.mediaType
         case .tvShow(let tVShowResponse):
             tVShowResponse.mediaType
+        case .people, .empty:
+            nil
+        }
+    }
+
+    var posterData: Data? {
+        switch self {
+        case .movie(let movieResponse):
+            movieResponse.posterData
+        case .tvShow(let tVShowResponse):
+            tVShowResponse.posterData
         case .people, .empty:
             nil
         }

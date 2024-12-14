@@ -17,6 +17,7 @@ enum SearchState {
 struct SelectedFilm {
     var id: Int64
     var type: ResponseType
+    var posterImage: UIImage?
 }
 
 struct SearchScreen: View {
@@ -35,7 +36,6 @@ struct SearchScreen: View {
 
     @State var isExpanded: Bool = false
     @State var selectedFilm: SelectedFilm?
-
     @Namespace private var namespace
 
     init(movieDataStore: MovieDataStore) {
@@ -182,7 +182,8 @@ struct SearchScreen: View {
                             movieDataStore: movieDataStore,
                             film: selectedFilm.type,
                             namespace: namespace,
-                            isExpanded: $isExpanded
+                            isExpanded: $isExpanded,
+                            uiImage: selectedFilm.posterImage
                         )
                         .transition(.asymmetric(insertion: .identity, removal: .opacity))
                     }

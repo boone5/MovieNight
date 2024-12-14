@@ -12,17 +12,20 @@ struct TabBarView: View {
 
     var body: some View {
         TabView {
-            LibraryScreen(movieDataStore: movieDataStore)
-                .tabItem {
-                    Label("", systemImage: "books.vertical")
-                }
-//                .toolbarBackground(Color("BackgroundColor1"), for: .tabBar)
+            Group {
+                LibraryScreen(movieDataStore: movieDataStore)
+                    .tabItem {
+                        Label("", systemImage: "books.vertical")
+                    }
 
-            SearchScreen(movieDataStore: movieDataStore)
-                .tabItem {
-                    Label("", systemImage: "magnifyingglass")
-                }
-//                .toolbarBackground(Color("BackgroundColor1"), for: .tabBar)
+                SearchScreen(movieDataStore: movieDataStore)
+                    .tabItem {
+                        Label("", systemImage: "magnifyingglass")
+                    }
+            }
+            .toolbarBackground(Color(.backgroundColor2), for: .tabBar)
+            .toolbarBackground(.visible, for: .tabBar)
+            .toolbarColorScheme(.dark, for: .tabBar)
         }
     }
 }

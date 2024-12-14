@@ -20,8 +20,7 @@ final public class NetworkManager {
 
         print("making network request")
 
-        let decoder = JSONDecoder()
-        return try decoder.decode(T.self, from: data)
+        return try JSONDecoder().decode(T.self, from: data)
     }
 
     public func requestData(_ endpoint: EndpointProviding) async throws -> Data {

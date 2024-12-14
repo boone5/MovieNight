@@ -57,27 +57,12 @@ final class CoreDataManager {
 
 // MARK: SwiftUI Preview
 extension CoreDataManager {
-//    static var preview: MovieProvider = {
-//        let controller = MovieProvider(inMemory: true)
-//        let viewContext = controller.viewContext
-//
-//        for index in 1..<10 {
-//            let movie_CD = Movie_CD(context: viewContext)
-//            movie_CD.id = Int64(index)
-//            movie_CD.adult = true
-//            movie_CD.originalLanguage = "en"
-//            movie_CD.overview = "Lorem ipsum dolor sit amet, consect adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna. Ut enim ad minim veniam, quis"
-//            movie_CD.popularity = 400 + Double(index)
-//            movie_CD.releaseDate = "2014-11-\(index)"
-//            movie_CD.title = "Movie \(index)"
-//            movie_CD.video = true
-//            movie_CD.voteAverage = Double(index)
-//            movie_CD.voteCount = Int64(index) * Int64(10)
-//            movie_CD.posterPath = "/1QVZXQQHCEIj8lyUhdBYd2qOYtq.jpg"
-//        }
-//
-//        return controller
-//    }()
+    static var preview: CoreDataManager = {
+        let controller = CoreDataManager(inMemory: true)
+        let viewContext = controller.viewContext
+
+        return controller
+    }()
 //
 //    static var previewMovie: Movie_CD = {
 //        let controller = MovieProvider(inMemory: true)

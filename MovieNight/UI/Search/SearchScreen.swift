@@ -16,13 +16,12 @@ enum SearchState {
 
 struct SelectedFilm {
     var id: Int64
-    var type: ResponseType
+    var film: DetailViewRepresentable
     var posterImage: UIImage?
 }
 
 struct SearchScreen: View {
     @StateObject private var viewModel = SearchViewModel()
-    private var movieDataStore: MovieDataStore
 
     @State private var path: NavigationPath = NavigationPath()
     @State private var searchText: String = ""
@@ -37,10 +36,6 @@ struct SearchScreen: View {
     @State var isExpanded: Bool = false
     @State var selectedFilm: SelectedFilm?
     @Namespace private var namespace
-
-    init(movieDataStore: MovieDataStore) {
-        self.movieDataStore = movieDataStore
-    }
 
     var body: some View {
         NavigationStack(path: $path) {
@@ -179,8 +174,7 @@ struct SearchScreen: View {
                 .overlay {
                     if let selectedFilm, isExpanded {
                         FilmDetailView(
-                            movieDataStore: movieDataStore,
-                            film: selectedFilm.type,
+                            film: selectedFilm.film,
                             namespace: namespace,
                             isExpanded: $isExpanded,
                             uiImage: selectedFilm.posterImage

@@ -9,12 +9,9 @@ import SwiftUI
 
 @main
 struct MovieNightApp: App {
-    @StateObject var movieDataStore = MovieDataStore()
-
     var body: some Scene {
         WindowGroup {
             TabBarView()
-                .environmentObject(movieDataStore)
 //            Search()
         }
     }

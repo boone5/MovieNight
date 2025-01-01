@@ -8,17 +8,16 @@
 import SwiftUI
 
 struct TabBarView: View {
-    private let movieDataStore = MovieDataStore()
-
     var body: some View {
         TabView {
             Group {
-                LibraryScreen(movieDataStore: movieDataStore)
+                LibraryScreen()
                     .tabItem {
                         Label("", systemImage: "books.vertical")
                     }
+                    .environment(\.managedObjectContext, MovieProvider.shared.container.viewContext)
 
-                SearchScreen(movieDataStore: movieDataStore)
+                SearchScreen()
                     .tabItem {
                         Label("", systemImage: "magnifyingglass")
                     }

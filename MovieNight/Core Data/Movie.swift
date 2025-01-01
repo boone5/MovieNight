@@ -10,20 +10,25 @@ import CoreData
 
 // Whenever we work with an object in CoreData it is a NSManagedObject
 @objc(Movie)
-public class Movie: NSManagedObject {
+public class Movie: NSManagedObject, DetailViewRepresentable {
     // Movie Properties
     @NSManaged public var id: Int64
     @NSManaged public var title: String
     @NSManaged public var overview: String
     @NSManaged public var dateWatched: Date
-    @NSManaged public var userRating: Int16
+    @NSManaged public var releaseDate: String
     @NSManaged public var posterData: Data?
     @NSManaged public var posterPath: String?
+}
 
-    override public func awakeFromInsert() {
-        super.awakeFromInsert()
-        
-        setPrimitiveValue(0, forKey: "userRating")
+extension Movie {
+    var activityList: [Activity]? {
+        let activities = value(forKey: "activityList") as? [Activity]
+        return activities?.reversed()
+    }
+
+    var currentRating: Int16 {
+        activityList?.first?.rating ?? 0
     }
 }
 
@@ -38,7 +43,6 @@ struct MovieData {
     let title: String
     let overview: String
     let dateWatched: Date
-    let userRating: Int16
     let posterData: Data?
     let posterPath: String?
 
@@ -47,7 +51,6 @@ struct MovieData {
         self.title = movie.title
         self.overview = movie.overview
         self.dateWatched = movie.dateWatched
-        self.userRating = movie.userRating
         self.posterData = movie.posterData
         self.posterPath = movie.posterPath
     }

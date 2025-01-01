@@ -1,14 +1,27 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23507" systemVersion="24A348" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23605" systemVersion="24C101" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+    <entity name="Activity" representedClassName="Activity" syncable="YES" codeGenerationType="class">
+        <attribute name="comment" optional="YES" attributeType="String"/>
+        <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="filmID" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="rating" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+    </entity>
     <entity name="Movie" representedClassName=".Movie" syncable="YES">
         <attribute name="dateWatched" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="overview" optional="YES" attributeType="String"/>
         <attribute name="posterData" optional="YES" attributeType="Binary"/>
         <attribute name="posterPath" optional="YES" attributeType="String"/>
+        <attribute name="releaseDate" optional="YES" attributeType="String"/>
         <attribute name="title" optional="YES" attributeType="String"/>
-        <attribute name="userRating" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <fetchedProperty name="activityList" optional="YES">
+            <fetchRequest name="fetchedPropertyFetchRequest" entity="Activity" predicateString="filmID == $FETCH_SOURCE.id"/>
+        </fetchedProperty>
     </entity>
-    <entity name="Person_CD" representedClassName="Person_CD" syncable="YES" codeGenerationType="class"/>
-    <entity name="TVShow_CD" representedClassName="TVShow_CD" syncable="YES" codeGenerationType="class"/>
+    <configuration name="Activity">
+        <memberEntity name="Activity"/>
+    </configuration>
+    <configuration name="Movie">
+        <memberEntity name="Movie"/>
+    </configuration>
 </model>

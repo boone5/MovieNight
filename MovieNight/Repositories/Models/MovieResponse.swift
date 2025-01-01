@@ -23,8 +23,9 @@ struct MovieResponse: Codable, Hashable, Identifiable {
     
     // Additional Properties
     var posterData: Data?
-    var userRating: Int16 = 0
+    var rating: Int16 = 0
     var averageColor: UIColor?
+    var comment: String?
 
     enum CodingKeys: String, CodingKey {
         case adult
@@ -46,7 +47,7 @@ struct MovieResponse: Codable, Hashable, Identifiable {
         self.id = 0
         self.title = "Mocked Title"
         self.overview = "Lorem ipsum dolor sit amet, consect adipisc elit, sed do eiusmod tempor incidid ut labore et dolore magna. Ut enim ad minim veniam, quis"
-        self.userRating = 0
+        self.rating = 0
         self.posterData = nil
         self.posterPath = nil
         self.genreIDs = []
@@ -58,7 +59,6 @@ struct MovieResponse: Codable, Hashable, Identifiable {
         self.voteAverage = 0
         self.voteCount = 0
         self.mediaType = "movie"
-        self.userRating = 0
         self.adult = nil
         self.backdropPath = nil
     }
@@ -67,7 +67,6 @@ struct MovieResponse: Codable, Hashable, Identifiable {
         self.id = movieData.id
         self.title = movieData.title
         self.overview = movieData.overview
-        self.userRating = movieData.userRating
         self.posterData = movieData.posterData
         self.posterPath = movieData.posterPath
         self.genreIDs = []
@@ -79,7 +78,6 @@ struct MovieResponse: Codable, Hashable, Identifiable {
         self.voteAverage = 0
         self.voteCount = 0
         self.mediaType = "movie"
-        self.userRating = 0
         self.adult = nil
         self.backdropPath = nil
     }

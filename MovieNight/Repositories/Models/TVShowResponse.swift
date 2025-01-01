@@ -26,8 +26,9 @@ struct TVShowResponse: Codable, Hashable, Identifiable {
 
     // Additional Properties
     var posterData: Data?
-    var userRating: Int16 = 0
+    var rating: Int16 = 0
     var averageColor: UIColor?
+    var comment: String? 
 
     enum CodingKeys: String, CodingKey {
         case id

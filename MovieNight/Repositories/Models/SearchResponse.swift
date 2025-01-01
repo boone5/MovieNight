@@ -55,7 +55,11 @@ enum ResponseType: Decodable, Hashable {
     }
 }
 
-extension ResponseType: Identifiable {
+extension ResponseType: Identifiable, DetailViewRepresentable {    
+    var releaseDate: String {
+        ""
+    }
+    
     var id: Int64 {
         switch self {
         case .movie(let movieResponse):
@@ -91,25 +95,25 @@ extension ResponseType: Identifiable {
         }
     }
 
-    var title: String? {
+    var title: String {
         switch self {
         case .movie(let movieResponse):
             movieResponse.title
         case .tvShow(let tVShowResponse):
             tVShowResponse.title
         case .people, .empty:
-            nil
+            ""
         }
     }
 
-    var overview: String? {
+    var overview: String {
         switch self {
         case .movie(let movieResponse):
             movieResponse.overview
         case .tvShow(let tVShowResponse):
             tVShowResponse.overview
         case .people, .empty:
-            nil
+            ""
         }
     }
 

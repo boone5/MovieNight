@@ -8,16 +8,14 @@
 import SwiftUI
 
 struct LibraryScreen: View {
-    @StateObject private var viewModel: LibraryScreen.ViewModel
     @StateObject private var thumbnailViewModel = ThumbnailView.ViewModel()
+
+    @FetchRequest(sortDescriptors: [NSSortDescriptor(key: "dateWatched", ascending: false)])
+    var movies: FetchedResults<Movie>
 
     @State var isExpanded: Bool = false
     @State var selectedFilm: SelectedFilm?
     @Namespace private var namespace
-
-    init(movieDataStore: MovieDataStore) {
-        _viewModel = StateObject(wrappedValue: LibraryScreen.ViewModel(movieDataStore: movieDataStore))
-    }
 
     let layout = [
         GridItem(.adaptive(minimum: 120)),
@@ -86,7 +84,7 @@ struct LibraryScreen: View {
                         .shadow(color: .black, radius: 10, y: -2)
                 }
 
-                if viewModel.movies.isEmpty {
+                if movies.isEmpty {
                     Spacer()
                     Text("Start watching films to build your library.")
                         .font(.system(size: 14, weight: .semibold))
@@ -106,7 +104,7 @@ struct LibraryScreen: View {
 
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 10) {
-                                    ForEach(viewModel.movies, id: \.id) { movie in
+                                    ForEach(movies, id: \.id) { movie in
                                         if selectedFilm?.id == movie.id, isExpanded {
                                             RoundedRectangle(cornerRadius: 15)
                                                 .foregroundStyle(.clear)
@@ -116,7 +114,7 @@ struct LibraryScreen: View {
                                                 .onTapGesture {
                                                     withAnimation(.spring()) {
                                                         isExpanded = true
-                                                        selectedFilm = SelectedFilm(id: movie.id, type: ResponseType(movieData: movie), posterImage: thumbnailViewModel.posterImage(for: movie.posterPath))
+                                                        selectedFilm = SelectedFilm(id: movie.id, film: movie, posterImage: thumbnailViewModel.posterImage(for: movie.posterPath))
                                                     }
                                                 }
                                         }
@@ -186,8 +184,7 @@ struct LibraryScreen: View {
             .overlay {
                 if let selectedFilm, isExpanded {
                     FilmDetailView(
-                        movieDataStore: viewModel.movieDataStore,
-                        film: selectedFilm.type,
+                        film: selectedFilm.film,
                         namespace: namespace,
                         isExpanded: $isExpanded,
                         uiImage: selectedFilm.posterImage
@@ -196,9 +193,6 @@ struct LibraryScreen: View {
                 }
             }
             .toolbar(isExpanded ? .hidden : .visible, for: .tabBar)
-        }
-        .onAppear {
-            viewModel.fetchRecentlyWatched()
         }
     }
 }
@@ -209,16 +203,6 @@ struct LibraryScreen: View {
 
 extension LibraryScreen {
     class ViewModel: ObservableObject {
-        @Published var movies: [MovieData] = []
-        public let movieDataStore: MovieDataStore
-
-        init(movieDataStore: MovieDataStore = MovieDataStore()) {
-            self.movieDataStore = movieDataStore
-        }
-
-        func fetchRecentlyWatched() {
-            let movies = movieDataStore.fetchMoviesSortedByDateWatched()
-            self.movies = movies.map { MovieData(from: $0) }
-        }
+        
     }
 }

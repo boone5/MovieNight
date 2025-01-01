@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct FilmBottomSheetView: View {
-    var film: ResponseType
+    let film: DetailViewRepresentable
+    let backgroundColor: UIColor
 
     @Binding var isFlipped: Bool
 
@@ -23,7 +24,7 @@ struct FilmBottomSheetView: View {
                         .padding(.top, 30)
                         .padding(.horizontal, 15)
 
-                    Text(film.overview ?? "No summary available.")
+                    Text(film.overview)
                         .font(.system(size: 12, weight: .regular))
                         .foregroundStyle(Color(uiColor: .systemGray2))
                         .padding(.top, 10)
@@ -117,7 +118,7 @@ struct FilmBottomSheetView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             .background {
                 RoundedRectangle(cornerRadius: 15)
-                    .foregroundStyle(Color(uiColor: film.averageColor ?? UIColor(resource: .backgroundColor1)).opacity(0.2))
+                    .foregroundStyle(Color(uiColor: backgroundColor))
             }
 
             Text("Cover")

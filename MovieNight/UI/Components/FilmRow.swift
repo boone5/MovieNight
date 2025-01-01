@@ -31,7 +31,7 @@ struct FilmRow: View {
                             .onTapGesture {
                                 withAnimation(.spring()) {
                                     isExpanded = true
-                                    selectedFilm = SelectedFilm(id: film.id, type: film, posterImage: viewModel.posterImage(for: film.posterPath))
+                                    selectedFilm = SelectedFilm(id: film.id, film: film, posterImage: viewModel.posterImage(for: film.posterPath))
                                 }
                             }
                     }

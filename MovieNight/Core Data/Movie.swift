@@ -22,13 +22,13 @@ public class Movie: NSManagedObject, DetailViewRepresentable {
 }
 
 extension Movie {
-    var activityList: [Activity]? {
-        let activities = value(forKey: "activityList") as? [Activity]
-        return activities?.reversed()
-    }
-
-    var currentRating: Int16 {
-        activityList?.first?.rating ?? 0
+    var activity: Activity? {
+        get {
+            let activity = value(forKey: "activity") as? Activity
+            return activity
+        } set {
+            setValue(newValue, forKey: "activity")
+        }
     }
 }
 

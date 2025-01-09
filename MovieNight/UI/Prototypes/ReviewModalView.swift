@@ -10,14 +10,14 @@ import SwiftUI
 struct ReviewModalView: View {
     @ObservedObject var vm: FilmDetailView.ViewModel
     @Environment(\.dismiss) private var dismiss
-    @State private var rating: Int
+//    @State private var rating: Int
 
     let backgroundColor: UIColor
 
     init(vm: FilmDetailView.ViewModel) {
         self.vm = vm
         self.backgroundColor = vm.averageColor
-        self.rating = Int(vm.rating())
+//        self.rating = Int(vm.rating())
     }
 
    enum Star: CaseIterable {
@@ -39,30 +39,30 @@ struct ReviewModalView: View {
            HStack(spacing: 5) {
                ForEach(0..<Star.allCases.count, id: \.self) { idx in
                    Spacer()
-                   Image(systemName: idx < rating ? "star.fill" : "star")
-                       .resizable()
-                       .frame(width: 50, height: 50)
-                       .foregroundStyle(colorForIndex(rating))
-                       .onTapGesture {
-                           rating = idx+1
-                       }
+//                   Image(systemName: idx < rating ? "star.fill" : "star")
+//                       .resizable()
+//                       .frame(width: 50, height: 50)
+//                       .foregroundStyle(colorForIndex(rating))
+//                       .onTapGesture {
+//                           rating = idx+1
+//                       }
                }
                Spacer()
            }
            .padding(.top, 30)
            .padding(.horizontal, 30)
 
-           Text(titleForIndex(rating))
-               .font(.system(size: 16, weight: .regular))
-               .foregroundStyle(.white)
-               .padding(.top, 20)
+//           Text(titleForIndex(rating))
+//               .font(.system(size: 16, weight: .regular))
+//               .foregroundStyle(.white)
+//               .padding(.top, 20)
 
            Spacer()
 
            Button {
-               if rating != 0 {
-                   vm.addActivity(rating: rating)
-               }
+//               if rating != 0 {
+//                   vm.addActivity(rating: rating)
+//               }
 
                dismiss()
 
@@ -77,11 +77,11 @@ struct ReviewModalView: View {
                ZStack {
                    Color(uiColor: backgroundColor)
 
-                   if rating != 0 {
-                       Color(.black).opacity(0.6)
-                   } else {
-                       Color(.black).opacity(0.2)
-                   }
+//                   if rating != 0 {
+//                       Color(.black).opacity(0.6)
+//                   } else {
+//                       Color(.black).opacity(0.2)
+//                   }
                }
            }
            .clipShape(RoundedRectangle(cornerRadius: 15))

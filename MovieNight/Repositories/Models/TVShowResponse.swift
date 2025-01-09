@@ -12,17 +12,17 @@ struct TVShowResponse: Codable, Hashable, Identifiable {
     let adult: Bool?
     let backdropPath: String?
     let posterPath: String?
-    let title: String
-    let originalTitle: String
-    let originalLanguage: String
-    let overview: String
-    let mediaType: String
-    let genreIds: [Int]
-    let popularity: Double
-    let firstAirDate: String
-    let voteAverage: Double
-    let voteCount: Int
-    let originCountry: [String]
+    let title: String?
+    let originalTitle: String?
+    let originalLanguage: String?
+    let overview: String?
+    let mediaType: String?
+    let genreIds: [Int]?
+    let popularity: Double?
+    let firstAirDate: String?
+    let voteAverage: Double?
+    let voteCount: Int?
+    let originCountry: [String]?
 
     // Additional Properties
     var posterData: Data?

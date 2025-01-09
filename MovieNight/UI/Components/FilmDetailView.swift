@@ -35,10 +35,11 @@ struct FilmDetailView: View {
 
     @State private var scrollViewContentOffset = CGFloat(0)
     @State private var isFlipped = false
-
-    @State private var showRatingModal: Bool = false
+    
     @State private var showCommentModal: Bool = false
     @State private var animationDidFinish: Bool = false
+
+    public var comment: String? = nil
 
     var axis: (x: CGFloat, y: CGFloat, z: CGFloat) = (0, 1, 0)
 
@@ -78,7 +79,14 @@ struct FilmDetailView: View {
                         // MARK: TODO
                         // - Add shimmy animation
                         // - Add gloss finish
-                        PosterView(uiImage: uiImage, filmID: viewModel.film.id, namespace: namespace, isAnimationSource: false, width: posterWidth, height: posterHeight)
+                        PosterView(
+                            width: posterWidth,
+                            height: posterHeight,
+                            uiImage: uiImage,
+                            filmID: viewModel.film.id,
+                            namespace: namespace,
+                            isAnimationSource: false
+                        )
                             .shadow(color: .black.opacity(0.6), radius: 8, y: 4)
                             .opacity(isFlipped ? 0 : 1)
                             .overlay {
@@ -96,7 +104,7 @@ struct FilmDetailView: View {
                             .shadow(color: .black.opacity(0.6), radius: 8, y: 4)
                             .opacity(isFlipped ? 1 : 0)
                             .overlay {
-                                FilmBottomSheetView(film: viewModel.film, backgroundColor: viewModel.averageColor, isFlipped: $isFlipped)
+                                PosterBackView(film: viewModel.film, backgroundColor: viewModel.averageColor, isFlipped: $isFlipped)
                                     .opacity(isFlipped ? 1 : 0)
                             }
                             .rotation3DEffect(
@@ -117,76 +125,24 @@ struct FilmDetailView: View {
                             .foregroundStyle(Color(uiColor: .systemGray2))
                             .padding(.top, 10)
 
-                        // Whenever a TV Show is selected, I could show a picker to choose the season
-
-                        Group {
-                            switch viewModel.viewState {
-                            case .watched:
-                                HStack(spacing: 0) {
-                                    Spacer()
-                                    // fill the star left to right depending on what the user rated it
-                                    if viewModel.rating() != 0 {
-                                        FilmDetailButtonView(imageName: "star.fill", width: 30, height: 30) {
-                                            showRatingModal = true
-                                        }
-                                    } else {
-                                        FilmDetailButtonView(imageName: "star", width: 30, height: 30) {
-                                            showRatingModal = true
-                                        }
-                                    }
-
-                                    Spacer()
-                                    FilmDetailButtonView(imageName: "checkmark.circle.fill", width: 40, height: 40) {
-                                        viewModel.deleteFilm(id: viewModel.film.id)
-                                    }
-                                    Spacer()
-                                    FilmDetailButtonView(imageName: "text.bubble", width: 30, height: 30) {
-                                        showCommentModal = true
-                                    }
-                                    Spacer()
-                                }
-
-                            case .notWatched:
-                                HStack(spacing: 0) {
-                                    Spacer()
-                                    FilmDetailButtonView(imageName: "star", width: 30, height: 30) {
-                                        showRatingModal = true
-                                    }
-                                    Spacer()
-                                    FilmDetailButtonView(imageName: "plus.circle", width: 40, height: 40) {
-                                        viewModel.addActivity()
-                                    }
-                                    Spacer()
-                                    FilmDetailButtonView(imageName: "text.bubble", width: 30, height: 30) {
-                                        showCommentModal = true
-                                    }
-                                    Spacer()
-                                }
+                        ActionView3(
+                            isLiked: $viewModel.isLiked,
+                            isLoved: $viewModel.isLoved,
+                            isDisliked: $viewModel.isDisliked,
+                            didAddActivity: { isLiked, isLoved, isDisliked in
+                                viewModel.addActivity(isLiked: isLiked, isLoved: isLoved, isDisliked: isDisliked)
                             }
-                        }
-                        .padding(.top, 35)
-                        .padding(.bottom, 15)
+                        )
+                            .padding(.top, 30)
 
-                        if let feedbackList = viewModel.feedbackList(), !feedbackList.isEmpty {
-                            Text("Activity")
-                                .font(.system(size: 16, weight: .bold))
-                                .foregroundStyle(Color(uiColor: .systemGray2))
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.top, 30)
+                        Text("Activity")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundStyle(Color(uiColor: .systemGray2))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.top, 30)
 
-                            ForEach(feedbackList) { feedback in
-                                Group {
-                                    if let comment = feedback.comment {
-                                        ActionView(backgroundColor: viewModel.averageColor, actionType: .comment(comment: comment))
-                                    } else if feedback.rating != 0 {
-                                        ActionView(backgroundColor: viewModel.averageColor, actionType: .rating(rating: feedback.rating))
-                                    } else if let date = feedback.date {
-                                        ActionView(backgroundColor: viewModel.averageColor, actionType: .dateWatched(date: date))
-                                    }
-                                }
-                                .padding(.top, 15)
-                            }
-                        }
+                        ActionView(backgroundColor: viewModel.averageColor, actionType: .dateWatched(date: .now))
+                            .padding(.top, 15)
 
                         Text("You might like")
                             .font(.system(size: 16, weight: .bold))
@@ -237,11 +193,6 @@ struct FilmDetailView: View {
                     )
                 )
                 .ignoresSafeArea()
-        }
-        .sheet(isPresented: $showRatingModal) {
-            ReviewModalView(vm: viewModel)
-                .presentationDetents([.fraction(0.35)])
-                .presentationDragIndicator(.visible)
         }
         .sheet(isPresented: $showCommentModal) {
             CommentModalView(vm: viewModel)
@@ -354,7 +305,7 @@ struct CommentModalView: View {
 
             Button {
                 // do something
-                vm.addActivity(comment: text)
+//                vm.addActivity(comment: text)
                 dismiss()
 
             } label: {
@@ -401,6 +352,10 @@ extension FilmDetailView {
         @Published var averageColor: UIColor
         @Published var film: DetailViewRepresentable
 
+        @Published var isLiked: Bool = false
+        @Published var isLoved: Bool = false
+        @Published var isDisliked: Bool = false
+
         private let movieProvider: MovieProvider = .shared
 
         init(posterImage: UIImage?, film: some DetailViewRepresentable) {
@@ -410,6 +365,15 @@ extension FilmDetailView {
             if let movie = movieProvider.fetchMovieByID(film.id) {
                 self.viewState = .watched
                 self.film = movie
+
+                print("Film (init) context: \(movie.managedObjectContext?.description ?? "nil")")
+
+                if let activity = movie.activity {
+                    isLiked = activity.isLiked
+                    isLoved = activity.isLoved
+                    isDisliked = activity.isDisliked
+                }
+
             } else {
                 self.viewState = .notWatched
             }
@@ -420,42 +384,34 @@ extension FilmDetailView {
             self.film = movieProvider.saveFilm(film, feedback: feedback)
         }
 
-        public func rating() -> Int16 {
-            if let film = film as? Movie {
-                return film.currentRating
-            }
-
-            return 0
-        }
-
-        public func feedbackList() -> [Activity]? {
-            // TODO: switch on film type
-
-            if let movie = movieProvider.fetchMovieByID(film.id) {
-                return movie.activityList
-            } else {
-                return nil
-            }
-        }
-
         public func deleteFilm(id: Int64) {
             viewState = .notWatched
             movieProvider.deleteMovie(by: id)
         }
 
-        public func addActivity(comment: String? = nil, rating: Int = 0) {
+        public func addActivity(comment: String? = nil, isLiked: Bool, isLoved: Bool, isDisliked: Bool) {
             let filmID = film.id
-            let rating = Int16(rating)
             let date = Date()
 
             if let film = movieProvider.fetchMovieByID(film.id) {
                 guard let context = film.managedObjectContext else { return }
 
-                let activity = Activity(context: movieProvider.container.viewContext)
-                activity.comment = comment
-                activity.rating = rating
-                activity.filmID = filmID
-                activity.date = date
+                print("Film (addActivity) context: \(context.description)")
+
+                var activity: Activity?
+
+                if let activityCD = film.activity {
+                    activity = activityCD
+                } else {
+                    activity = Activity(context: context)
+                    activity?.filmID = filmID
+                    activity?.date = date
+                }
+
+                activity?.isLiked = isLiked
+                activity?.isLoved = isLoved
+                activity?.isDisliked = isDisliked
+                activity?.comment = comment
 
                 do {
                     try context.save()
@@ -463,13 +419,15 @@ extension FilmDetailView {
                     print("Failed to save: \(error)")
                 }
 
-                context.refresh(film, mergeChanges: true)
+                self.film = film
             } else {
                 let activity = Activity(context: movieProvider.container.viewContext)
                 activity.comment = comment
-                activity.rating = rating
                 activity.filmID = filmID
                 activity.date = date
+                activity.isLiked = isLiked
+                activity.isLoved = isLoved
+                activity.isDisliked = isDisliked
 
                 addToWatched(film, feedback: activity)
             }

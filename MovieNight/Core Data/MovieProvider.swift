@@ -142,17 +142,15 @@ final class MovieProvider {
         movie.posterPath = film.posterPath
         movie.overview = film.overview
         movie.releaseDate = film.releaseDate
+        movie.activity = feedback
 
-        if let _ = feedback, let context = movie.managedObjectContext {
+        if let context = movie.managedObjectContext {
             do {
                 try context.save()
             } catch {
                 print("Failed to save: \(error)")
             }
-
-            context.refresh(movie, mergeChanges: true)
         }
-
         return movie
     }
 

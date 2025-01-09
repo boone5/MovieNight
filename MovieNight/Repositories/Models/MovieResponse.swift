@@ -11,15 +11,15 @@ struct MovieResponse: Codable, Hashable, Identifiable {
     let id: Int64
     let adult: Bool?
     let backdropPath: String?
-    let genreIDs: [Int]
-    let originalLanguage, originalTitle, overview: String
-    let popularity: Double
+    let genreIDs: [Int]?
+    let originalLanguage, originalTitle, overview: String?
+    let popularity: Double?
     let posterPath: String?
-    let releaseDate, title: String
-    let video: Bool
-    let voteAverage: Double
-    let voteCount: Int64
-    let mediaType: String
+    let releaseDate, title: String?
+    let video: Bool?
+    let voteAverage: Double?
+    let voteCount: Int64?
+    let mediaType: String?
     
     // Additional Properties
     var posterData: Data?

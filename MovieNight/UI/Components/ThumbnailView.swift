@@ -15,8 +15,8 @@ struct ThumbnailView: View {
 
     let filmID: Int64
     let posterPath: String?
-    let width: CGFloat = 175
-    let height: CGFloat = 250
+    let width: CGFloat
+    let height: CGFloat
     let namespace: Namespace.ID
 
     var body: some View {
@@ -24,9 +24,16 @@ struct ThumbnailView: View {
             RoundedRectangle(cornerRadius: 15)
                 .matchedGeometryEffect(id: "background" + String(filmID), in: namespace)
                 .foregroundStyle(.clear)
-                .frame(width: 175, height: 250)
+                .frame(width: width, height: height)
 
-            PosterView(uiImage: uiImage, filmID: filmID, namespace: namespace, isAnimationSource: true)
+            PosterView(
+                width: width,
+                height: height,
+                uiImage: uiImage,
+                filmID: filmID,
+                namespace: namespace,
+                isAnimationSource: true
+            )
 
             Circle()
                 .matchedGeometryEffect(id: "info" + String(filmID), in: namespace)
@@ -61,15 +68,6 @@ struct PosterView: View {
     let filmID: Int64
     let namespace: Namespace.ID
     let isAnimationSource: Bool
-
-    init(uiImage: UIImage?, filmID: Int64, namespace: Namespace.ID, isAnimationSource: Bool, width: CGFloat = 175, height: CGFloat = 250) {
-        self.uiImage = uiImage
-        self.filmID = filmID
-        self.namespace = namespace
-        self.isAnimationSource = isAnimationSource
-        self.width = width
-        self.height = height
-    }
 
     var body: some View {
         if let uiImage {

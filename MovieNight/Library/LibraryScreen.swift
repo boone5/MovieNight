@@ -110,7 +110,14 @@ struct LibraryScreen: View {
                                                 .foregroundStyle(.clear)
                                                 .frame(width: 175, height: 250)
                                         } else {
-                                            ThumbnailView(viewModel: thumbnailViewModel, filmID: movie.id, posterPath: movie.posterPath, namespace: namespace)
+                                            ThumbnailView(
+                                                viewModel: thumbnailViewModel,
+                                                filmID: movie.id,
+                                                posterPath: movie.posterPath,
+                                                width: 175,
+                                                height: 250,
+                                                namespace: namespace
+                                            )
                                                 .onTapGesture {
                                                     withAnimation(.spring()) {
                                                         isExpanded = true

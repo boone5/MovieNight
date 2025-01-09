@@ -19,10 +19,15 @@ struct SearchResponse: Decodable {
     }
 }
 
+enum MediaType: String, Decodable {
+    case movie = "movie"
+    case tvShow = "tv"
+}
+
 enum ResponseType: Decodable, Hashable {    
     case movie(MovieResponse)
     case tvShow(TVShowResponse)
-    case people(ActorResponse)
+//    case people(ActorResponse)
     case empty
 
     enum CodingKeys: String, CodingKey {
@@ -31,22 +36,17 @@ enum ResponseType: Decodable, Hashable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let type = try container.decode(String.self, forKey: .mediaType)
+        let type = try container.decode(MediaType.self, forKey: .mediaType)
         let singleContainer = try decoder.singleValueContainer()
 
         switch type {
-        case "movie":
+        case .movie:
             let movieResponse = try singleContainer.decode(MovieResponse.self)
             self = movieResponse.isValid() ? .movie(movieResponse) : .empty
 
-        case "tv":
+        case .tvShow:
             let tvShowResponse = try singleContainer.decode(TVShowResponse.self)
             self = tvShowResponse.isValid() ? .tvShow(tvShowResponse) : .empty
-
-        case "person":
-            self = .people(try singleContainer.decode(ActorResponse.self))
-        default:
-            throw DecodingError.valueNotFound(Self.self, .init(codingPath: [], debugDescription: "⛔️ Type: \(type) NOT found!"))
         }
     }
 
@@ -66,8 +66,6 @@ extension ResponseType: Identifiable, DetailViewRepresentable {
             movieResponse.id
         case .tvShow(let tvShowResponse):
             tvShowResponse.id
-        case .people(let actorResponse):
-            actorResponse.id
         case .empty:
             0
         }
@@ -79,7 +77,7 @@ extension ResponseType: Identifiable, DetailViewRepresentable {
             movieResponse.posterPath
         case .tvShow(let tVShowResponse):
             tVShowResponse.posterPath
-        case .people, .empty:
+        case .empty:
             nil
         }
     }
@@ -90,7 +88,7 @@ extension ResponseType: Identifiable, DetailViewRepresentable {
             movieResponse.averageColor
         case .tvShow(let tVShowResponse):
             tVShowResponse.averageColor
-        case .people, .empty:
+        case .empty:
             nil
         }
     }
@@ -98,10 +96,10 @@ extension ResponseType: Identifiable, DetailViewRepresentable {
     var title: String {
         switch self {
         case .movie(let movieResponse):
-            movieResponse.title
+            movieResponse.title ?? "No title"
         case .tvShow(let tVShowResponse):
-            tVShowResponse.title
-        case .people, .empty:
+            tVShowResponse.title ?? "No title"
+        case .empty:
             ""
         }
     }
@@ -109,21 +107,21 @@ extension ResponseType: Identifiable, DetailViewRepresentable {
     var overview: String {
         switch self {
         case .movie(let movieResponse):
-            movieResponse.overview
+            movieResponse.overview ?? "No summary"
         case .tvShow(let tVShowResponse):
-            tVShowResponse.overview
-        case .people, .empty:
+            tVShowResponse.overview ?? "No summary"
+        case .empty:
             ""
         }
     }
 
     var mediaType: String? {
         switch self {
-        case .movie(let movieResponse):
-            movieResponse.mediaType
-        case .tvShow(let tVShowResponse):
-            tVShowResponse.mediaType
-        case .people, .empty:
+        case .movie:
+            "Movie"
+        case .tvShow:
+            "TV Show"
+        case .empty:
             nil
         }
     }
@@ -134,7 +132,7 @@ extension ResponseType: Identifiable, DetailViewRepresentable {
             movieResponse.posterData
         case .tvShow(let tVShowResponse):
             tVShowResponse.posterData
-        case .people, .empty:
+        case .empty:
             nil
         }
     }

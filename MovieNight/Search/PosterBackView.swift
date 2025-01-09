@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct FilmBottomSheetView: View {
+struct PosterBackView: View {
     let film: DetailViewRepresentable
     let backgroundColor: UIColor
 

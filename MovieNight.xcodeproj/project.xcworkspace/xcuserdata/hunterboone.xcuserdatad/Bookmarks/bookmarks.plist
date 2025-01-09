@@ -12,13 +12,13 @@
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>64</string>
+					<string>68</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>63</string>
+					<string>67</string>
 					<key>Timestamp</key>
-					<string>750313077.25188</string>
+					<string>757811377.1514699</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -34,16 +34,16 @@
 			<key>text-context</key>
 			<dict>
 				<key>focused</key>
-				<string>        searchBar.searchTextField.textColor = .white
+				<string>    }
 </string>
 				<key>leading</key>
-				<string>        searchBar.searchTextField.rightViewMode = .always
-//        searchBar.setRightImage(image)
+				<string>
+        return searchBar
 </string>
 				<key>trailing</key>
 				<string>
-        return searchBar
-    }
+    func makeCoordinator() -&gt; Coordinator {
+        Coordinator(searchText: $searchText, searchViewModel: vm, searchState: $searchState)
 </string>
 			</dict>
 			<key>title</key>

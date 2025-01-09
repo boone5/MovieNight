@@ -7,13 +7,13 @@
 
 struct ActorResponse: Codable, Hashable, Identifiable {
     let id: Int64
-    let adult: Bool
-    let name: String
-    let originalName: String
-    let mediaType: String
-    let popularity: Double
-    let gender: Int
-    let knownForDepartment: String
+    let adult: Bool?
+    let name: String?
+    let originalName: String?
+    let mediaType: String?
+    let popularity: Double?
+    let gender: Int?
+    let knownForDepartment: String??
     let profilePath: String?
 
     enum CodingKeys: String, CodingKey {

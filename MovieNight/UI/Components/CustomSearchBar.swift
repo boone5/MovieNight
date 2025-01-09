@@ -28,10 +28,6 @@ struct CustomSearchBar: UIViewRepresentable {
             self.searchText = searchText
         }
 
-        func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-            self.searchState = .searching
-        }
-
         @MainActor
         func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
             print("searching for: \(searchText)")
@@ -41,17 +37,24 @@ struct CustomSearchBar: UIViewRepresentable {
                 await vm.fetchAllResults(for: searchText)
             }
         }
+
+        @objc func didTapCancelButton() {
+            searchState = .explore
+        }
     }
 
     func makeUIView(context: Context) -> UISearchBar {
-        let image = UIImage(systemName: "xmark.circle")
+        let image = UIImage(systemName: "xmark")?.withTintColor(.white, renderingMode: .alwaysTemplate)
 
-        let imageView = UIImageView()
-        imageView.image = image
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.widthAnchor.constraint(equalToConstant: 20).isActive = true
-        imageView.heightAnchor.constraint(equalToConstant: 20).isActive = true
-        imageView.tintColor = .white
+        let imageView = UIImageView(image: image)
+        imageView.isUserInteractionEnabled = true
+
+        let uiTapGesture = UITapGestureRecognizer(
+            target: context.coordinator,
+            action: #selector(Coordinator.didTapCancelButton)
+        )
+
+        imageView.addGestureRecognizer(uiTapGesture)
 
         let searchBar = UISearchBar()
         searchBar.delegate = context.coordinator
@@ -60,8 +63,6 @@ struct CustomSearchBar: UIViewRepresentable {
         searchBar.searchTextField.leftView?.tintColor = .white
         searchBar.searchTextField.rightView = imageView
         searchBar.searchTextField.rightViewMode = .always
-//        searchBar.setRightImage(image)
-        searchBar.searchTextField.textColor = .white
 
         return searchBar
     }
@@ -72,14 +73,5 @@ struct CustomSearchBar: UIViewRepresentable {
 
     func updateUIView(_ uiView: UISearchBar, context: Context) {
         uiView.text = searchText
-    }
-}
-
-extension UISearchBar {
-    func setRightImage(_ image: UIImage?) {
-        if let btn = searchTextField.rightView as? UIButton {
-            btn.setImage(image, for: .normal)
-            btn.setImage(image, for: .highlighted)
-        }
     }
 }

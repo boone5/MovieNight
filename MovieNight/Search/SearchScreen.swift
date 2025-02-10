@@ -61,8 +61,8 @@ struct SearchScreen: View {
                         .padding(.horizontal, -8)
                         .padding([.leading, .trailing], 15)
                 }
-
-                Spacer()
+                .padding(.top, 15)
+                .padding(.bottom, 20)
 
                 switch searchState {
                 case .explore:

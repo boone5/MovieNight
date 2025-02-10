@@ -17,41 +17,6 @@ struct LibraryScreen: View {
     @State var selectedFilm: SelectedFilm?
     @Namespace private var namespace
 
-    let layout = [
-        GridItem(.adaptive(minimum: 120)),
-        GridItem(.adaptive(minimum: 120)),
-    ]
-
-    enum MovieCollection: Identifiable, CaseIterable {
-        var id: String { UUID().uuidString }
-
-        case movies
-        case tvShows
-        case watchLater
-
-        var title: String {
-            switch self {
-            case .movies:
-                return "Movies"
-            case .tvShows:
-                return "TV Shows"
-            case .watchLater:
-                return "Watch Later"
-            }
-        }
-
-        var count: Int {
-            switch self {
-            case .movies:
-                return 10
-            case .tvShows:
-                return 20
-            case .watchLater:
-                return 5
-            }
-        }
-    }
-
     var body: some View {
         ZStack {
             Color.clear
@@ -66,23 +31,14 @@ struct LibraryScreen: View {
 
             VStack(alignment: .leading, spacing: 0) {
                 // Header
-                VStack(alignment: .center, spacing: 0) {
-                    HStack(spacing: 10) {
-                        Circle()
-                            .frame(width: 30, height: 30)
-                            .foregroundColor(.blue)
-
-                        Text("hunter")
-                            .foregroundStyle(.white)
-                            .font(.system(size: 18, weight: .regular))
-                    }
-                    .padding(.top, 15)
+                VStack(alignment: .leading, spacing: 7) {
+                    Text("Library")
+                        .foregroundStyle(.white)
+                        .font(.system(size: 42, weight: .bold))
+                        .padding([.leading, .trailing], 15)
                 }
-                .padding(15)
-                .background {
-                    Color("BackgroundColor1").ignoresSafeArea()
-                        .shadow(color: .black, radius: 10, y: -2)
-                }
+                .padding(.top, 15)
+                .padding(.bottom, 20)
 
                 if movies.isEmpty {
                     Spacer()
@@ -96,11 +52,10 @@ struct LibraryScreen: View {
                 } else {
                     ScrollView(showsIndicators: false) {
                         VStack(alignment: .leading, spacing: 0) {
-                            Text("Recently Watched")
+                            Text("Recently watched")
                                 .foregroundStyle(.white)
-                                .font(.system(size: 22, weight: .semibold))
+                                .font(.system(size: 22, weight: .bold))
                                 .padding([.leading, .bottom], 15)
-                                .padding(.top, 15)
 
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 10) {
@@ -118,71 +73,27 @@ struct LibraryScreen: View {
                                                 height: 250,
                                                 namespace: namespace
                                             )
-                                                .onTapGesture {
-                                                    withAnimation(.spring()) {
-                                                        isExpanded = true
-                                                        selectedFilm = SelectedFilm(id: movie.id, film: movie, posterImage: thumbnailViewModel.posterImage(for: movie.posterPath))
-                                                    }
+                                            .shadow(color: .black.opacity(0.6), radius: 8, y: 4)
+                                            .onTapGesture {
+                                                withAnimation(.spring()) {
+                                                    isExpanded = true
+                                                    selectedFilm = SelectedFilm(id: movie.id, film: movie, posterImage: thumbnailViewModel.posterImage(for: movie.posterPath))
                                                 }
+                                            }
                                         }
                                     }
                                 }
                                 .padding(.leading, 15)
+                                .padding(.vertical, 15)     // allows space for drop shadow
                             }
+                            .padding(.vertical, -15)        // negates space for drop shadow
 
-                            Text("Collections")
-                                .foregroundStyle(.white)
-                                .font(.system(size: 22, weight: .semibold))
+                            WatchLaterView()
                                 .padding(.top, 30)
-                                .padding(.bottom, 20)
+
+                            CollectionsView()
+                                .padding(.top, 30)
                                 .padding([.leading, .trailing], 15)
-
-                            // TODO: Causing issues when opening film detail view
-//                            LazyVGrid(columns: layout) {
-//                                // Movies, TV Shows, Watch Later
-//                                ForEach(MovieCollection.allCases) { type in
-//                                    HStack {
-//                                        ZStack {
-//                                            RoundedRectangle(cornerRadius: 8)
-//                                                .frame(width: 40, height: 60)
-//                                                .foregroundStyle(.red)
-//                                                .scaleEffect(0.8)
-//                                                .offset(x: 15)
-//
-//                                            RoundedRectangle(cornerRadius: 8)
-//                                                .frame(width: 40, height: 60)youtube 
-//                                                .foregroundStyle(.blue)
-//                                                .scaleEffect(0.9)
-//                                                .offset(x: 8)
-//
-//                                            RoundedRectangle(cornerRadius: 8)
-//                                                .frame(width: 40, height: 60)
-//                                                .foregroundStyle(.green)
-//                                        }
-//
-//                                        VStack(alignment: .leading, spacing: 5) {
-//                                            Text(type.title)
-//                                                .foregroundStyle(Color(uiColor: MovieNightColors.subtitle))
-//                                                .font(.system(size: 12, weight: .medium))
-//
-//                                            // MARK: TODO - Add red background for Watch Later
-//                                            Text(String(type.count))
-//                                                .foregroundStyle(Color(uiColor: MovieNightColors.body))
-//                                                .font(.system(size: 10, weight: .regular))
-//                                        }
-//                                        .padding(.leading, 20)
-//
-//                                        Spacer()
-//                                    }
-//                                    .padding(15)
-//                                    .background {
-//                                        RoundedRectangle(cornerRadius: 25)
-//                                            .foregroundStyle(Color(.brightRed).opacity(0.4))
-//                                    }
-//                                }
-//                            }
-//                            .padding([.leading, .trailing], 15)
-
                         }
                     }
                 }
@@ -207,9 +118,3 @@ struct LibraryScreen: View {
 //#Preview {
 //    MockLibraryScreen()
 //}
-
-extension LibraryScreen {
-    class ViewModel: ObservableObject {
-        
-    }
-}

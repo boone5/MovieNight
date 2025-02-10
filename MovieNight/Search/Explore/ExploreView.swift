@@ -41,7 +41,6 @@ struct ExploreView: View {
             Text("Popular Movies")
                 .font(.system(size: 18, weight: .bold))
                 .foregroundStyle(.white)
-                .padding(.top, 30)
                 .padding([.leading, .trailing, .bottom], 15)
 
             FilmRow(

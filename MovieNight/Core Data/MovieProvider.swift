@@ -154,7 +154,6 @@ final class MovieProvider {
         return movie
     }
 
-    /// Optionally, if you prefer removing by an ID, you can implement a method like this:
     /// - Parameter id: The ID of the movie to remove.
     public func deleteMovie(by id: Int64) {
         if let movieToDelete = fetchMovieByID(id) {

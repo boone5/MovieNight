@@ -1,30 +1,31 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23605" systemVersion="24C101" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
-    <entity name="Activity" representedClassName="Activity" syncable="YES" codeGenerationType="class">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23605" systemVersion="24D60" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+    <entity name="Entry" representedClassName="Entry" syncable="YES" codeGenerationType="class">
         <attribute name="comment" optional="YES" attributeType="String"/>
         <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="emoji" optional="YES" attributeType="String"/>
-        <attribute name="filmID" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="film" maxCount="1" deletionRule="Cascade" destinationEntity="Film" inverseName="entries" inverseEntity="Film"/>
+    </entity>
+    <entity name="Film" representedClassName=".Film" syncable="YES" codeGenerationType="class">
+        <attribute name="dateWatched" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="isDisliked" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="isLiked" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="isLoved" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
-    </entity>
-    <entity name="Movie" representedClassName=".Movie" syncable="YES">
-        <attribute name="dateWatched" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
-        <attribute name="id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="mediaTypeAsString" optional="YES" attributeType="String"/>
         <attribute name="overview" optional="YES" attributeType="String"/>
         <attribute name="posterData" optional="YES" attributeType="Binary"/>
         <attribute name="posterPath" optional="YES" attributeType="String"/>
         <attribute name="releaseDate" optional="YES" attributeType="String"/>
         <attribute name="title" optional="YES" attributeType="String"/>
-        <fetchedProperty name="activity" optional="YES">
-            <fetchRequest name="fetchedPropertyFetchRequest" entity="Activity" predicateString="filmID == $FETCH_SOURCE.id"/>
-        </fetchedProperty>
+        <relationship name="collection" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="FilmCollection" inverseName="films" inverseEntity="FilmCollection"/>
+        <relationship name="entries" optional="YES" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="Entry" inverseName="film" inverseEntity="Entry"/>
     </entity>
-    <configuration name="Activity">
-        <memberEntity name="Activity"/>
-    </configuration>
-    <configuration name="Movie">
-        <memberEntity name="Movie"/>
-    </configuration>
+    <entity name="FilmCollection" representedClassName="FilmCollection" syncable="YES" codeGenerationType="class">
+        <attribute name="dateCreated" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="imageName" optional="YES" attributeType="String"/>
+        <attribute name="title" optional="YES" attributeType="String"/>
+        <relationship name="films" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Film" inverseName="collection" inverseEntity="Film"/>
+    </entity>
 </model>

@@ -9,6 +9,12 @@ import SwiftUI
 
 @main
 struct MovieNightApp: App {
+    let movieProvider = MovieProvider.shared
+
+    init() {
+        movieProvider.preloadDefaultCollectionsIfNeeded()
+    }
+
     var body: some Scene {
         WindowGroup {
             TabBarView()

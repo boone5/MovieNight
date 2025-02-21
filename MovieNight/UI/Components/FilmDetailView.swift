@@ -114,7 +114,7 @@ struct FilmDetailView: View {
                     }
 
                     Group {
-                        Text(viewModel.film.title)
+                        Text(viewModel.film.title ?? "")
                             .font(.system(size: 18, weight: .bold))
                             .foregroundStyle(.white)
                             .padding(.top, 30)
@@ -341,6 +341,10 @@ struct CommentModalView: View {
 
 // MARK: ViewModel
 
+// TODO: have a display model for the film
+// - easier for going between response objects and core data
+// - easier for using in views
+
 extension FilmDetailView {
     class ViewModel: ObservableObject {
         enum ViewState {
@@ -360,28 +364,20 @@ extension FilmDetailView {
 
         init(posterImage: UIImage?, film: some DetailViewRepresentable) {
             self.averageColor = posterImage?.averageColor ?? UIColor(resource: .brightRed)
-            self.film = film
 
-            if let movie = movieProvider.fetchMovieByID(film.id) {
+            if let existingFilm = movieProvider.fetchMovieByID(film.id) {
                 self.viewState = .watched
-                self.film = movie
 
-                print("Film (init) context: \(movie.managedObjectContext?.description ?? "nil")")
+                isLiked = existingFilm.isLiked
+                isLoved = existingFilm.isLoved
+                isDisliked = existingFilm.isDisliked
 
-                if let activity = movie.activity {
-                    isLiked = activity.isLiked
-                    isLoved = activity.isLoved
-                    isDisliked = activity.isDisliked
-                }
+                self.film = existingFilm
 
             } else {
                 self.viewState = .notWatched
+                self.film = film
             }
-        }
-
-        private func addToWatched(_ film: some DetailViewRepresentable, feedback: Activity? = nil) {
-            viewState = .watched
-            self.film = movieProvider.saveFilm(film, feedback: feedback)
         }
 
         public func deleteFilm(id: Int64) {
@@ -390,28 +386,19 @@ extension FilmDetailView {
         }
 
         public func addActivity(comment: String? = nil, isLiked: Bool, isLoved: Bool, isDisliked: Bool) {
-            let filmID = film.id
             let date = Date()
 
-            if let film = movieProvider.fetchMovieByID(film.id) {
+            if let film = film as? Film {
                 guard let context = film.managedObjectContext else { return }
 
-                print("Film (addActivity) context: \(context.description)")
+                let entry = Entry(context: context)
+                entry.date = date
+                entry.comment = comment
+                film.addToEntries(entry)
 
-                var activity: Activity?
-
-                if let activityCD = film.activity {
-                    activity = activityCD
-                } else {
-                    activity = Activity(context: context)
-                    activity?.filmID = filmID
-                    activity?.date = date
-                }
-
-                activity?.isLiked = isLiked
-                activity?.isLoved = isLoved
-                activity?.isDisliked = isDisliked
-                activity?.comment = comment
+                film.isLiked = isLiked
+                film.isLoved = isLoved
+                film.isDisliked = isDisliked
 
                 do {
                     try context.save()
@@ -421,16 +408,30 @@ extension FilmDetailView {
 
                 self.film = film
             } else {
-                let activity = Activity(context: movieProvider.container.viewContext)
-                activity.comment = comment
-                activity.filmID = filmID
-                activity.date = date
-                activity.isLiked = isLiked
-                activity.isLoved = isLoved
-                activity.isDisliked = isDisliked
+                let entry = Entry(context: movieProvider.container.viewContext)
+                entry.comment = comment
+                entry.date = date
 
-                addToWatched(film, feedback: activity)
+                self.isLiked = isLiked
+                self.isLoved = isLoved
+                self.isDisliked = isDisliked
+
+                viewState = .watched
+                self.film = movieProvider.saveFilm(film, entry: entry, isLiked: isLiked, isDisliked: isDisliked, isLoved: isLoved)
             }
+        }
+    }
+}
+
+extension Film: DetailViewRepresentable {
+    var mediaType: MediaType {
+        switch mediaTypeAsString {
+        case MediaType.movie.rawValue:
+            .movie
+        case MediaType.tvShow.rawValue:
+            .tvShow
+        default:
+            .movie
         }
     }
 }

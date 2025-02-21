@@ -17,95 +17,86 @@ struct ActionView3: View {
 
     var body: some View {
         HStack(spacing: 15) {
-            ThumbsUpButton
-
-            ThumbsDownButton
-
-            LoveButton
-
-            Image(systemName: "text.bubble")
-                .font(.system(size: 24, weight: .medium))
-                .foregroundStyle(.white)
-                .padding(20)
-                .background {
-                    Color(uiColor: .systemGray2).opacity(0.3)
-                        .clipShape(Circle())
+            ButtonView(type: .like(enabled: isLiked))
+                .onTapGesture {
+                    isLiked.toggle()
+                    isDisliked = false
+                    isLoved = false
+                    didAddActivity?(isLiked, isLoved, isDisliked)
                 }
+
+            ButtonView(type: .dislike(enabled: isDisliked))
+                .onTapGesture {
+                    isLiked = false
+                    isDisliked.toggle()
+                    isLoved = false
+                    didAddActivity?(isLiked, isLoved, isDisliked)
+                }
+
+            ButtonView(type: .love(enabled: isLoved))
+                .onTapGesture {
+                    isLiked = false
+                    isDisliked = false
+                    isLoved.toggle()
+                    didAddActivity?(isLiked, isLoved, isDisliked)
+                }
+
+            ButtonView(type: .comment)
+        }
+    }
+}
+
+fileprivate struct ButtonView: View {
+    let type: `Type`
+
+    enum `Type` {
+        case like(enabled: Bool)
+        case dislike(enabled: Bool)
+        case love(enabled: Bool)
+        case comment
+
+        var imageName: String {
+            switch self {
+            case .like(true):
+                "hand.thumbsup.fill"
+            case .like(false):
+                "hand.thumbsup"
+            case .dislike(true):
+                "hand.thumbsdown.fill"
+            case .dislike(false):
+                "hand.thumbsdown"
+            case .love(true):
+                "heart.fill"
+            case .love(false):
+                "heart"
+            case .comment:
+                "text.bubble"
+            }
+        }
+
+        var color: Color {
+            switch self {
+            case .like(true):
+                .green
+            case .dislike(true):
+                Color(.burntOrange)
+            case .love(true):
+                .red
+            case .like(false), .dislike(false), .love(false), .comment:
+                Color(uiColor: .systemGray2)
+            }
         }
     }
 
-    private var ThumbsUpButton: some View {
-        Group {
-            if isLiked {
-                Image(systemName: "hand.thumbsup.fill")
-                    .foregroundStyle(.green)
-
-            } else {
-                Image(systemName: "hand.thumbsup")
-                    .foregroundStyle(.white)
+    var body: some View {
+        Image(systemName: type.imageName)
+            .font(.system(size: 24, weight: .medium))
+            .foregroundStyle(type.color)
+            .padding(20)
+            .background {
+                Color(type.color).opacity(0.2)
+                    .clipShape(Circle())
             }
-        }
-        .font(.system(size: 24, weight: .medium))
-        .padding(20)
-        .background {
-            Color(uiColor: .systemGray2).opacity(0.3)
-                .clipShape(Circle())
-        }
-        .onTapGesture {
-            isLiked.toggle()
-            isDisliked = false
-            isLoved = false
-            didAddActivity?(isLiked, isLoved, isDisliked)
-        }
-    }
-
-    private var ThumbsDownButton: some View {
-        Group {
-            if isDisliked {
-                Image(systemName: "hand.thumbsdown.fill")
-                    .foregroundStyle(Color(.burntOrange))
-            } else {
-                Image(systemName: "hand.thumbsdown")
-                    .foregroundStyle(.white)
-            }
-        }
-        .font(.system(size: 24, weight: .medium))
-        .padding(20)
-        .background {
-            Color(uiColor: .systemGray2).opacity(0.3)
-                .clipShape(Circle())
-        }
-        .onTapGesture {
-            isDisliked.toggle()
-            isLiked = false
-            isLoved = false
-            didAddActivity?(isLiked, isLoved, isDisliked)
-        }
-    }
-
-    private var LoveButton: some View {
-        Group {
-            if isLoved {
-                Image(systemName: "heart.fill")
-                    .foregroundStyle(.red)
-
-            } else {
-                Image(systemName: "heart")
-                    .foregroundStyle(.white)
-            }
-        }
-        .font(.system(size: 24, weight: .medium))
-        .padding(20)
-        .background {
-            Color(uiColor: .systemGray2).opacity(0.3)
-                .clipShape(Circle())
-        }
-        .onTapGesture {
-            isLoved.toggle()
-            isDisliked = false
-            isLiked = false
-            didAddActivity?(isLiked, isLoved, isDisliked)
-        }
     }
 }
 

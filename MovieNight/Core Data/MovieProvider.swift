@@ -28,17 +28,12 @@ final class MovieProvider {
     lazy var container: NSPersistentContainer = {
         /// - Tag: persistentContainer
         let container = NSPersistentContainer(name: "FilmContainer")
-        let defaultDirectoryURL = NSPersistentContainer.defaultDirectoryURL()
 
-        let movieStoreURL = defaultDirectoryURL.appendingPathComponent("Movie.sqlite")
+        let movieStoreURL = NSPersistentContainer.defaultDirectoryURL().appendingPathComponent("Film.sqlite")
         let movieStoreDescription = NSPersistentStoreDescription(url: movieStoreURL)
-        movieStoreDescription.configuration = "Movie"
+        movieStoreDescription.configuration = "Default"
 
-        let feedbackStoreURL = defaultDirectoryURL.appendingPathComponent("Activity.sqlite")
-        let feedbackStoreDescription = NSPersistentStoreDescription(url: feedbackStoreURL)
-        feedbackStoreDescription.configuration = "Activity"
-
-        container.persistentStoreDescriptions = [movieStoreDescription, feedbackStoreDescription]
+        container.persistentStoreDescriptions = [movieStoreDescription]
 
         guard let description = container.persistentStoreDescriptions.first else {
             fatalError("Failed to retrieve a persistent store description.")
@@ -59,9 +54,6 @@ final class MovieProvider {
         container.viewContext.automaticallyMergesChangesFromParent = false
         container.viewContext.name = "viewContext"
 
-        // From Earthquakes project. Not sure if I need it
-//        container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
-
         return container
     }()
 
@@ -79,7 +71,7 @@ final class MovieProvider {
 
     @discardableResult
     public func filmExists(_ id: Int64) -> Bool {
-        let fetchRequest: NSFetchRequest<Movie> = Movie.fetchRequest()
+        let fetchRequest: NSFetchRequest<Film> = Film.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "id == %d", id)
         fetchRequest.fetchLimit = 1  // Limit to improve performance
 
@@ -98,8 +90,8 @@ final class MovieProvider {
         }
     }
 
-    func fetchMovieByID(_ id: Int64) -> Movie? {
-        let fetchRequest: NSFetchRequest<Movie> = Movie.fetchRequest()
+    func fetchMovieByID(_ id: Int64) -> Film? {
+        let fetchRequest: NSFetchRequest<Film> = Film.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "id == %d", id)
         fetchRequest.fetchLimit = 1
 
@@ -117,32 +109,50 @@ final class MovieProvider {
         return nil
     }
 
-    func fetchMoviesSortedByDateWatched() -> [Movie] {
-        let fetchRequest: NSFetchRequest<Movie> = Movie.fetchRequest()
-
-        // Create a sort descriptor to sort by release date
-        let sortDescriptor = NSSortDescriptor(key: "dateWatched", ascending: false)
-        fetchRequest.sortDescriptors = [sortDescriptor]
+    func fetchCollection(withIdentifier id: UUID) -> FilmCollection? {
+        let request: NSFetchRequest<FilmCollection> = FilmCollection.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
 
         do {
-            let movies = try container.viewContext.fetch(fetchRequest)
-            return movies
+            return try container.viewContext.fetch(request).first
         } catch {
-            print("Error fetching movies: \(error)")
-            return []
+            print("⛔️ Error fetching Collection from Core Data: \(error)")
+            return nil
         }
     }
 
     @discardableResult
-    public func saveFilm(_ film: DetailViewRepresentable, feedback: Activity? = nil) -> Movie {
-        let movie = Movie(context: container.viewContext)
+    public func saveFilm(_ film: DetailViewRepresentable, entry: Entry? = nil, isLiked: Bool, isDisliked: Bool, isLoved: Bool) -> Film {
+        let movie = Film(context: container.viewContext)
         movie.title = film.title
         movie.id = film.id
         movie.dateWatched = Date()
         movie.posterPath = film.posterPath
         movie.overview = film.overview
         movie.releaseDate = film.releaseDate
-        movie.activity = feedback
+        movie.isLiked = isLiked
+        movie.isDisliked = isDisliked
+        movie.isLoved = isLoved
+
+        if let entry {
+            movie.addToEntries(entry)
+        }
+
+        switch film.mediaType {
+        case .movie:
+            // add to movie collection
+            if let movieCollection = fetchCollection(withIdentifier: FilmCollection.movieID) {
+                movieCollection.addToFilms(movie)
+                movie.collection = movieCollection
+            }
+
+        case .tvShow:
+            // add to tvshow collection
+            if let tvShowCollection = fetchCollection(withIdentifier: FilmCollection.tvShowID) {
+                tvShowCollection.addToFilms(movie)
+                movie.collection = tvShowCollection
+            }
+        }
 
         if let context = movie.managedObjectContext {
             do {
@@ -161,4 +171,49 @@ final class MovieProvider {
             saveContext()
         }
     }
+
+    /// Loads default Collections into Core Data
+    func preloadDefaultCollectionsIfNeeded() {
+        // Get the managed object context from your Core Data stack
+        let context = container.viewContext
+
+        let fetchRequest: NSFetchRequest<FilmCollection> = FilmCollection.fetchRequest()
+
+        do {
+            let count = try context.count(for: fetchRequest)
+
+            // If count is 0, the store is empty and we need to seed it
+            if count == 0 {
+                let movieCollection = FilmCollection(context: context)
+                movieCollection.id = FilmCollection.movieID
+                movieCollection.title = "Movies"
+                movieCollection.imageName = "movieclapper"
+                movieCollection.dateCreated = Date()
+
+                let tvShowCollection = FilmCollection(context: context)
+                tvShowCollection.id = FilmCollection.tvShowID
+                tvShowCollection.title = "TV Shows"
+                tvShowCollection.imageName = "rectangle.portrait.on.rectangle.portrait.angled"
+                tvShowCollection.dateCreated = Date()
+
+                let watchLaterCollection = FilmCollection(context: context)
+                watchLaterCollection.id = FilmCollection.watchLaterID
+                watchLaterCollection.title = "Watch Later"
+                watchLaterCollection.imageName = "text.badge.checkmark"
+                watchLaterCollection.dateCreated = Date()
+
+                try context.save()
+
+                print("✅ Default collections added!")
+            }
+        } catch {
+            print("⛔️ Error preloading default data: \(error)")
+        }
+    }
+}
+
+extension FilmCollection {
+    static let movieID = UUID(uuidString: "00000000-0000-0000-0000-000000000001")!
+    static let tvShowID = UUID(uuidString: "00000000-0000-0000-0000-000000000002")!
+    static let watchLaterID = UUID(uuidString: "00000000-0000-0000-0000-000000000003")!
 }

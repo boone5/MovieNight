@@ -24,7 +24,7 @@ struct PosterBackView: View {
                         .padding(.top, 30)
                         .padding(.horizontal, 15)
 
-                    Text(film.overview)
+                    Text(film.overview ?? "")
                         .font(.system(size: 12, weight: .regular))
                         .foregroundStyle(Color(uiColor: .systemGray2))
                         .padding(.top, 10)

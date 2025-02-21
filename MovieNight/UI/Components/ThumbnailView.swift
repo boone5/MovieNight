@@ -21,7 +21,7 @@ struct ThumbnailView: View {
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
-            RoundedRectangle(cornerRadius: 15)
+            RoundedRectangle(cornerRadius: 8)
                 .matchedGeometryEffect(id: "background" + String(filmID), in: namespace)
                 .foregroundStyle(.clear)
                 .frame(width: width, height: height)
@@ -34,6 +34,7 @@ struct ThumbnailView: View {
                 namespace: namespace,
                 isAnimationSource: true
             )
+            .shadow(radius: 3, y: 4)
 
             Circle()
                 .matchedGeometryEffect(id: "info" + String(filmID), in: namespace)
@@ -73,12 +74,12 @@ struct PosterView: View {
         if let uiImage {
             Image(uiImage: uiImage)
                 .resizable()
-                .clipShape(RoundedRectangle(cornerRadius: 15))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
                 .matchedGeometryEffect(id: "thumbnail" + String(filmID), in: namespace, isSource: isAnimationSource)
                 .frame(width: width, height: height)
                 .scaledToFit()
         } else {
-            RoundedRectangle(cornerRadius: 15)
+            RoundedRectangle(cornerRadius: 8)
                 .matchedGeometryEffect(id: "thumbnail" + String(filmID), in: namespace)
                 .frame(width: width, height: height)
                 .foregroundStyle(.gray)

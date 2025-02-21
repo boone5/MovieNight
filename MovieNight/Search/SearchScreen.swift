@@ -28,7 +28,6 @@ struct SearchScreen: View {
     @State private var trendingTVShows: [ResponseType] = []
 
     // Expanded View Properties
-    @StateObject private var thumbnailViewModel = ThumbnailView.ViewModel()
     @State private var isExpanded: Bool = false
     @State private var selectedFilm: SelectedFilm?
     @Namespace private var namespace
@@ -95,68 +94,12 @@ struct SearchScreen: View {
                     }
 
                     // Results
-                    List {
-                        Group {
-                            ForEach(viewModel.results) { result in
-                                HStack(spacing: 0) {
-                                    switch result {
-                                    case .movie, .tvShow:
-                                        if selectedFilm?.id == result.id, isExpanded {
-                                            RoundedRectangle(cornerRadius: 15)
-                                                .foregroundStyle(.clear)
-                                                .frame(width: 100, height: 150)
-
-                                        } else {
-                                            ThumbnailView(
-                                                viewModel: thumbnailViewModel,
-                                                filmID: result.id,
-                                                posterPath: result.posterPath,
-                                                width: 100,
-                                                height: 150,
-                                                namespace: namespace
-                                            )
-                                            .onTapGesture {
-                                                withAnimation(.spring()) {
-                                                    isExpanded = true
-                                                    selectedFilm = SelectedFilm(id: result.id, film: result, posterImage: thumbnailViewModel.posterImage(for: result.posterPath))
-                                                }
-                                            }
-                                        }
-
-                                    case .empty:
-                                        EmptyView()
-                                    }
-
-                                    VStack(alignment: .leading, spacing: 5) {
-                                        Text(result.title)
-                                            .font(.system(size: 16, weight: .medium))
-
-                                        Text(result.mediaType ?? "")
-                                            .font(.system(size: 14, weight: .light))
-                                    }
-                                    .padding(.leading, 20)
-
-                                    Spacer()
-
-                                    Image(systemName: "chevron.right")
-                                        .foregroundColor(.white)
-                                }
-                                .padding(.vertical, 5)
-                            }
-
-                            // Make this a "couldn't find what you were looking for?" button to submit feedback
-                            Text("End of List")
-                                .foregroundStyle(.white)
-                                .listRowBackground(Color.clear)
-                                .task {
-                                    await viewModel.loadMore()
-                                }
-                        }
-                        .listRowBackground(Color.clear)
-                        .buttonStyle(PlainButtonStyle())
-                    }
-                    .listStyle(.plain)
-                    .scrollContentBackground(.hidden)
+                    ListView(
+                        results: viewModel.results,
+                        namespace: namespace,
+                        isExpanded: $isExpanded,
+                        selectedFilm: $selectedFilm
+                    )
                 }
             }
             .opacity(isExpanded ? 0 : 1)
@@ -176,8 +119,93 @@ struct SearchScreen: View {
         .scrollDismissesKeyboard(.immediately)
         .toolbar(isExpanded ? .hidden : .visible, for: .tabBar)
     }
+
+    struct ListView: View {
+        let results: [ResponseType]
+        let namespace: Namespace.ID
+
+        @StateObject private var thumbnailViewModel = ThumbnailView.ViewModel()
+
+        @Binding var isExpanded: Bool
+        @Binding var selectedFilm: SelectedFilm?
+
+        init(
+            results: [ResponseType],
+            namespace: Namespace.ID,
+            isExpanded: Binding<Bool>,
+            selectedFilm: Binding<SelectedFilm?>
+        ) {
+            self.results = results
+            self.namespace = namespace
+            _isExpanded = isExpanded
+            _selectedFilm = selectedFilm
+        }
+
+        var body: some View {
+            List {
+                Group {
+                    ForEach(results, id: \.self) { result in
+                        HStack(spacing: 0) {
+                            switch result {
+                            case .movie, .tvShow:
+                                if selectedFilm?.id == result.id, isExpanded {
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .foregroundStyle(.gray)
+                                        .frame(width: 80, height: 120)
+                                        .shadow(radius: 3, y: 4)
+
+                                } else {
+                                    ThumbnailView(
+                                        viewModel: thumbnailViewModel,
+                                        filmID: result.id,
+                                        posterPath: result.posterPath,
+                                        width: 80,
+                                        height: 120,
+                                        namespace: namespace
+                                    )
+                                    .onTapGesture {
+                                        withAnimation(.spring()) {
+                                            isExpanded = true
+                                            selectedFilm = SelectedFilm(id: result.id, film: result, posterImage: thumbnailViewModel.posterImage(for: result.posterPath))
+                                        }
+                                    }
+                                }
+
+                            case .empty:
+                                EmptyView()
+                            }
+
+                            VStack(alignment: .leading, spacing: 5) {
+                                Text(result.title ?? "")
+                                    .font(.system(size: 16, weight: .medium))
+
+                                Text(result.mediaType.title)
+                                    .font(.system(size: 14, weight: .regular))
+                            }
+                            .padding(.leading, 20)
+
+                            Spacer()
+
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.gray)
+                        }
+                        .padding(.vertical, 5)
+                    }
+
+                    // Make this a "couldn't find what you were looking for?" button to submit feedback
+                    Text("End of List")
+                        .foregroundStyle(.white)
+                        .listRowBackground(Color.clear)
+                }
+                .listRowBackground(Color.clear)
+                .buttonStyle(PlainButtonStyle())
+            }
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+        }
+    }
 }
 
 //#Preview {
-//    Search()
+//    SearchScreen.ListView()
 //}

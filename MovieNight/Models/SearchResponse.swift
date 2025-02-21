@@ -22,6 +22,15 @@ struct SearchResponse: Decodable {
 enum MediaType: String, Decodable {
     case movie = "movie"
     case tvShow = "tv"
+
+    var title: String {
+        switch self {
+        case .movie:
+            "Movie"
+        case .tvShow:
+            "TV Show"
+        }
+    }
 }
 
 enum ResponseType: Decodable, Hashable {    
@@ -36,8 +45,9 @@ enum ResponseType: Decodable, Hashable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let type = try container.decode(MediaType.self, forKey: .mediaType)
+        let type = try? container.decode(MediaType?.self, forKey: .mediaType)
         let singleContainer = try decoder.singleValueContainer()
+
 
         switch type {
         case .movie:
@@ -47,6 +57,9 @@ enum ResponseType: Decodable, Hashable {
         case .tvShow:
             let tvShowResponse = try singleContainer.decode(TVShowResponse.self)
             self = tvShowResponse.isValid() ? .tvShow(tvShowResponse) : .empty
+
+        default:
+            self = .empty
         }
     }
 
@@ -55,8 +68,8 @@ enum ResponseType: Decodable, Hashable {
     }
 }
 
-extension ResponseType: Identifiable, DetailViewRepresentable {    
-    var releaseDate: String {
+extension ResponseType: Identifiable, DetailViewRepresentable {
+    var releaseDate: String? {
         ""
     }
     
@@ -93,7 +106,7 @@ extension ResponseType: Identifiable, DetailViewRepresentable {
         }
     }
 
-    var title: String {
+    var title: String? {
         switch self {
         case .movie(let movieResponse):
             movieResponse.title ?? "No title"
@@ -104,7 +117,7 @@ extension ResponseType: Identifiable, DetailViewRepresentable {
         }
     }
 
-    var overview: String {
+    var overview: String? {
         switch self {
         case .movie(let movieResponse):
             movieResponse.overview ?? "No summary"
@@ -115,14 +128,14 @@ extension ResponseType: Identifiable, DetailViewRepresentable {
         }
     }
 
-    var mediaType: String? {
+    var mediaType: MediaType {
         switch self {
-        case .movie:
-            "Movie"
-        case .tvShow:
-            "TV Show"
+        case .movie(let movieResponse):
+                .movie
+        case .tvShow(let tVShowResponse):
+                .tvShow
         case .empty:
-            nil
+                .movie
         }
     }
 

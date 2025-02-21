@@ -20,22 +20,11 @@ struct LibraryScreen: View {
 
     var body: some View {
         NavigationStack(path: $navigationPath) {
-            ZStack {
-                Color.clear
-                    .background {
-                        LinearGradient(
-                            colors: [Color("BackgroundColor1"), Color("BackgroundColor2")],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    }
-                    .ignoresSafeArea()
-
+            BackgroundColorView {
                 VStack(alignment: .leading, spacing: 0) {
                     // Header
                     VStack(alignment: .leading, spacing: 7) {
                         Text("Library")
-                            .foregroundStyle(.white)
                             .font(.system(size: 42, weight: .bold))
                             .padding([.leading, .trailing], 15)
                     }
@@ -55,42 +44,19 @@ struct LibraryScreen: View {
                         ScrollView(showsIndicators: false) {
                             VStack(alignment: .leading, spacing: 0) {
                                 Text("Recently watched")
-                                    .foregroundStyle(.white)
-                                    .font(.system(size: 22, weight: .bold))
+                                    .font(.system(size: 18, weight: .bold))
                                     .padding([.leading, .bottom], 15)
 
-                                ScrollView(.horizontal, showsIndicators: false) {
-                                    HStack(spacing: 10) {
-                                        ForEach(movies, id: \.id) { movie in
-                                            if selectedFilm?.id == movie.id, isExpanded {
-                                                RoundedRectangle(cornerRadius: 15)
-                                                    .foregroundStyle(.clear)
-                                                    .frame(width: 175, height: 250)
-                                            } else {
-                                                ThumbnailView(
-                                                    viewModel: thumbnailViewModel,
-                                                    filmID: movie.id,
-                                                    posterPath: movie.posterPath,
-                                                    width: 175,
-                                                    height: 250,
-                                                    namespace: namespace
-                                                )
-                                                .onTapGesture {
-                                                    withAnimation(.spring()) {
-                                                        isExpanded = true
-                                                        selectedFilm = SelectedFilm(id: movie.id, film: movie, posterImage: thumbnailViewModel.posterImage(for: movie.posterPath))
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    .padding(.leading, 15)
-                                    .padding(.vertical, 15)     // allows space for drop shadow
-                                }
-                                .padding(.vertical, -15)        // negates space for drop shadow
+                                FilmRow(
+                                    items: Array(movies),
+                                    isExpanded: $isExpanded,
+                                    selectedFilm: $selectedFilm,
+                                    namespace: namespace
+                                )
 
                                 WatchLaterView()
                                     .padding(.top, 30)
+                                    .padding([.leading, .trailing], 15)
 
                                 CollectionsView()
                                     .padding(.top, 30)

@@ -123,7 +123,6 @@ struct PosterBackView: View {
 
             Text("Cover")
                 .font(.system(size: 12))
-                .foregroundStyle(.white)
                 .padding(8)
                 .background {
                     RoundedRectangle(cornerRadius: 25)

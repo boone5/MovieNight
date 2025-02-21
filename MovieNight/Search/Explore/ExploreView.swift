@@ -40,7 +40,6 @@ struct ExploreView: View {
         VStack(alignment: .leading, spacing: 0) {
             Text("Popular Movies")
                 .font(.system(size: 18, weight: .bold))
-                .foregroundStyle(.white)
                 .padding([.leading, .trailing, .bottom], 15)
 
             FilmRow(
@@ -52,7 +51,6 @@ struct ExploreView: View {
 
             Text("Popular TV Shows")
                 .font(.system(size: 18, weight: .bold))
-                .foregroundStyle(.white)
                 .padding(.top, 30)
                 .padding([.leading, .trailing, .bottom], 15)
 

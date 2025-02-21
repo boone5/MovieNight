@@ -24,7 +24,6 @@ struct TabBarView: View {
             }
             .toolbarBackground(Color(.backgroundColor2), for: .tabBar)
             .toolbarBackground(.visible, for: .tabBar)
-            .toolbarColorScheme(.dark, for: .tabBar)
         }
     }
 }

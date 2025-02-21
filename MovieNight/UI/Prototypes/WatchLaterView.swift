@@ -21,9 +21,7 @@ struct WatchLaterView: View {
     var body: some View {
         VStack(alignment: .leading) {
             Text("Want to watch")
-                .foregroundStyle(.white)
-                .font(.system(size: 22, weight: .bold))
-                .padding([.leading, .trailing], 15)
+                .font(.system(size: 18, weight: .bold))
 
             ScrollView(.horizontal) {
                 // Only show the first 5 items
@@ -46,7 +44,7 @@ struct WatchLaterView: View {
                 }
                 .padding([.leading, .trailing], 15)
             }
-
+            .padding([.leading, .trailing], -15)
         }
     }
 }

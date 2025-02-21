@@ -11,7 +11,7 @@ import SwiftUITrackableScrollView
 struct FilmRow: View {
     @StateObject private var viewModel = ThumbnailView.ViewModel()
 
-    public var items: [ResponseType]
+    public var items: [DetailViewRepresentable]
 
     @Binding public var isExpanded: Bool
     @Binding public var selectedFilm: SelectedFilm?
@@ -20,7 +20,7 @@ struct FilmRow: View {
 
     var body: some View {
         ScrollView(.horizontal) {
-            HStack {
+            HStack(spacing: 15) {
                 ForEach(items, id: \.id) { film in
                     if selectedFilm?.id == film.id, isExpanded {
                         RoundedRectangle(cornerRadius: 15)
@@ -35,17 +35,18 @@ struct FilmRow: View {
                             height: 250,
                             namespace: namespace
                         )
-                            .onTapGesture {
-                                withAnimation(.spring()) {
-                                    isExpanded = true
-                                    selectedFilm = SelectedFilm(id: film.id, film: film, posterImage: viewModel.posterImage(for: film.posterPath))
-                                }
+                        .onTapGesture {
+                            withAnimation(.spring()) {
+                                isExpanded = true
+                                selectedFilm = SelectedFilm(id: film.id, film: film, posterImage: viewModel.posterImage(for: film.posterPath))
                             }
+                        }
                     }
                 }
             }
-            .padding([.leading, .trailing], 15)
+            .padding(15)
         }
+        .padding(.vertical, -15)
         .toolbar(isExpanded ? .hidden : .visible, for: .tabBar)
     }
 }

@@ -51,7 +51,6 @@ struct SearchScreen: View {
                 // Header
                 VStack(alignment: .leading, spacing: 7) {
                     Text("Search")
-                        .foregroundStyle(.white)
                         .font(.system(size: 42, weight: .bold))
                         .padding([.leading, .trailing], 15)
 

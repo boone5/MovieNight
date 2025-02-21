@@ -18,8 +18,7 @@ struct CollectionsView: View {
     var body: some View {
         VStack(alignment: .leading) {
             Text("Collections")
-                .foregroundStyle(.white)
-                .font(.system(size: 22, weight: .bold))
+                .font(.system(size: 18, weight: .bold))
 
             ForEach(collections, id: \.self) { collection in
                 VStack {
@@ -27,22 +26,19 @@ struct CollectionsView: View {
                         HStack(spacing: 15) {
                             Label {
                                 Text(collection.title ?? "-")
-                                    .foregroundStyle(.white)
                                     .font(.system(size: 18, weight: .regular))
                             } icon: {
                                 Image(systemName: collection.imageName ?? "smiley")
-                                    .foregroundStyle(.white)
                                     .font(.system(size: 18, weight: .regular))
                             }
 
                             Spacer()
 
                             Text(String(collection.films?.count ?? 0))
-                                .foregroundStyle(.white)
                                 .font(.system(size: 18, weight: .regular))
 
                             Image(systemName: "chevron.right")
-                                .foregroundStyle(.white)
+                                .foregroundStyle(.gray)
                                 .font(.system(size: 14, weight: .regular))
                         }
                         .padding(.vertical, 20)

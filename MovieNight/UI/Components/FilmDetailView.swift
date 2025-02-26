@@ -34,14 +34,24 @@ struct FilmDetailView: View {
     @Binding var isExpanded: Bool
 
     @State private var scrollViewContentOffset = CGFloat(0)
-    @State private var isFlipped = false
-    
+
     @State private var showCommentModal: Bool = false
     @State private var animationDidFinish: Bool = false
 
     public var comment: String? = nil
 
-    var axis: (x: CGFloat, y: CGFloat, z: CGFloat) = (0, 1, 0)
+    // This state tracks the cumulative rotation of the card.
+    @State private var flipDegrees: Double = 0
+    @State private var shimmyRotation: Double = 0
+
+    // Normalize the degrees into [0, 360) for determining which side is visible.
+    var normalizedDegrees: Double {
+        abs(flipDegrees.truncatingRemainder(dividingBy: 360))
+    }
+
+    var frontVisible: Bool {
+        normalizedDegrees < 90 || normalizedDegrees > 270
+    }
 
     init(
         film: some DetailViewRepresentable,
@@ -63,55 +73,21 @@ struct FilmDetailView: View {
 
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
-            headerView
-                .padding(.top, 80)
-                .padding(.horizontal, 30)
-                .padding(.bottom, 10)
-                .opacity(animationDidFinish ? 1 : 0)
-
             TrackableScrollView(
                 .vertical,
                 showIndicators: true,
-                contentOffset: $scrollViewContentOffset)
-            {
+                contentOffset: $scrollViewContentOffset
+            ) {
                 VStack(alignment: .center, spacing: 0) {
-                    ZStack {
-                        // MARK: TODO
-                        // - Add shimmy animation
-                        // - Add gloss finish
-                        PosterView(
-                            width: posterWidth,
-                            height: posterHeight,
-                            uiImage: uiImage,
-                            filmID: viewModel.film.id,
-                            namespace: namespace,
-                            isAnimationSource: false
-                        )
-                            .shadow(color: .black.opacity(0.6), radius: 8, y: 4)
-                            .opacity(isFlipped ? 0 : 1)
-                            .overlay {
-                                thumbnailBackButton
-                            }
-                            .rotation3DEffect(
-                                .degrees(isFlipped ? -180 : 0),
-                                axis: axis
-                            )
+                    headerView
+                        .padding(.top, 80)
+                        .padding(.horizontal, 30)
+                        .padding(.bottom, 30)
+                        .opacity(animationDidFinish ? 1 : 0)
 
-                        Rectangle()
-                            .foregroundStyle(.black)
-                            .frame(width: posterWidth, height: posterHeight)
-                            .cornerRadius(15)
-                            .shadow(color: .black.opacity(0.6), radius: 8, y: 4)
-                            .opacity(isFlipped ? 1 : 0)
-                            .overlay {
-                                PosterBackView(film: viewModel.film, backgroundColor: viewModel.averageColor, isFlipped: $isFlipped)
-                                    .opacity(isFlipped ? 1 : 0)
-                            }
-                            .rotation3DEffect(
-                                .degrees(isFlipped ? 0 : 180),
-                                axis: axis
-                            )
-                    }
+                    // MARK: TODO
+                    // - Add gloss finish
+                    FlippablePosterView
 
                     Group {
                         Text(viewModel.film.title ?? "")
@@ -133,7 +109,7 @@ struct FilmDetailView: View {
                                 viewModel.addActivity(isLiked: isLiked, isLoved: isLoved, isDisliked: isDisliked)
                             }
                         )
-                            .padding(.top, 30)
+                        .padding(.top, 30)
 
                         Text("Activity")
                             .font(.system(size: 16, weight: .bold))
@@ -238,29 +214,66 @@ struct FilmDetailView: View {
     }
 
     @MainActor
-    var thumbnailBackButton: some View {
-        VStack {
-            Spacer()
+    var FlippablePosterView: some View {
+        ZStack {
+            // Front face (Blue)
+            PosterView(
+                width: posterWidth,
+                height: posterHeight,
+                uiImage: uiImage,
+                filmID: viewModel.film.id,
+                namespace: namespace,
+                isAnimationSource: false
+            )
+            .shadow(radius: 6, y: 3)
+            .opacity(frontVisible ? 1 : 0)
+            .rotation3DEffect(
+                .degrees(flipDegrees),
+                axis: (x: 0, y: 1, z: 0)
+            )
 
-            Text("Back")
-                .font(.system(size: 12))
-                .foregroundStyle(.white)
-                .padding(8)
-                .background {
-                    RoundedRectangle(cornerRadius: 25)
-                        .foregroundStyle(Color(uiColor: viewModel.averageColor).opacity(0.2))
-                        .shadow(radius: 3, y: 4)
-                }
-                .matchedGeometryEffect(id: "info" + String(viewModel.film.id), in: namespace, isSource: false)
-                .onTapGesture {
-                    withAnimation(.easeInOut(duration: 0.6)) {
-                        isFlipped.toggle()
+            PosterBackView(film: viewModel.film, backgroundColor: viewModel.averageColor)
+                .shadow(radius: 6, y: 3)
+                .frame(width: posterWidth, height: posterHeight)
+                .cornerRadius(8)
+                .opacity(frontVisible ? 0 : 1)
+                // Add 180° so that when the card flips, the back isn’t upside down.
+                .rotation3DEffect(
+                    .degrees(flipDegrees + 180),
+                    axis: (x: 0, y: 1, z: 0)
+                )
+        }
+        // Apply the shimmy rotation effect.
+        .rotation3DEffect(.degrees(shimmyRotation), axis: (x: 0, y: 1, z: 0))
+        .onAppear {
+            let shimmyAnimation = Animation
+                .bouncy(duration: 1.2, extraBounce: 0.3)
+                .repeatCount(2)
+
+            withAnimation(shimmyAnimation) {
+                shimmyRotation = 7
+
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    withAnimation(shimmyAnimation) {
+                        shimmyRotation = 0
                     }
                 }
-                .padding([.bottom, .trailing], 15)
+            }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .trailing)
-        .opacity(isFlipped ? 0 : 1)
+        .gesture(
+            DragGesture(minimumDistance: 30)
+                .onEnded { value in
+                    withAnimation(.bouncy(duration: 1.2)) {
+                        // For a left-to-right swipe, add 180°.
+                        if value.translation.width > 0 {
+                            flipDegrees += 180
+                        } else if value.translation.width < 0 {
+                            // For a right-to-left swipe, subtract 180°.
+                            flipDegrees -= 180
+                        }
+                    }
+                }
+        )
     }
 }
 
@@ -305,7 +318,7 @@ struct CommentModalView: View {
 
             Button {
                 // do something
-//                vm.addActivity(comment: text)
+                //                vm.addActivity(comment: text)
                 dismiss()
 
             } label: {
@@ -427,11 +440,11 @@ extension Film: DetailViewRepresentable {
     var mediaType: MediaType {
         switch mediaTypeAsString {
         case MediaType.movie.rawValue:
-            .movie
+                .movie
         case MediaType.tvShow.rawValue:
-            .tvShow
+                .tvShow
         default:
-            .movie
+                .movie
         }
     }
 }

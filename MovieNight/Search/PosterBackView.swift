@@ -11,8 +11,6 @@ struct PosterBackView: View {
     let film: DetailViewRepresentable
     let backgroundColor: UIColor
 
-    @Binding var isFlipped: Bool
-
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             ScrollView {
@@ -120,21 +118,6 @@ struct PosterBackView: View {
                 RoundedRectangle(cornerRadius: 15)
                     .foregroundStyle(Color(uiColor: backgroundColor))
             }
-
-            Text("Cover")
-                .font(.system(size: 12))
-                .padding(8)
-                .background {
-                    RoundedRectangle(cornerRadius: 25)
-                        .foregroundStyle(Color.gray.opacity(0.2))
-                        .shadow(radius: 3, y: 4)
-                }
-                .onTapGesture {
-                    withAnimation(.easeInOut(duration: 0.6)) {
-                        isFlipped.toggle()
-                    }
-                }
-                .padding([.bottom, .leading], 15)
         }
     }
 }

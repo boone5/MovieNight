@@ -15,7 +15,7 @@ import SwiftUITrackableScrollView
     @Previewable @Namespace var namespace
 
     let previewCD = MovieProvider.preview.container.viewContext
-    let film: ResponseType = ResponseType.movie(MovieResponse())
+    let film: ResponseType = ResponseType.tvShow(TVShowResponse())
 
     FilmDetailView(film: film, namespace: namespace, isExpanded: $isExpanded, uiImage: nil)
 }
@@ -36,7 +36,7 @@ struct FilmDetailView: View {
     @State private var scrollViewContentOffset = CGFloat(0)
 
     @State private var showCommentModal: Bool = false
-    @State private var animationDidFinish: Bool = false
+    @State private var presentationDidFinish: Bool = false
 
     public var comment: String? = nil
 
@@ -83,7 +83,7 @@ struct FilmDetailView: View {
                         .padding(.top, 80)
                         .padding(.horizontal, 30)
                         .padding(.bottom, 30)
-                        .opacity(animationDidFinish ? 1 : 0)
+                        .opacity(presentationDidFinish ? 1 : 0)
 
                     // MARK: TODO
                     // - Add gloss finish
@@ -101,7 +101,7 @@ struct FilmDetailView: View {
                             .foregroundStyle(Color(uiColor: .systemGray2))
                             .padding(.top, 10)
 
-                        ActionView3(
+                        ButtonsContainerView(
                             isLiked: $viewModel.isLiked,
                             isLoved: $viewModel.isLoved,
                             isDisliked: $viewModel.isDisliked,
@@ -111,14 +111,19 @@ struct FilmDetailView: View {
                         )
                         .padding(.top, 30)
 
-                        Text("Activity")
-                            .font(.system(size: 16, weight: .bold))
-                            .foregroundStyle(Color(uiColor: .systemGray2))
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.top, 30)
-
-                        ActionView(backgroundColor: viewModel.averageColor, actionType: .dateWatched(date: .now))
-                            .padding(.top, 15)
+                        if case .tvShow = viewModel.film.mediaType {
+                            ScrollView(.horizontal) {
+                                HStack(spacing: 10) {
+                                    ForEach(viewModel.seasons, id: \.id) { season in
+                                        SeasonPosterView(posterPath: season.posterPath, seasonNum: season.seasonNumber)
+                                    }
+                                }
+                                .padding([.horizontal], 30)
+                            }
+                            .scrollIndicators(.hidden)
+                            .padding([.horizontal], -30)
+                            .padding(.top, 45)
+                        }
 
                         Text("You might like")
                             .font(.system(size: 16, weight: .bold))
@@ -129,16 +134,16 @@ struct FilmDetailView: View {
                         ScrollView(.horizontal) {
                             HStack(spacing: 10) {
                                 ForEach(1..<5) { _ in
-                                    RoundedRectangle(cornerRadius: 25)
+                                    RoundedRectangle(cornerRadius: 8)
                                         .frame(width: 175, height: 250)
                                 }
                             }
-                            .padding(.top, 20)
+                            .padding(.top, 15)
                             .padding(.bottom, 80)
                         }
                     }
                     .padding(.horizontal, 30)
-                    .opacity(animationDidFinish ? 1 : 0)
+                    .opacity(presentationDidFinish ? 1 : 0)
                 }
                 .frame(maxWidth: .infinity, alignment: .top)
                 .padding(.top, 10)
@@ -177,8 +182,11 @@ struct FilmDetailView: View {
         }
         .onAppear {
             withAnimation(.easeInOut(duration: 0.4)) {
-                animationDidFinish.toggle()
+                presentationDidFinish.toggle()
             }
+        }
+        .task {
+            await viewModel.getAdditionalTVDetails()
         }
     }
 
@@ -216,16 +224,20 @@ struct FilmDetailView: View {
     @MainActor
     var FlippablePosterView: some View {
         ZStack {
-            // Front face (Blue)
-            PosterView(
-                width: posterWidth,
-                height: posterHeight,
-                uiImage: uiImage,
-                filmID: viewModel.film.id,
-                namespace: namespace,
-                isAnimationSource: false
-            )
-            .shadow(radius: 6, y: 3)
+            ZStack(alignment: .bottomLeading) {
+                // Front face (Blue)
+                PosterView(
+                    width: posterWidth,
+                    height: posterHeight,
+                    uiImage: uiImage,
+                    filmID: viewModel.film.id,
+                    namespace: namespace,
+                    isAnimationSource: false
+                )
+                .shadow(radius: 6, y: 3)
+
+                // TODO: Add a progress wheel
+            }
             .opacity(frontVisible ? 1 : 0)
             .rotation3DEffect(
                 .degrees(flipDegrees),
@@ -359,13 +371,14 @@ struct CommentModalView: View {
 // - easier for using in views
 
 extension FilmDetailView {
-    class ViewModel: ObservableObject {
-        enum ViewState {
-            case watched
-            case notWatched
-        }
 
-        @Published var viewState: ViewState = .notWatched
+    /*
+     - Check if current number of seasons watched and seasons released match before updating CoreData. New seasons can come out after a user has saved it.
+     - Could table this for later
+     - Could make notifications a premium feature when a new season is out
+     */
+
+    class ViewModel: ObservableObject {
         @Published var averageColor: UIColor
         @Published var film: DetailViewRepresentable
 
@@ -373,14 +386,14 @@ extension FilmDetailView {
         @Published var isLoved: Bool = false
         @Published var isDisliked: Bool = false
 
+        @Published var seasons: [AdditionalDetailsTVShow.Season] = []
+
         private let movieProvider: MovieProvider = .shared
 
         init(posterImage: UIImage?, film: some DetailViewRepresentable) {
             self.averageColor = posterImage?.averageColor ?? UIColor(resource: .brightRed)
 
             if let existingFilm = movieProvider.fetchMovieByID(film.id) {
-                self.viewState = .watched
-
                 isLiked = existingFilm.isLiked
                 isLoved = existingFilm.isLoved
                 isDisliked = existingFilm.isDisliked
@@ -388,13 +401,11 @@ extension FilmDetailView {
                 self.film = existingFilm
 
             } else {
-                self.viewState = .notWatched
                 self.film = film
             }
         }
 
         public func deleteFilm(id: Int64) {
-            viewState = .notWatched
             movieProvider.deleteMovie(by: id)
         }
 
@@ -429,8 +440,23 @@ extension FilmDetailView {
                 self.isLoved = isLoved
                 self.isDisliked = isDisliked
 
-                viewState = .watched
-                self.film = movieProvider.saveFilm(film, entry: entry, isLiked: isLiked, isDisliked: isDisliked, isLoved: isLoved)
+                self.film = movieProvider.saveFilmToLibrary(film, entry: entry, isLiked: isLiked, isDisliked: isDisliked, isLoved: isLoved)
+            }
+        }
+
+        public func getAdditionalTVDetails() async {
+            guard film.mediaType == .tvShow else { return }
+
+            let endpoint = DetailsEndpoint.tvShowDetails(id: film.id)
+
+            do {
+                let tvShowDetails: AdditionalDetailsTVShow = try await NetworkManager().request(endpoint)
+                await MainActor.run {
+                    self.seasons = tvShowDetails.seasons ?? []
+                }
+
+            } catch {
+                print("⛔️ Error fetching additional details: \(error)")
             }
         }
     }

@@ -18,7 +18,6 @@ struct UpcomingEndpoint: EndpointProviding {
 
     func path() -> String {
         "/3/movie/upcoming"
-
     }
 
     func queryItems() -> [URLQueryItem]? {

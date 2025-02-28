@@ -26,9 +26,25 @@ struct TVShowResponse: Codable, Hashable, Identifiable {
 
     // Additional Properties
     var posterData: Data?
-    var rating: Int16 = 0
     var averageColor: UIColor?
-    var comment: String? 
+
+    init() {
+        self.id = Int64.min
+        self.adult = true
+        self.backdropPath = ""
+        self.posterPath = ""
+        self.title = "Mocked Title"
+        self.originalTitle = ""
+        self.originalLanguage = ""
+        self.overview = "Lorem ipsum dolor sit amet, consect adipisc elit, sed do eiusmod tempor incidid ut labore et dolore magna. Ut enim ad minim veniam, quis"
+        self.mediaType = ""
+        self.genreIds = []
+        self.popularity = 0.0
+        self.firstAirDate = "air date"
+        self.voteAverage = 2
+        self.voteCount = 3
+        self.originCountry = []
+    }
 
     enum CodingKeys: String, CodingKey {
         case id

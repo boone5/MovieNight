@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ActionView3: View {
+struct ButtonsContainerView: View {
     @Binding public var isLiked: Bool
     @Binding public var isLoved: Bool
     @Binding public var isDisliked: Bool
@@ -46,47 +46,47 @@ struct ActionView3: View {
     }
 }
 
-fileprivate struct ButtonView: View {
-    let type: `Type`
+enum Feedback {
+    case like(enabled: Bool)
+    case dislike(enabled: Bool)
+    case love(enabled: Bool)
+    case comment
 
-    enum `Type` {
-        case like(enabled: Bool)
-        case dislike(enabled: Bool)
-        case love(enabled: Bool)
-        case comment
-
-        var imageName: String {
-            switch self {
-            case .like(true):
-                "hand.thumbsup.fill"
-            case .like(false):
-                "hand.thumbsup"
-            case .dislike(true):
-                "hand.thumbsdown.fill"
-            case .dislike(false):
-                "hand.thumbsdown"
-            case .love(true):
-                "heart.fill"
-            case .love(false):
-                "heart"
-            case .comment:
-                "text.bubble"
-            }
-        }
-
-        var color: Color {
-            switch self {
-            case .like(true):
-                .green
-            case .dislike(true):
-                Color(.burntOrange)
-            case .love(true):
-                .red
-            case .like(false), .dislike(false), .love(false), .comment:
-                Color(uiColor: .systemGray2)
-            }
+    var imageName: String {
+        switch self {
+        case .like(true):
+            "hand.thumbsup.fill"
+        case .like(false):
+            "hand.thumbsup"
+        case .dislike(true):
+            "hand.thumbsdown.fill"
+        case .dislike(false):
+            "hand.thumbsdown"
+        case .love(true):
+            "heart.fill"
+        case .love(false):
+            "heart"
+        case .comment:
+            "text.bubble"
         }
     }
+
+    var color: Color {
+        switch self {
+        case .like(true):
+            .green
+        case .dislike(true):
+            Color(.burntOrange)
+        case .love(true):
+            .red
+        case .like(false), .dislike(false), .love(false), .comment:
+            .white
+        }
+    }
+}
+
+fileprivate struct ButtonView: View {
+    let type: Feedback
 
     var body: some View {
         Image(systemName: type.imageName)

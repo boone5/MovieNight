@@ -20,7 +20,7 @@ extension PosterEndpoint {
     }
 
     func host() -> String {
-        return "image.tmdb.org" // might not want to hardcode this
+        return "image.tmdb.org"
     }
 
     func path() -> String {

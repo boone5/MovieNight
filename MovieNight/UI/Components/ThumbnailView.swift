@@ -19,6 +19,8 @@ struct ThumbnailView: View {
     let height: CGFloat
     let namespace: Namespace.ID
 
+    @State private var feedback: Feedback? = nil
+
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             RoundedRectangle(cornerRadius: 8)
@@ -34,17 +36,34 @@ struct ThumbnailView: View {
                 namespace: namespace,
                 isAnimationSource: true
             )
+            .overlay(alignment: .bottomLeading) {
+                if let feedback {
+                    FeedbackOverlayView(feedback: feedback)
+                        .padding([.leading, .bottom], 10)
+                }
+            }
             .shadow(radius: 3, y: 4)
 
-            Circle()
-                .matchedGeometryEffect(id: "info" + String(filmID), in: namespace)
-                .frame(width: 50, height: 20)
-                .foregroundStyle(.clear)
-                .padding([.bottom, .trailing], 15)
+            // Uncomment if using button
+//            Circle()
+//                .matchedGeometryEffect(id: "info" + String(filmID), in: namespace)
+//                .frame(width: 50, height: 20)
+//                .foregroundStyle(.clear)
+//                .padding([.bottom, .trailing], 15)
         }
         .task {
             if let posterPath {
                 await loadImage(url: posterPath)
+            }
+
+            if let film = MovieProvider.shared.fetchMovieByID(filmID) {
+                if film.isLiked {
+                    feedback = .like(enabled: true)
+                } else if film.isDisliked {
+                    feedback = .dislike(enabled: true)
+                } else if film.isLoved {
+                    feedback = .love(enabled: true)
+                }
             }
         }
     }
@@ -59,6 +78,16 @@ struct ThumbnailView: View {
         } catch {
             print("⛔️ Error loading image: \(error)")
         }
+    }
+}
+
+struct FeedbackOverlayView: View {
+    let feedback: Feedback
+
+    var body: some View {
+        Image(systemName: feedback.imageName)
+            .font(.system(size: 18, weight: .medium))
+            .foregroundStyle(feedback.color)
     }
 }
 

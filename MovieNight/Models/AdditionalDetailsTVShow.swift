@@ -59,79 +59,79 @@ struct AdditionalDetailsTVShow: Codable {
         case voteAverage = "vote_average"
         case voteCount = "vote_count"
     }
-}
 
-// MARK: - CreatedBy
-struct CreatedBy: Codable {
-    let id: Int
-    let creditID, name: String
-    let gender: Int
-    let profilePath: String?
+    // MARK: - CreatedBy
+    struct CreatedBy: Codable {
+        let id: Int
+        let creditID, name: String
+        let gender: Int
+        let profilePath: String?
 
-    enum CodingKeys: String, CodingKey {
-        case id
-        case creditID = "credit_id"
-        case name, gender
-        case profilePath = "profile_path"
+        enum CodingKeys: String, CodingKey {
+            case id
+            case creditID = "credit_id"
+            case name, gender
+            case profilePath = "profile_path"
+        }
     }
-}
 
-// MARK: - LastEpisodeToAir
-struct Episode: Codable {
-    let id: Int
-    let name, overview: String
-    let voteAverage: Double
-    let voteCount: Int
-    let airDate: String?
-    let episodeNumber: Int
-    let episodeType, productionCode: String
-    let runtime: Double?
-    let seasonNumber, showID: Int
-    let stillPath: String?
+    // MARK: - LastEpisodeToAir
+    struct Episode: Codable {
+        let id: Int
+        let name, overview: String
+        let voteAverage: Double
+        let voteCount: Int
+        let airDate: String?
+        let episodeNumber: Int
+        let episodeType, productionCode: String
+        let runtime: Double?
+        let seasonNumber, showID: Int
+        let stillPath: String?
 
-    enum CodingKeys: String, CodingKey {
-        case id, name, overview
-        case voteAverage = "vote_average"
-        case voteCount = "vote_count"
-        case airDate = "air_date"
-        case episodeNumber = "episode_number"
-        case episodeType = "episode_type"
-        case productionCode = "production_code"
-        case runtime
-        case seasonNumber = "season_number"
-        case showID = "show_id"
-        case stillPath = "still_path"
+        enum CodingKeys: String, CodingKey {
+            case id, name, overview
+            case voteAverage = "vote_average"
+            case voteCount = "vote_count"
+            case airDate = "air_date"
+            case episodeNumber = "episode_number"
+            case episodeType = "episode_type"
+            case productionCode = "production_code"
+            case runtime
+            case seasonNumber = "season_number"
+            case showID = "show_id"
+            case stillPath = "still_path"
+        }
     }
-}
 
-// MARK: - Network
-struct Network: Codable {
-    let id: Int
-    let logoPath, name, originCountry: String
+    // MARK: - Network
+    struct Network: Codable {
+        let id: Int
+        let logoPath, name, originCountry: String
 
-    enum CodingKeys: String, CodingKey {
-        case id
-        case logoPath = "logo_path"
-        case name
-        case originCountry = "origin_country"
+        enum CodingKeys: String, CodingKey {
+            case id
+            case logoPath = "logo_path"
+            case name
+            case originCountry = "origin_country"
+        }
     }
-}
 
-// MARK: - Season
-struct Season: Codable {
-    let airDate: String?
-    let episodeCount, id: Int
-    let name, overview: String
-    let posterPath: String?
-    let seasonNumber: Int
-    let voteAverage: Double
+    // MARK: - Season
+    struct Season: Codable {
+        let airDate: String?
+        let episodeCount, id: Int
+        let name, overview: String
+        let posterPath: String?
+        let seasonNumber: Int
+        let voteAverage: Double
 
-    enum CodingKeys: String, CodingKey {
-        case airDate = "air_date"
-        case episodeCount = "episode_count"
-        case id, name, overview
-        case posterPath = "poster_path"
-        case seasonNumber = "season_number"
-        case voteAverage = "vote_average"
+        enum CodingKeys: String, CodingKey {
+            case airDate = "air_date"
+            case episodeCount = "episode_count"
+            case id, name, overview
+            case posterPath = "poster_path"
+            case seasonNumber = "season_number"
+            case voteAverage = "vote_average"
+        }
     }
 }

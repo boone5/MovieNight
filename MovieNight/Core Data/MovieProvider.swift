@@ -122,7 +122,7 @@ final class MovieProvider {
     }
 
     @discardableResult
-    public func saveFilm(_ film: DetailViewRepresentable, entry: Entry? = nil, isLiked: Bool, isDisliked: Bool, isLoved: Bool) -> Film {
+    public func saveFilmToLibrary(_ film: DetailViewRepresentable, entry: Entry? = nil, isLiked: Bool, isDisliked: Bool, isLoved: Bool) -> Film {
         let movie = Film(context: container.viewContext)
         movie.title = film.title
         movie.id = film.id

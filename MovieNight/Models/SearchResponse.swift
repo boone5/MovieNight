@@ -130,9 +130,9 @@ extension ResponseType: Identifiable, DetailViewRepresentable {
 
     var mediaType: MediaType {
         switch self {
-        case .movie(let movieResponse):
+        case .movie:
                 .movie
-        case .tvShow(let tVShowResponse):
+        case .tvShow:
                 .tvShow
         case .empty:
                 .movie

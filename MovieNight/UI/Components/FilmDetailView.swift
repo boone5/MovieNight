@@ -91,7 +91,7 @@ struct FilmDetailView: View {
                 FlippablePosterView
 
                 Group {
-                    Text(viewModel.film.title ?? "")
+                    Text(viewModel.filmDisplay.title ?? "")
                         .font(.system(size: 18, weight: .bold))
                         .foregroundStyle(.white)
                         .padding(.top, 30)
@@ -112,7 +112,7 @@ struct FilmDetailView: View {
                     )
                     .padding(.top, 30)
 
-                    if case .tvShow = viewModel.film.mediaType {
+                    if case .tvShow = viewModel.filmDisplay.mediaType {
                         ScrollView(.horizontal) {
                             HStack(spacing: 10) {
                                 ForEach(viewModel.seasons, id: \.id) { season in
@@ -164,7 +164,7 @@ struct FilmDetailView: View {
         .frame(maxWidth: .infinity)
         .background {
             Rectangle()
-                .matchedGeometryEffect(id: "background" + String(viewModel.film.id), in: namespace, isSource: false)
+                .matchedGeometryEffect(id: "background" + String(viewModel.filmDisplay.id), in: namespace, isSource: false)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .foregroundStyle(
                     LinearGradient(
@@ -210,7 +210,7 @@ struct FilmDetailView: View {
 
             Spacer()
 
-            ButtonWithSourceView()
+            ButtonWithSourceView(menu: $viewModel.menuActions)
             .padding(6)
             .background {
                 Circle()
@@ -228,7 +228,7 @@ struct FilmDetailView: View {
                     width: posterWidth,
                     height: posterHeight,
                     uiImage: uiImage,
-                    filmID: viewModel.film.id,
+                    filmID: viewModel.filmDisplay.id,
                     namespace: namespace,
                     isAnimationSource: false
                 )
@@ -242,7 +242,7 @@ struct FilmDetailView: View {
                 axis: (x: 0, y: 1, z: 0)
             )
 
-            PosterBackView(film: viewModel.film, backgroundColor: viewModel.averageColor)
+            PosterBackView(film: viewModel.filmDisplay, backgroundColor: viewModel.averageColor)
                 .shadow(radius: 6, y: 3)
                 .frame(width: posterWidth, height: posterHeight)
                 .cornerRadius(8)
@@ -343,10 +343,6 @@ struct CommentModalView: View {
 
 // MARK: ViewModel
 
-// TODO: have a display model for the film
-// - easier for going between response objects and core data
-// - easier for using in views
-
 extension FilmDetailView {
 
     /*
@@ -357,11 +353,13 @@ extension FilmDetailView {
 
     class ViewModel: ObservableObject {
         @Published var averageColor: UIColor
-        @Published var film: DetailViewRepresentable
+        @Published var filmDisplay: FilmDisplay
 
         @Published var isLiked: Bool = false
         @Published var isLoved: Bool = false
         @Published var isDisliked: Bool = false
+
+        @Published public var menuActions: [UIMenu] = []
 
         @Published var seasons: [AdditionalDetailsTVShow.Season] = []
 
@@ -370,36 +368,43 @@ extension FilmDetailView {
         init(posterImage: UIImage?, film: some DetailViewRepresentable) {
             self.averageColor = posterImage?.averageColor ?? UIColor(resource: .brightRed)
 
-            if let existingFilm = movieProvider.fetchMovieByID(film.id) {
+            if let existingFilm = movieProvider.fetchFilmByID(film.id) {
                 isLiked = existingFilm.isLiked
                 isLoved = existingFilm.isLoved
                 isDisliked = existingFilm.isDisliked
 
-                self.film = existingFilm
+                self.filmDisplay = FilmDisplay(from: existingFilm)
 
             } else {
-                self.film = film
+                self.filmDisplay = FilmDisplay(from: film)
             }
-        }
 
-        public func deleteFilm(id: Int64) {
-            movieProvider.deleteMovie(by: id)
+            setMenuActions()
         }
 
         public func addActivity(comment: String? = nil, isLiked: Bool, isLoved: Bool, isDisliked: Bool) {
-            let date = Date()
+            guard isLiked || isLoved || isDisliked else {
+                removeFromLibrary()
+                // TODO: show confirmation
+                return
+            }
 
-            if let film = film as? Film {
-                guard let context = film.managedObjectContext else { return }
+            self.isLiked = isLiked
+            self.isLoved = isLoved
+            self.isDisliked = isDisliked
+
+            let date = Date()
+            if let existingFilm = MovieProvider.shared.fetchFilmByID(filmDisplay.id) {
+                guard let context = existingFilm.managedObjectContext else { return }
 
                 let entry = Entry(context: context)
                 entry.date = date
                 entry.comment = comment
-                film.addToEntries(entry)
+                existingFilm.addToEntries(entry)
 
-                film.isLiked = isLiked
-                film.isLoved = isLoved
-                film.isDisliked = isDisliked
+                existingFilm.isLiked = isLiked
+                existingFilm.isLoved = isLoved
+                existingFilm.isDisliked = isDisliked
 
                 do {
                     try context.save()
@@ -407,47 +412,121 @@ extension FilmDetailView {
                     print("Failed to save: \(error)")
                 }
 
-                self.film = film
+                self.filmDisplay = FilmDisplay(from: existingFilm)
             } else {
                 let entry = Entry(context: movieProvider.container.viewContext)
                 entry.comment = comment
                 entry.date = date
 
-                self.isLiked = isLiked
-                self.isLoved = isLoved
-                self.isDisliked = isDisliked
-
-                self.film = movieProvider.saveFilmToLibrary(film, entry: entry, isLiked: isLiked, isDisliked: isDisliked, isLoved: isLoved)
+                let coreDataFilm = movieProvider.saveFilmToLibrary(
+                    filmDisplay,
+                    entry: entry,
+                    isLiked: isLiked,
+                    isDisliked: isDisliked,
+                    isLoved: isLoved
+                )
+                self.filmDisplay = FilmDisplay(from: coreDataFilm)
             }
+
+            setMenuActions()
         }
 
         public func getAdditionalTVDetails() async {
-            guard film.mediaType == .tvShow else { return }
+//            guard film.mediaType == .tvShow else { return }
+//
+//            let endpoint = DetailsEndpoint.tvShowDetails(id: film.id)
+//
+//            do {
+//                let tvShowDetails: AdditionalDetailsTVShow = try await NetworkManager().request(endpoint)
+//                await MainActor.run {
+//                    self.seasons = tvShowDetails.seasons ?? []
+//                }
+//
+//            } catch {
+//                print("⛔️ Error fetching additional details: \(error)")
+//            }
+        }
 
-            let endpoint = DetailsEndpoint.tvShowDetails(id: film.id)
+        private func removeFromLibrary() {
+            self.isLiked = false
+            self.isLoved = false
+            self.isDisliked = false
 
-            do {
-                let tvShowDetails: AdditionalDetailsTVShow = try await NetworkManager().request(endpoint)
-                await MainActor.run {
-                    self.seasons = tvShowDetails.seasons ?? []
+            MovieProvider.shared.deleteMovie(by: filmDisplay.id)
+            setMenuActions()
+        }
+
+        private func markAsWatched() {
+            self.isLiked = false
+            self.isLoved = false
+            self.isDisliked = false
+
+            MovieProvider.shared.saveFilmToLibrary(
+                filmDisplay,
+                isLiked: false,
+                isDisliked: false,
+                isLoved: false
+            )
+            setMenuActions()
+        }
+
+        private func addToWatchList() {
+            self.isLiked = false
+            self.isLoved = false
+            self.isDisliked = false
+
+            MovieProvider.shared.saveFilmToWatchLater(self.filmDisplay)
+            setMenuActions()
+        }
+
+        private func setMenuActions() {
+            var destructiveAction: UIAction?
+            var menu = [UIMenu]()
+            var actions = [UIAction]()
+
+            outer: if let existingFilm = MovieProvider.shared.fetchFilmByID(filmDisplay.id) {
+                guard existingFilm.isOnWatchList else {
+                    destructiveAction = UIAction(title: "Remove from Library", image: UIImage(systemName: "trash"), attributes: .destructive) { (action) in
+                        self.removeFromLibrary()
+                    }
+                    break outer
                 }
 
-            } catch {
-                print("⛔️ Error fetching additional details: \(error)")
-            }
-        }
-    }
-}
+                let watchListAction = UIAction(title: "Remove from Watch List", image: UIImage(systemName: "rectangle.stack.badge.minus")) { (action) in
+                    self.removeFromLibrary()
+                }
+                actions.append(watchListAction)
 
-extension Film: DetailViewRepresentable {
-    var mediaType: MediaType {
-        switch mediaTypeAsString {
-        case MediaType.movie.rawValue:
-                .movie
-        case MediaType.tvShow.rawValue:
-                .tvShow
-        default:
-                .movie
+            } else {
+                let watchedAction = UIAction(title: "Mark as Watched", image: UIImage(systemName: "checkmark.circle")) { (action) in
+                    self.markAsWatched()
+                }
+                actions.append(watchedAction)
+
+                let watchListAction = UIAction(title: "Add to Watch List", image: UIImage(systemName: "rectangle.stack.badge.plus")) { (action) in
+                    self.addToWatchList()
+                }
+                actions.append(watchListAction)
+            }
+
+            // Share Menu
+            let shareAction = UIAction(title: "Share", image: UIImage(systemName: "square.and.arrow.up")) { (action) in
+                print("Users action was tapped")
+            }
+            let shareMenu = UIMenu(title: "", options: .displayInline, children: [shareAction])
+            menu.append(shareMenu)
+
+            // Actions Menu
+            let actionMenu = UIMenu(title: "", options: .displayInline, children: actions)
+            menu.append(actionMenu)
+
+            // Destructive menu
+            if let destructiveAction {
+                let destructiveMenu = UIMenu(title: "", options: .displayInline, children: [destructiveAction])
+                menu.append(destructiveMenu)
+            }
+
+            menuActions = menu
         }
     }
 }
@@ -456,31 +535,14 @@ extension Film: DetailViewRepresentable {
 
 // More options: Share, Add to collection, change poster? (premium),
 struct ButtonWithSourceView: UIViewRepresentable {
-    // Might need for actions
-//    var action: (UIButton) -> Void
+    @Binding var menu: [UIMenu]
 
     func makeUIView(context: Context) -> UIButton {
-        let collectionAction = UIAction(title: "Mark as Watched", image: UIImage(systemName: "checkmark.circle")) { (action) in
-            print("Users action was tapped")
-        }
-
-        let watchLaterAction = UIAction(title: "Add to Watch List", image: UIImage(systemName: "checklist.unchecked")) { (action) in
-            print("Users action was tapped")
-        }
-
-        let share = UIAction(title: "Share", image: UIImage(systemName: "square.and.arrow.up")) { (action) in
-            print("Users action was tapped")
-        }
-
-        let submenu = UIMenu(title: "", options: .displayInline, children: [share])
-
-        let actions = [collectionAction, watchLaterAction, submenu]
-
         let uiButton = UIButton()
         uiButton.translatesAutoresizingMaskIntoConstraints = false
         let uiImage = UIImage(systemName: "ellipsis")?.withTintColor(.white, renderingMode: .alwaysOriginal)
         uiButton.setImage(uiImage, for: .normal)
-        uiButton.menu = UIMenu(title: "", options: .displayInline, children: actions)
+        uiButton.menu = UIMenu(title: "", options: .displayInline, children: menu)
         uiButton.showsMenuAsPrimaryAction = true
 
         // Prevent it from expanding
@@ -490,5 +552,7 @@ struct ButtonWithSourceView: UIViewRepresentable {
         return uiButton
     }
 
-    func updateUIView(_ uiView: UIButton, context: Context) {    }
+    func updateUIView(_ uiView: UIButton, context: Context) {
+        uiView.menu = UIMenu(title: "", options: .displayInline, children: menu)
+    }
 }

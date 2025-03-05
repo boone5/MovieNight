@@ -56,7 +56,7 @@ struct ThumbnailView: View {
                 await loadImage(url: posterPath)
             }
 
-            if let film = MovieProvider.shared.fetchMovieByID(filmID) {
+            if let film = MovieProvider.shared.fetchFilmByID(filmID) {
                 if film.isLiked {
                     feedback = .like(enabled: true)
                 } else if film.isDisliked {
@@ -64,6 +64,8 @@ struct ThumbnailView: View {
                 } else if film.isLoved {
                     feedback = .love(enabled: true)
                 }
+            } else {
+                feedback = nil
             }
         }
     }

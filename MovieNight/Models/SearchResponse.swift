@@ -62,10 +62,6 @@ enum ResponseType: Decodable, Hashable {
             self = .empty
         }
     }
-
-    init(movieData: MovieData) {
-        self = .movie(MovieResponse(movieData: movieData))
-    }
 }
 
 extension ResponseType: Identifiable, DetailViewRepresentable {

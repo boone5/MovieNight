@@ -8,20 +8,35 @@
 import Foundation
 import CoreData
 
-struct MovieData {
+struct FilmDisplay: DetailViewRepresentable {
     let id: Int64
-    let title: String
-    let overview: String
-    let dateWatched: Date?
+    let title: String?
+    let overview: String?
     let posterData: Data?
     let posterPath: String?
+    let releaseDate: String?
+    let mediaType: MediaType
 
-    init(from movie: Film) {
-        self.id = movie.id
-        self.title = movie.title ?? "-"
-        self.overview = movie.overview ?? "-"
-        self.dateWatched = movie.dateWatched
-        self.posterData = movie.posterData
-        self.posterPath = movie.posterPath
+    init(from response: DetailViewRepresentable) {
+        self.id = response.id
+        self.title = response.title ?? "-"
+        self.overview = response.overview ?? "-"
+        self.posterData = response.posterData
+        self.posterPath = response.posterPath
+        self.releaseDate = response.releaseDate
+        self.mediaType = response.mediaType
+    }
+}
+
+extension Film: DetailViewRepresentable {
+    var mediaType: MediaType {
+        switch mediaTypeAsString {
+        case MediaType.movie.rawValue:
+                .movie
+        case MediaType.tvShow.rawValue:
+                .tvShow
+        default:
+                .movie
+        }
     }
 }

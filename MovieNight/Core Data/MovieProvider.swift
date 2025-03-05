@@ -90,7 +90,7 @@ final class MovieProvider {
         }
     }
 
-    func fetchMovieByID(_ id: Int64) -> Film? {
+    func fetchFilmByID(_ id: Int64) -> Film? {
         let fetchRequest: NSFetchRequest<Film> = Film.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "id == %d", id)
         fetchRequest.fetchLimit = 1
@@ -164,9 +164,34 @@ final class MovieProvider {
         return movie
     }
 
-    /// - Parameter id: The ID of the movie to remove.
+    public func saveFilmToWatchLater(_ film: DetailViewRepresentable) -> Film {
+        let filmCD = Film(context: container.viewContext)
+        filmCD.title = film.title
+        filmCD.id = film.id
+        filmCD.dateWatched = nil
+        filmCD.posterPath = film.posterPath
+        filmCD.overview = film.overview
+        filmCD.releaseDate = film.releaseDate
+        filmCD.isOnWatchList = true
+
+        if let watchLaterCollection = fetchCollection(withIdentifier: FilmCollection.watchLaterID) {
+            watchLaterCollection.addToFilms(filmCD)
+            filmCD.collection = watchLaterCollection
+        }
+
+        if let context = filmCD.managedObjectContext {
+            do {
+                try context.save()
+            } catch {
+                print("Failed to save: \(error)")
+            }
+        }
+
+        return filmCD
+    }
+
     public func deleteMovie(by id: Int64) {
-        if let movieToDelete = fetchMovieByID(id) {
+        if let movieToDelete = fetchFilmByID(id) {
             container.viewContext.delete(movieToDelete)
             saveContext()
         }

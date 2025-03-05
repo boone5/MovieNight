@@ -62,25 +62,6 @@ struct MovieResponse: Codable, Hashable, Identifiable {
         self.adult = nil
         self.backdropPath = nil
     }
-
-    init(movieData: MovieData) {
-        self.id = movieData.id
-        self.title = movieData.title
-        self.overview = movieData.overview
-        self.posterData = movieData.posterData
-        self.posterPath = movieData.posterPath
-        self.genreIDs = []
-        self.originalTitle = ""
-        self.originalLanguage = ""
-        self.popularity = 0
-        self.releaseDate = ""
-        self.video = false
-        self.voteAverage = 0
-        self.voteCount = 0
-        self.mediaType = "movie"
-        self.adult = nil
-        self.backdropPath = nil
-    }
 }
 
 extension MovieResponse {

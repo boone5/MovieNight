@@ -38,6 +38,8 @@ struct FilmDetailView: View {
     @State private var showCommentModal: Bool = false
     @State private var presentationDidFinish: Bool = false
 
+    @State private var showPopover: Bool = false
+
     public var comment: String? = nil
 
     // This state tracks the cumulative rotation of the card.
@@ -72,98 +74,96 @@ struct FilmDetailView: View {
     }
 
     var body: some View {
-        VStack(alignment: .center, spacing: 0) {
-            TrackableScrollView(
-                .vertical,
-                showIndicators: true,
-                contentOffset: $scrollViewContentOffset
-            ) {
-                VStack(alignment: .center, spacing: 0) {
-                    headerView
-                        .padding(.top, 80)
-                        .padding(.horizontal, 30)
-                        .padding(.bottom, 30)
-                        .opacity(presentationDidFinish ? 1 : 0)
+        TrackableScrollView(
+            .vertical,
+            showIndicators: true,
+            contentOffset: $scrollViewContentOffset
+        ) {
+            VStack(alignment: .center, spacing: 0) {
+                headerView
+                    .padding(.top, 80)
+                    .padding(.horizontal, 30)
+                    .padding(.bottom, 30)
+                    .opacity(presentationDidFinish ? 1 : 0)
 
-                    // MARK: TODO
-                    // - Add gloss finish
-                    FlippablePosterView
+                // MARK: TODO
+                // - Add gloss finish
+                FlippablePosterView
 
-                    Group {
-                        Text(viewModel.film.title ?? "")
-                            .font(.system(size: 18, weight: .bold))
-                            .foregroundStyle(.white)
-                            .padding(.top, 30)
-                            .padding(.horizontal, 30)
-
-                        Text("Thriller, Drama, Mystery")
-                            .font(.system(size: 12, weight: .regular))
-                            .foregroundStyle(Color(uiColor: .systemGray2))
-                            .padding(.top, 10)
-
-                        ButtonsContainerView(
-                            isLiked: $viewModel.isLiked,
-                            isLoved: $viewModel.isLoved,
-                            isDisliked: $viewModel.isDisliked,
-                            didAddActivity: { isLiked, isLoved, isDisliked in
-                                viewModel.addActivity(isLiked: isLiked, isLoved: isLoved, isDisliked: isDisliked)
-                            }
-                        )
+                Group {
+                    Text(viewModel.film.title ?? "")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundStyle(.white)
                         .padding(.top, 30)
+                        .padding(.horizontal, 30)
 
-                        if case .tvShow = viewModel.film.mediaType {
-                            ScrollView(.horizontal) {
-                                HStack(spacing: 10) {
-                                    ForEach(viewModel.seasons, id: \.id) { season in
-                                        SeasonPosterView(posterPath: season.posterPath, seasonNum: season.seasonNumber)
-                                    }
-                                }
-                                .padding([.horizontal], 30)
-                            }
-                            .scrollIndicators(.hidden)
-                            .padding([.horizontal], -30)
-                            .padding(.top, 45)
+                    Text("Thriller, Drama, Mystery")
+                        .font(.system(size: 12, weight: .regular))
+                        .foregroundStyle(Color(uiColor: .systemGray2))
+                        .padding(.top, 10)
+
+                    ButtonsContainerView(
+                        isLiked: $viewModel.isLiked,
+                        isLoved: $viewModel.isLoved,
+                        isDisliked: $viewModel.isDisliked,
+                        didAddActivity: { isLiked, isLoved, isDisliked in
+                            viewModel.addActivity(isLiked: isLiked, isLoved: isLoved, isDisliked: isDisliked)
                         }
+                    )
+                    .padding(.top, 30)
 
-                        Text("You might like")
-                            .font(.system(size: 16, weight: .bold))
-                            .foregroundStyle(Color(uiColor: .systemGray2))
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.top, 45)
-
+                    if case .tvShow = viewModel.film.mediaType {
                         ScrollView(.horizontal) {
                             HStack(spacing: 10) {
-                                ForEach(1..<5) { _ in
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .frame(width: 175, height: 250)
+                                ForEach(viewModel.seasons, id: \.id) { season in
+                                    SeasonPosterView(posterPath: season.posterPath, seasonNum: season.seasonNumber)
                                 }
                             }
-                            .padding(.top, 15)
-                            .padding(.bottom, 80)
+                            .padding([.horizontal], 30)
                         }
+                        .scrollIndicators(.hidden)
+                        .padding([.horizontal], -30)
+                        .padding(.top, 45)
                     }
-                    .padding(.horizontal, 30)
-                    .opacity(presentationDidFinish ? 1 : 0)
-                }
-                .frame(maxWidth: .infinity, alignment: .top)
-                .padding(.top, 10)
-            }
-            .onChange(of: scrollViewContentOffset) { _ in
-                //TO KNOW THE VALUE OF OFFSET THAT YOU NEED TO DISMISS YOUR VIEW
-                //                    print(scrollViewContentOffset)
 
-                //THIS IS WHERE THE DISMISS HAPPENS
-                if scrollViewContentOffset < -80 {
-                    withAnimation(.interpolatingSpring(duration: 0.4, bounce: 0.2)) {
-                        isExpanded = false
+                    Text("You might like")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundStyle(Color(uiColor: .systemGray2))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.top, 45)
+
+                    ScrollView(.horizontal) {
+                        HStack(spacing: 10) {
+                            ForEach(1..<5) { _ in
+                                RoundedRectangle(cornerRadius: 8)
+                                    .frame(width: 175, height: 250)
+                            }
+                        }
+                        .padding(.top, 15)
+                        .padding(.bottom, 80)
                     }
+                }
+                .padding(.horizontal, 30)
+                .opacity(presentationDidFinish ? 1 : 0)
+            }
+            .frame(maxWidth: .infinity, alignment: .top)
+            .padding(.top, 10)
+        }
+        .onChange(of: scrollViewContentOffset) { _ in
+            //TO KNOW THE VALUE OF OFFSET THAT YOU NEED TO DISMISS YOUR VIEW
+            //                    print(scrollViewContentOffset)
+
+            //THIS IS WHERE THE DISMISS HAPPENS
+            if scrollViewContentOffset < -80 {
+                withAnimation(.interpolatingSpring(duration: 0.4, bounce: 0.2)) {
+                    isExpanded = false
                 }
             }
         }
         .ignoresSafeArea()
         .frame(maxWidth: .infinity)
         .background {
-            RoundedRectangle(cornerRadius: 15)
+            Rectangle()
                 .matchedGeometryEffect(id: "background" + String(viewModel.film.id), in: namespace, isSource: false)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .foregroundStyle(
@@ -210,14 +210,12 @@ struct FilmDetailView: View {
 
             Spacer()
 
-            // More options: Share, Add to collection, change poster? (premium),
-            Image(systemName: "ellipsis")
-                .foregroundStyle(.white)
-                .padding(12)
-                .background {
-                    Circle()
-                        .foregroundStyle(Color(uiColor: .white).opacity(0.2))
-                }
+            ButtonWithSourceView()
+            .padding(6)
+            .background {
+                Circle()
+                    .foregroundStyle(Color(uiColor: .white).opacity(0.2))
+            }
         }
     }
 
@@ -286,27 +284,6 @@ struct FilmDetailView: View {
                     }
                 }
         )
-    }
-}
-
-struct FilmDetailButtonView: View {
-    let imageName: String
-    let width: CGFloat
-    let height: CGFloat
-    var action: () -> Void
-
-    var body: some View {
-        Button {
-            action()
-        } label: {
-            VStack(spacing: 0) {
-                Image(systemName: imageName)
-                    .resizable()
-                    .frame(width: width, height: height)
-                    .foregroundStyle(.white)
-            }
-            .frame(width: 70)
-        }
     }
 }
 
@@ -473,4 +450,45 @@ extension Film: DetailViewRepresentable {
                 .movie
         }
     }
+}
+
+// MARK: - UIViewRepresentable Button
+
+// More options: Share, Add to collection, change poster? (premium),
+struct ButtonWithSourceView: UIViewRepresentable {
+    // Might need for actions
+//    var action: (UIButton) -> Void
+
+    func makeUIView(context: Context) -> UIButton {
+        let collectionAction = UIAction(title: "Mark as Watched", image: UIImage(systemName: "checkmark.circle")) { (action) in
+            print("Users action was tapped")
+        }
+
+        let watchLaterAction = UIAction(title: "Add to Watch List", image: UIImage(systemName: "checklist.unchecked")) { (action) in
+            print("Users action was tapped")
+        }
+
+        let share = UIAction(title: "Share", image: UIImage(systemName: "square.and.arrow.up")) { (action) in
+            print("Users action was tapped")
+        }
+
+        let submenu = UIMenu(title: "", options: .displayInline, children: [share])
+
+        let actions = [collectionAction, watchLaterAction, submenu]
+
+        let uiButton = UIButton()
+        uiButton.translatesAutoresizingMaskIntoConstraints = false
+        let uiImage = UIImage(systemName: "ellipsis")?.withTintColor(.white, renderingMode: .alwaysOriginal)
+        uiButton.setImage(uiImage, for: .normal)
+        uiButton.menu = UIMenu(title: "", options: .displayInline, children: actions)
+        uiButton.showsMenuAsPrimaryAction = true
+
+        // Prevent it from expanding
+        uiButton.setContentHuggingPriority(.required, for: .horizontal)
+        uiButton.setContentCompressionResistancePriority(.required, for: .horizontal)
+
+        return uiButton
+    }
+
+    func updateUIView(_ uiView: UIButton, context: Context) {    }
 }

@@ -20,7 +20,7 @@ struct WatchLaterView: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Want to watch")
+            Text("Watch List")
                 .font(.system(size: 18, weight: .bold))
 
             ScrollView(.horizontal) {

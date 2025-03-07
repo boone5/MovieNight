@@ -16,7 +16,25 @@ struct FilmRow: View {
     @Binding public var isExpanded: Bool
     @Binding public var selectedFilm: SelectedFilm?
 
-    let namespace: Namespace.ID
+    private let namespace: Namespace.ID
+    private let thumbnailWidth: CGFloat
+    private let thumbnailHeight: CGFloat
+
+    init(
+        items: [DetailViewRepresentable],
+        isExpanded: Binding<Bool>,
+        selectedFilm: Binding<SelectedFilm?>,
+        namespace: Namespace.ID,
+        thumbnailWidth: CGFloat = 175,
+        thumbnailHeight: CGFloat = 250
+    ) {
+        self.items = items
+        self._isExpanded = isExpanded
+        self._selectedFilm = selectedFilm
+        self.namespace = namespace
+        self.thumbnailWidth = thumbnailWidth
+        self.thumbnailHeight = thumbnailHeight
+    }
 
     var body: some View {
         ScrollView(.horizontal) {
@@ -25,14 +43,14 @@ struct FilmRow: View {
                     if selectedFilm?.id == film.id, isExpanded {
                         RoundedRectangle(cornerRadius: 15)
                             .foregroundStyle(.clear)
-                            .frame(width: 175, height: 250)
+                            .frame(width: thumbnailWidth, height: thumbnailHeight)
                     } else {
                         ThumbnailView(
                             viewModel: viewModel,
                             filmID: film.id,
                             posterPath: film.posterPath,
-                            width: 175,
-                            height: 250,
+                            width: thumbnailWidth,
+                            height: thumbnailHeight,
                             namespace: namespace
                         )
                         .onTapGesture {

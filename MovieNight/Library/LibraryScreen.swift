@@ -10,8 +10,15 @@ import SwiftUI
 struct LibraryScreen: View {
     @StateObject private var thumbnailViewModel = ThumbnailView.ViewModel()
 
-    @FetchRequest(sortDescriptors: [NSSortDescriptor(key: "dateWatched", ascending: false)])
-    var movies: FetchedResults<Film>
+    @FetchRequest(fetchRequest: Film.recentlyWatched())
+    private var recentlyWatchedFilms: FetchedResults<Film>
+
+    @FetchRequest(
+        entity: Film.entity(),
+        sortDescriptors: [NSSortDescriptor(keyPath: \Film.dateWatched, ascending: true)],
+        predicate: NSPredicate(format: "collection.id == %@", FilmCollection.watchLaterID as CVarArg)
+    )
+    private var watchList: FetchedResults<Film>
 
     @State private var navigationPath = NavigationPath()
     @State var isExpanded: Bool = false
@@ -31,7 +38,7 @@ struct LibraryScreen: View {
                     .padding(.top, 15)
                     .padding(.bottom, 20)
 
-                    if movies.isEmpty {
+                    if recentlyWatchedFilms.isEmpty && watchList.isEmpty {
                         Spacer()
                         Text("Start watching films to build your library.")
                             .font(.system(size: 14, weight: .semibold))
@@ -48,15 +55,25 @@ struct LibraryScreen: View {
                                     .padding([.leading, .bottom], 15)
 
                                 FilmRow(
-                                    items: Array(movies),
+                                    items: Array(recentlyWatchedFilms),
                                     isExpanded: $isExpanded,
                                     selectedFilm: $selectedFilm,
                                     namespace: namespace
                                 )
 
-                                WatchLaterView()
+                                Text("Watch List")
+                                    .font(.system(size: 18, weight: .bold))
+                                    .padding([.leading, .bottom], 15)
                                     .padding(.top, 30)
-                                    .padding([.leading, .trailing], 15)
+
+                                FilmRow(
+                                    items: Array(watchList),
+                                    isExpanded: $isExpanded,
+                                    selectedFilm: $selectedFilm,
+                                    namespace: namespace,
+                                    thumbnailWidth: 100,
+                                    thumbnailHeight: 150
+                                )
 
                                 CollectionsView()
                                     .padding(.top, 30)

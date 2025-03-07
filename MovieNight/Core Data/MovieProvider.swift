@@ -164,7 +164,7 @@ final class MovieProvider {
         return movie
     }
 
-    public func saveFilmToWatchLater(_ film: DetailViewRepresentable) -> Film {
+    public func saveFilmToWatchLater(_ film: DetailViewRepresentable) {
         let filmCD = Film(context: container.viewContext)
         filmCD.title = film.title
         filmCD.id = film.id
@@ -186,8 +186,6 @@ final class MovieProvider {
                 print("Failed to save: \(error)")
             }
         }
-
-        return filmCD
     }
 
     public func deleteMovie(by id: Int64) {

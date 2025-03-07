@@ -40,3 +40,12 @@ extension Film: DetailViewRepresentable {
         }
     }
 }
+
+extension Film {
+    public static func recentlyWatched() -> NSFetchRequest<Film> {
+        let request: NSFetchRequest<Film> = .init(entityName: "Film")
+        request.sortDescriptors = [NSSortDescriptor(key: "dateWatched", ascending: false)]
+        request.predicate = NSPredicate(format: "dateWatched != nil")
+        return request
+    }
+}

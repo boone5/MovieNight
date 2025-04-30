@@ -1,5 +1,5 @@
 //
-//  DetailsEndpoint.swift
+//  TMDBEndpoint.swift
 //  MovieNight
 //
 //  Created by Boone on 2/8/24.
@@ -7,12 +7,12 @@
 
 import Foundation
 
-enum DetailsEndpoint: EndpointProviding {
-    case movieDetails(id: Int64)
+enum TMDBEndpoint: EndpointProviding {
+    case movieDetails(id: Int64, hasTrailer: Bool)
     case tvShowDetails(id: Int64)
 }
 
-extension DetailsEndpoint {
+extension TMDBEndpoint {
     var apiKey: String {
         APIKey.authorization_TMDB
     }
@@ -23,7 +23,7 @@ extension DetailsEndpoint {
     
     func path() -> String {
         switch self {
-        case .movieDetails(let id):
+        case .movieDetails(let id, _):
             "/3/movie/\(id)"
         case .tvShowDetails(let id):
             "/3/tv/\(id)"
@@ -31,6 +31,11 @@ extension DetailsEndpoint {
     }
 
     func queryItems() -> [URLQueryItem]? {
-        return nil
+        switch self {
+        case .movieDetails(let id, let hasTrailer):
+            [.init(name: "append_to_response", value: "videos,images")]
+        case .tvShowDetails:
+            nil
+        }
     }
 }

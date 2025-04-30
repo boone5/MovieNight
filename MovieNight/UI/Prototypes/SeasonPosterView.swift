@@ -26,9 +26,9 @@ struct SeasonPosterView: View {
                 if let uiImage {
                     Image(uiImage: uiImage)
                         .resizable()
-                        .blur(radius: 2)
+                        .blur(radius: 3)
                         .overlay {
-                            Color.black.opacity(0.3)
+                            Color.black.opacity(0.5)
                         }
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                         .frame(width: 100, height: 150)
@@ -39,18 +39,18 @@ struct SeasonPosterView: View {
                         .frame(width: 100, height: 150)
                 }
             }
-            .overlay(alignment: .topTrailing) {
-                Image(systemName: "circle")
-                    .resizable()
-                    .frame(width: 20, height: 20)
-                    .foregroundStyle(.white)
-                    .padding([.trailing, .top], 10)
-            }
-            .overlay(alignment: .bottom) {
-                Text("Season \(seasonNum)")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .padding(.bottom, 10)
+            .overlay(alignment: .center) {
+                VStack {
+                    Image(systemName: "circle")
+                        .resizable()
+                        .frame(width: 40, height: 40)
+                        .foregroundStyle(.gray)
+
+                    Text("Season \(seasonNum)")
+                        .font(.system(size: 14, weight: .regular))
+                        .foregroundStyle(.white)
+                }
+
             }
         }
         .task {

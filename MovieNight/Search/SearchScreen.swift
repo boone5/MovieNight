@@ -118,90 +118,84 @@ struct SearchScreen: View {
         .scrollDismissesKeyboard(.immediately)
         .toolbar(isExpanded ? .hidden : .visible, for: .tabBar)
     }
+}
 
-    struct ListView: View {
-        let results: [ResponseType]
-        let namespace: Namespace.ID
+struct ListView: View {
+    let results: [DetailViewRepresentable]
+    let namespace: Namespace.ID
 
-        @StateObject private var thumbnailViewModel = ThumbnailView.ViewModel()
+    @StateObject private var thumbnailViewModel = ThumbnailView.ViewModel()
 
-        @Binding var isExpanded: Bool
-        @Binding var selectedFilm: SelectedFilm?
+    @Binding var isExpanded: Bool
+    @Binding var selectedFilm: SelectedFilm?
 
-        init(
-            results: [ResponseType],
-            namespace: Namespace.ID,
-            isExpanded: Binding<Bool>,
-            selectedFilm: Binding<SelectedFilm?>
-        ) {
-            self.results = results
-            self.namespace = namespace
-            _isExpanded = isExpanded
-            _selectedFilm = selectedFilm
-        }
+    init(
+        results: [DetailViewRepresentable],
+        namespace: Namespace.ID,
+        isExpanded: Binding<Bool>,
+        selectedFilm: Binding<SelectedFilm?>
+    ) {
+        self.results = results
+        self.namespace = namespace
+        _isExpanded = isExpanded
+        _selectedFilm = selectedFilm
+    }
 
-        var body: some View {
-            List {
-                Group {
-                    ForEach(results, id: \.self) { result in
-                        HStack(spacing: 0) {
-                            switch result {
-                            case .movie, .tvShow:
-                                if selectedFilm?.id == result.id, isExpanded {
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .foregroundStyle(.gray)
-                                        .frame(width: 80, height: 120)
-                                        .shadow(radius: 3, y: 4)
+    var body: some View {
+        List {
+            Group {
+                ForEach(results, id: \.id) { film in
+                    HStack(spacing: 0) {
+                        if selectedFilm?.id == film.id, isExpanded {
+                            RoundedRectangle(cornerRadius: 8)
+                                .foregroundStyle(.gray)
+                                .frame(width: 80, height: 120)
+                                .shadow(radius: 3, y: 4)
 
-                                } else {
-                                    ThumbnailView(
-                                        viewModel: thumbnailViewModel,
-                                        filmID: result.id,
-                                        posterPath: result.posterPath,
-                                        width: 80,
-                                        height: 120,
-                                        namespace: namespace
-                                    )
-                                    .onTapGesture {
-                                        withAnimation(.spring()) {
-                                            isExpanded = true
-                                            selectedFilm = SelectedFilm(id: result.id, film: result, posterImage: thumbnailViewModel.posterImage(for: result.posterPath))
-                                        }
-                                    }
+                        } else {
+                            ThumbnailView(
+                                viewModel: thumbnailViewModel,
+                                filmID: film.id,
+                                posterPath: film.posterPath,
+                                width: 80,
+                                height: 120,
+                                namespace: namespace
+                            )
+                            .onTapGesture {
+                                withAnimation(.spring()) {
+                                    isExpanded = true
+                                    selectedFilm = SelectedFilm(id: film.id, film: film, posterImage: thumbnailViewModel.posterImage(for: film.posterPath))
                                 }
-
-                            case .empty:
-                                EmptyView()
                             }
-
-                            VStack(alignment: .leading, spacing: 5) {
-                                Text(result.title ?? "")
-                                    .font(.system(size: 16, weight: .medium))
-
-                                Text(result.mediaType.title)
-                                    .font(.system(size: 14, weight: .regular))
-                            }
-                            .padding(.leading, 20)
-
-                            Spacer()
-
-                            Image(systemName: "chevron.right")
-                                .foregroundColor(.gray)
                         }
-                        .padding(.vertical, 5)
-                    }
 
-                    // Make this a "couldn't find what you were looking for?" button to submit feedback
-                    Text("End of List")
-                        .foregroundStyle(.white)
-                        .listRowBackground(Color.clear)
+                        VStack(alignment: .leading, spacing: 5) {
+                            Text(film.title ?? "")
+                                .font(.system(size: 16, weight: .medium))
+
+                            Text(film.mediaType.title)
+                                .font(.system(size: 14, weight: .regular))
+                        }
+                        .padding(.leading, 20)
+
+                        Spacer()
+
+                        Image(systemName: "chevron.right")
+                            .foregroundColor(.gray)
+                    }
+                    .padding(.vertical, 5)
                 }
-                .listRowBackground(Color.clear)
-                .buttonStyle(PlainButtonStyle())
+
+                // Make this a "couldn't find what you were looking for?" button to submit feedback
+                Text("End of List")
+                    .foregroundStyle(.white)
+                    .listRowBackground(Color.clear)
             }
-            .listStyle(.plain)
-            .scrollContentBackground(.hidden)
+            .listRowBackground(Color.clear)
+            .buttonStyle(PlainButtonStyle())
         }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
     }
 }
 

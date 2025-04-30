@@ -9,13 +9,14 @@ import CoreData
 import SwiftUI
 // Taken from https://stackoverflow.com/questions/72941738/closing-a-view-when-it-reaches-the-top-that-has-a-scrollview-in-swiftui
 import SwiftUITrackableScrollView
+import YouTubePlayerKit
 
 #Preview {
     @Previewable @State var isExpanded: Bool = true
     @Previewable @Namespace var namespace
 
     let previewCD = MovieProvider.preview.container.viewContext
-    let film: ResponseType = ResponseType.tvShow(TVShowResponse())
+    let film: ResponseType = ResponseType.movie(MovieResponse())
 
     FilmDetailView(film: film, namespace: namespace, isExpanded: $isExpanded, uiImage: nil)
 }
@@ -39,8 +40,6 @@ struct FilmDetailView: View {
     @State private var presentationDidFinish: Bool = false
 
     @State private var showPopover: Bool = false
-
-    public var comment: String? = nil
 
     // This state tracks the cumulative rotation of the card.
     @State private var flipDegrees: Double = 0
@@ -81,8 +80,6 @@ struct FilmDetailView: View {
         ) {
             VStack(alignment: .center, spacing: 0) {
                 headerView
-                    .padding(.top, 80)
-                    .padding(.horizontal, 30)
                     .padding(.bottom, 30)
                     .opacity(presentationDidFinish ? 1 : 0)
 
@@ -95,9 +92,8 @@ struct FilmDetailView: View {
                         .font(.system(size: 18, weight: .bold))
                         .foregroundStyle(.white)
                         .padding(.top, 30)
-                        .padding(.horizontal, 30)
 
-                    Text("Thriller, Drama, Mystery")
+                    Text(viewModel.genres ?? "-")
                         .font(.system(size: 12, weight: .regular))
                         .foregroundStyle(Color(uiColor: .systemGray2))
                         .padding(.top, 10)
@@ -106,13 +102,27 @@ struct FilmDetailView: View {
                         isLiked: $viewModel.isLiked,
                         isLoved: $viewModel.isLoved,
                         isDisliked: $viewModel.isDisliked,
+                        averageColor: viewModel.averageColor,
                         didAddActivity: { isLiked, isLoved, isDisliked in
                             viewModel.addActivity(isLiked: isLiked, isLoved: isLoved, isDisliked: isDisliked)
+                        },
+                        didTapAddComment: {
+                            showCommentModal = true
                         }
                     )
                     .padding(.top, 30)
 
+                    if viewModel.hasComments {
+                        CommentsView(comments: viewModel.filmDisplay.comments)
+                    }
+
                     if case .tvShow = viewModel.filmDisplay.mediaType {
+                        Text("Seasons")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundStyle(Color(uiColor: .systemGray2))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.top, 45)
+
                         ScrollView(.horizontal) {
                             HStack(spacing: 10) {
                                 ForEach(viewModel.seasons, id: \.id) { season in
@@ -123,31 +133,40 @@ struct FilmDetailView: View {
                         }
                         .scrollIndicators(.hidden)
                         .padding([.horizontal], -30)
-                        .padding(.top, 45)
+                        .padding(.top, 15)
                     }
 
-                    Text("You might like")
+                    Text("Actions")
                         .font(.system(size: 16, weight: .bold))
                         .foregroundStyle(Color(uiColor: .systemGray2))
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.top, 45)
 
-                    ScrollView(.horizontal) {
-                        HStack(spacing: 10) {
-                            ForEach(1..<5) { _ in
-                                RoundedRectangle(cornerRadius: 8)
-                                    .frame(width: 175, height: 250)
-                            }
-                        }
-                        .padding(.top, 15)
-                        .padding(.bottom, 80)
+                    switch viewModel.filmDisplay.mediaType {
+                    case .movie:
+                        MovieActionsView(averageColor: viewModel.averageColor)
+                            .padding(.top, 15)
+                    case .tvShow:
+                        EmptyView()
                     }
                 }
-                .padding(.horizontal, 30)
                 .opacity(presentationDidFinish ? 1 : 0)
             }
-            .frame(maxWidth: .infinity, alignment: .top)
-            .padding(.top, 10)
+            .padding(.vertical, 80)
+            .padding(.horizontal, 15)
+            .background {
+                Rectangle()
+                    .matchedGeometryEffect(id: "background" + String(viewModel.filmDisplay.id), in: namespace, isSource: false)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [Color(uiColor: viewModel.averageColor), .black],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .ignoresSafeArea()
+            }
         }
         .onChange(of: scrollViewContentOffset) { _ in
             //TO KNOW THE VALUE OF OFFSET THAT YOU NEED TO DISMISS YOUR VIEW
@@ -161,20 +180,6 @@ struct FilmDetailView: View {
             }
         }
         .ignoresSafeArea()
-        .frame(maxWidth: .infinity)
-        .background {
-            Rectangle()
-                .matchedGeometryEffect(id: "background" + String(viewModel.filmDisplay.id), in: namespace, isSource: false)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .foregroundStyle(
-                    LinearGradient(
-                        colors: [Color(uiColor: viewModel.averageColor), .black],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-                .ignoresSafeArea()
-        }
         .sheet(isPresented: $showCommentModal) {
             CommentModalView(vm: viewModel)
                 .presentationDetents([.large])
@@ -186,7 +191,11 @@ struct FilmDetailView: View {
             }
         }
         .task {
-            await viewModel.getAdditionalTVDetails()
+            if viewModel.filmDisplay.mediaType == .movie {
+                await viewModel.getAdditionalDetailsMovie()
+            } else {
+                await viewModel.getAdditionalDetailsTVShow()
+            }
         }
     }
 
@@ -242,7 +251,11 @@ struct FilmDetailView: View {
                 axis: (x: 0, y: 1, z: 0)
             )
 
-            PosterBackView(film: viewModel.filmDisplay, backgroundColor: viewModel.averageColor)
+            PosterBackView(
+                film: viewModel.filmDisplay,
+                backgroundColor: viewModel.averageColor,
+                trailer: $viewModel.trailer
+            )
                 .shadow(radius: 6, y: 3)
                 .frame(width: posterWidth, height: posterHeight)
                 .cornerRadius(8)
@@ -285,6 +298,43 @@ struct FilmDetailView: View {
                 }
         )
     }
+
+    // MARK: CommentsView
+
+    struct CommentsView: View {
+        let comments: [Comment]
+
+        var body: some View {
+            Text("Comments")
+                .font(.system(size: 16, weight: .bold))
+                .foregroundStyle(Color(uiColor: .systemGray2))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.top, 45)
+
+            VStack(spacing: 15) {
+                ForEach(comments) { comment in
+                    VStack(spacing: 0) {
+                        // TODO: Format Date
+                        Text(comment.date?.description ?? "")
+                            .font(.system(size: 14, weight: .regular))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                        Text(comment.text ?? "")
+                            .font(.system(size: 14, weight: .regular))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                    }
+                    .padding(15)
+                    .background {
+                        Color(.white).opacity(0.1)
+                            .clipShape(RoundedRectangle(cornerRadius: 15))
+                    }
+
+                }
+            }
+            .padding(.top, 15)
+        }
+    }
 }
 
 // MARK: CommentModalView
@@ -306,8 +356,7 @@ struct CommentModalView: View {
             Spacer()
 
             Button {
-                // do something
-                //                vm.addActivity(comment: text)
+                vm.addComment(text: text)
                 dismiss()
 
             } label: {
@@ -362,6 +411,12 @@ extension FilmDetailView {
         @Published public var menuActions: [UIMenu] = []
 
         @Published var seasons: [AdditionalDetailsTVShow.Season] = []
+        @Published var trailer: AdditionalDetailsMovie.VideoResponse.Video?
+        @Published var genres: String?
+
+        public var hasComments: Bool {
+            !(self.filmDisplay.comments.isEmpty)
+        }
 
         private let movieProvider: MovieProvider = .shared
 
@@ -382,7 +437,43 @@ extension FilmDetailView {
             setMenuActions()
         }
 
-        public func addActivity(comment: String? = nil, isLiked: Bool, isLoved: Bool, isDisliked: Bool) {
+        public func addComment(text: String) {
+            let date = Date()
+
+            if let existingFilm = MovieProvider.shared.fetchFilmByID(filmDisplay.id) {
+                guard let context = existingFilm.managedObjectContext else { return }
+
+                let comment = Comment(context: context)
+                comment.date = date
+                comment.text = text
+                existingFilm.addToComments(comment)
+
+                do {
+                    try context.save()
+                } catch {
+                    print("Failed to save: \(error)")
+                }
+
+                self.filmDisplay = FilmDisplay(from: existingFilm)
+
+            } else {
+                let comment = Comment(context: movieProvider.container.viewContext)
+                comment.text = text
+                comment.date = date
+
+                let coreDataFilm = movieProvider.saveFilmToLibrary(
+                    filmDisplay,
+                    comment: comment,
+                    isLiked: isLiked,
+                    isDisliked: isDisliked,
+                    isLoved: isLoved
+                )
+
+                self.filmDisplay = FilmDisplay(from: coreDataFilm)
+            }
+        }
+
+        public func addActivity(isLiked: Bool, isLoved: Bool, isDisliked: Bool) {
             guard isLiked || isLoved || isDisliked else {
                 removeFromLibrary()
                 // TODO: show confirmation
@@ -393,14 +484,8 @@ extension FilmDetailView {
             self.isLoved = isLoved
             self.isDisliked = isDisliked
 
-            let date = Date()
             if let existingFilm = MovieProvider.shared.fetchFilmByID(filmDisplay.id) {
                 guard let context = existingFilm.managedObjectContext else { return }
-
-                let entry = Entry(context: context)
-                entry.date = date
-                entry.comment = comment
-                existingFilm.addToEntries(entry)
 
                 existingFilm.isLiked = isLiked
                 existingFilm.isLoved = isLoved
@@ -414,13 +499,8 @@ extension FilmDetailView {
 
                 self.filmDisplay = FilmDisplay(from: existingFilm)
             } else {
-                let entry = Entry(context: movieProvider.container.viewContext)
-                entry.comment = comment
-                entry.date = date
-
                 let coreDataFilm = movieProvider.saveFilmToLibrary(
                     filmDisplay,
-                    entry: entry,
                     isLiked: isLiked,
                     isDisliked: isDisliked,
                     isLoved: isLoved
@@ -431,20 +511,49 @@ extension FilmDetailView {
             setMenuActions()
         }
 
-        public func getAdditionalTVDetails() async {
-//            guard film.mediaType == .tvShow else { return }
-//
-//            let endpoint = DetailsEndpoint.tvShowDetails(id: film.id)
-//
-//            do {
-//                let tvShowDetails: AdditionalDetailsTVShow = try await NetworkManager().request(endpoint)
-//                await MainActor.run {
-//                    self.seasons = tvShowDetails.seasons ?? []
-//                }
-//
-//            } catch {
-//                print("⛔️ Error fetching additional details: \(error)")
-//            }
+        public func getAdditionalDetailsTVShow() async {
+            do {
+                let endpoint = TMDBEndpoint.tvShowDetails(id: filmDisplay.id)
+                let tvShowDetails: AdditionalDetailsTVShow = try await NetworkManager().request(endpoint)
+                let genres = tvShowDetails.genres.map { $0.name }.joined(separator: ", ")
+
+                let releasedSeasons = tvShowDetails.seasons?.compactMap { season in
+                    if season.episodeCount > 1 && season.seasonNumber != 0 {
+                        return season
+                    } else {
+                        return nil
+                    }
+                }
+
+                await MainActor.run {
+                    self.seasons = releasedSeasons ?? []
+                    self.genres = genres
+                }
+
+            } catch {
+                print("⛔️ Error fetching additional details: \(error)")
+            }
+        }
+        
+        public func getAdditionalDetailsMovie() async {
+            do {
+                let endpoint = TMDBEndpoint.movieDetails(id: filmDisplay.id, hasTrailer: filmDisplay.hasTrailer)
+                let movieDetails: AdditionalDetailsMovie = try await NetworkManager().request(endpoint)
+                let genres = movieDetails.genres.map { $0.name }.joined(separator: ", ")
+
+                do {
+                    try await MainActor.run {
+                        self.trailer = try movieDetails.videos.trailer()
+                        self.genres = genres
+                    }
+
+                } catch {
+                    print("⛔️ No trailer: \(error)")
+                }
+
+            } catch {
+                print("⛔️ Error fetching additional details: \(error)")
+            }
         }
 
         private func removeFromLibrary() {

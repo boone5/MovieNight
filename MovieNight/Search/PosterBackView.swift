@@ -11,85 +11,82 @@ struct PosterBackView: View {
     let film: DetailViewRepresentable
     let backgroundColor: UIColor
 
+    @Binding var trailer: AdditionalDetailsMovie.VideoResponse.Video?
+
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             ScrollView {
                 VStack(spacing: 0) {
                     Text("Summary")
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(Color(uiColor: .systemGray5))
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(.white).opacity(0.6)
                         .padding(.top, 30)
                         .padding(.horizontal, 15)
 
                     Text(film.overview ?? "")
-                        .font(.system(size: 12, weight: .regular))
-                        .foregroundStyle(Color(uiColor: .systemGray2))
+                        .font(.system(size: 14, weight: .regular))
                         .padding(.top, 10)
                         .padding(.horizontal, 15)
                         .multilineTextAlignment(.leading)
 
-                    Text("Genre")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(Color(uiColor: .systemGray5))
-                        .padding(.top, 20)
-                        .padding(.horizontal, 15)
+                    if let trailer, let key = trailer.key {
+                        Text("Trailer")
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundStyle(.white).opacity(0.6)
+                            .padding(.top, 30)
+                            .padding(.horizontal, 15)
 
-                    Text("Romance, Comedy")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .font(.system(size: 12, weight: .regular))
-                        .foregroundStyle(Color(uiColor: .systemGray2))
-                        .padding(.top, 10)
-                        .padding(.horizontal, 15)
+                        TrailerView(videoID: key)
+                            .padding(.top, 10)
+                            .padding(.horizontal, 15)
+                    }
 
                     Text("Where to watch")
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(Color(uiColor: .systemGray5))
-                        .padding(.top, 20)
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(.white).opacity(0.6)
+                        .padding(.top, 30)
                         .padding(.horizontal, 15)
 
                     Text("Random Logo 1, Random Logo 2")
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .font(.system(size: 12, weight: .regular))
-                        .foregroundStyle(Color(uiColor: .systemGray2))
+                        .font(.system(size: 14, weight: .regular))
                         .padding(.top, 10)
                         .padding(.horizontal, 15)
 
                     Text("Release Date")
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(Color(uiColor: .systemGray5))
-                        .padding(.top, 20)
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(.white).opacity(0.6)
+                        .padding(.top, 30)
                         .padding(.horizontal, 15)
 
                     Text("August 15th, 2021")
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .font(.system(size: 12, weight: .regular))
-                        .foregroundStyle(Color(uiColor: .systemGray2))
+                        .font(.system(size: 14, weight: .regular))
                         .padding(.top, 10)
                         .padding(.horizontal, 15)
 
                     Text("Duration")
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(Color(uiColor: .systemGray5))
-                        .padding(.top, 20)
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(.white).opacity(0.6)
+                        .padding(.top, 30)
                         .padding(.horizontal, 15)
 
                     Text("2 hrs, 10 min")
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .font(.system(size: 12, weight: .regular))
-                        .foregroundStyle(Color(uiColor: .systemGray2))
+                        .font(.system(size: 14, weight: .regular))
                         .padding(.top, 10)
                         .padding(.horizontal, 15)
 
                     Text("Cast")
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(Color(uiColor: .systemGray5))
-                        .padding(.top, 20)
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(.white).opacity(0.6)
+                        .padding(.top, 30)
                         .padding(.horizontal, 15)
 
                     ScrollView(.horizontal) {

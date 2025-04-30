@@ -14,6 +14,7 @@ protocol DetailViewRepresentable {
     var releaseDate: String? { get }
     var title: String? { get }
     var mediaType: MediaType { get }
+    var hasTrailer: Bool { get } 
 
     // Additional Properties
     var posterData: Data? { get }

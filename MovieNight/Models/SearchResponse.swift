@@ -145,4 +145,12 @@ extension ResponseType: Identifiable, DetailViewRepresentable {
             nil
         }
     }
+
+    var hasTrailer: Bool {
+        if case let .movie(movieResponse) = self {
+            return movieResponse.video ?? false
+        } else {
+            return false
+        }
+    }
 }

@@ -1,5 +1,5 @@
 {
-  "originHash" : "798dd6bdeccce5d516f2ddd17615a65b41f6a1b7ec06a8000e3850f9e8678d9b",
+  "originHash" : "2676e2298de4b1b797f6d1d71dfc71776e12b48c352daf4978c64cb23c84ce2f",
   "pins" : [
     {
       "identity" : "swiftui-introspect",
@@ -17,6 +17,24 @@
       "state" : {
         "branch" : "master",
         "revision" : "4b094575c2370c3341d0b377a27b46bda4f937f7"
+      }
+    },
+    {
+      "identity" : "youtubeplayer-in-wkwebview",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/hmhv/YoutubePlayer-in-WKWebView.git",
+      "state" : {
+        "revision" : "3d24743643fd4460e40ca8f4cd844563d32bb05f",
+        "version" : "0.3.11"
+      }
+    },
+    {
+      "identity" : "youtubeplayerkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SvenTiigi/YoutubePlayerKit.git",
+      "state" : {
+        "revision" : "29ef4217810e15ce8c7fce6608a1eecd0935b621",
+        "version" : "2.0.0"
       }
     }
   ],

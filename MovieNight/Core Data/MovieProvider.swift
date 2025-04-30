@@ -122,7 +122,7 @@ final class MovieProvider {
     }
 
     @discardableResult
-    public func saveFilmToLibrary(_ film: DetailViewRepresentable, entry: Entry? = nil, isLiked: Bool, isDisliked: Bool, isLoved: Bool) -> Film {
+    public func saveFilmToLibrary(_ film: DetailViewRepresentable, comment: Comment? = nil, isLiked: Bool, isDisliked: Bool, isLoved: Bool) -> Film {
         let movie = Film(context: container.viewContext)
         movie.title = film.title
         movie.id = film.id
@@ -134,8 +134,8 @@ final class MovieProvider {
         movie.isDisliked = isDisliked
         movie.isLoved = isLoved
 
-        if let entry {
-            movie.addToEntries(entry)
+        if let comment {
+            movie.addToComments(comment)
         }
 
         switch film.mediaType {

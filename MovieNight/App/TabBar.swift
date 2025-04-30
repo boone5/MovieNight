@@ -13,14 +13,20 @@ struct TabBarView: View {
             Group {
                 LibraryScreen()
                     .tabItem {
-                        Label("", systemImage: "books.vertical")
+                        Label("Library", systemImage: "books.vertical")
                     }
                     .environment(\.managedObjectContext, MovieProvider.shared.container.viewContext)
 
                 SearchScreen()
                     .tabItem {
-                        Label("", systemImage: "magnifyingglass")
+                        Label("Search", systemImage: "magnifyingglass")
                     }
+
+                WatchWheelView()
+                    .tabItem {
+                        Label("Wheel", systemImage: "chart.pie")
+                    }
+                    .environment(\.managedObjectContext, MovieProvider.shared.container.viewContext)
             }
             .toolbarBackground(Color(.backgroundColor2), for: .tabBar)
             .toolbarBackground(.visible, for: .tabBar)

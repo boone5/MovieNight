@@ -11,12 +11,15 @@ import SwiftUI
 import SwiftUITrackableScrollView
 import YouTubePlayerKit
 
+// MARK: Preview
+
 #Preview {
     @Previewable @State var isExpanded: Bool = true
     @Previewable @Namespace var namespace
 
     let previewCD = MovieProvider.preview.container.viewContext
     let film: ResponseType = ResponseType.movie(MovieResponse())
+//    let film: ResponseType = ResponseType.tvShow(TVShowResponse())
 
     FilmDetailView(film: film, namespace: namespace, isExpanded: $isExpanded, uiImage: nil)
 }
@@ -35,11 +38,7 @@ struct FilmDetailView: View {
     @Binding var isExpanded: Bool
 
     @State private var scrollViewContentOffset = CGFloat(0)
-
-    @State private var showCommentModal: Bool = false
     @State private var presentationDidFinish: Bool = false
-
-    @State private var showPopover: Bool = false
 
     // This state tracks the cumulative rotation of the card.
     @State private var flipDegrees: Double = 0
@@ -98,62 +97,38 @@ struct FilmDetailView: View {
                         .foregroundStyle(Color(uiColor: .systemGray2))
                         .padding(.top, 10)
 
-                    ButtonsContainerView(
+                    FeedbackButtons(
                         isLiked: $viewModel.isLiked,
                         isLoved: $viewModel.isLoved,
                         isDisliked: $viewModel.isDisliked,
                         averageColor: viewModel.averageColor,
                         didAddActivity: { isLiked, isLoved, isDisliked in
                             viewModel.addActivity(isLiked: isLiked, isLoved: isLoved, isDisliked: isDisliked)
-                        },
-                        didTapAddComment: {
-                            showCommentModal = true
                         }
                     )
                     .padding(.top, 30)
 
-                    if viewModel.hasComments {
-                        CommentsView(comments: viewModel.filmDisplay.comments)
-                    }
+                    CommentPromptView(
+                        averageColor: viewModel.averageColor,
+                        comments: viewModel.filmDisplay.comments,
+                        didTapSave: { comment in
+                            viewModel.addComment(text: comment)
+                        }
+                    )
+                    .padding(.top, 30)
+
+                    ParticipantsView(averageColor: viewModel.averageColor)
+                        .padding(.top, 30)
 
                     if case .tvShow = viewModel.filmDisplay.mediaType {
-                        Text("Seasons")
-                            .font(.system(size: 16, weight: .bold))
-                            .foregroundStyle(Color(uiColor: .systemGray2))
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.top, 45)
-
-                        ScrollView(.horizontal) {
-                            HStack(spacing: 10) {
-                                ForEach(viewModel.seasons, id: \.id) { season in
-                                    SeasonPosterView(posterPath: season.posterPath, seasonNum: season.seasonNumber)
-                                }
-                            }
-                            .padding([.horizontal], 30)
-                        }
-                        .scrollIndicators(.hidden)
-                        .padding([.horizontal], -30)
-                        .padding(.top, 15)
-                    }
-
-                    Text("Actions")
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundStyle(Color(uiColor: .systemGray2))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.top, 45)
-
-                    switch viewModel.filmDisplay.mediaType {
-                    case .movie:
-                        MovieActionsView(averageColor: viewModel.averageColor)
-                            .padding(.top, 15)
-                    case .tvShow:
-                        EmptyView()
+                        SeasonsScrollView(viewModel: viewModel)
+                            .padding(.top, 30)
                     }
                 }
                 .opacity(presentationDidFinish ? 1 : 0)
             }
             .padding(.vertical, 80)
-            .padding(.horizontal, 15)
+            .padding(.horizontal, 20)
             .background {
                 Rectangle()
                     .matchedGeometryEffect(id: "background" + String(viewModel.filmDisplay.id), in: namespace, isSource: false)
@@ -180,11 +155,6 @@ struct FilmDetailView: View {
             }
         }
         .ignoresSafeArea()
-        .sheet(isPresented: $showCommentModal) {
-            CommentModalView(vm: viewModel)
-                .presentationDetents([.large])
-                .presentationDragIndicator(.visible)
-        }
         .onAppear {
             withAnimation(.easeInOut(duration: 0.4)) {
                 presentationDidFinish.toggle()
@@ -220,30 +190,43 @@ struct FilmDetailView: View {
             Spacer()
 
             ButtonWithSourceView(menu: $viewModel.menuActions)
-            .padding(6)
-            .background {
-                Circle()
-                    .foregroundStyle(Color(uiColor: .white).opacity(0.2))
-            }
+                .padding(6)
+                .background {
+                    Circle()
+                        .foregroundStyle(Color(uiColor: .white).opacity(0.2))
+                }
         }
     }
 
     @MainActor
     var FlippablePosterView: some View {
         ZStack {
-            ZStack(alignment: .bottomLeading) {
-                // Front face (Blue)
-                PosterView(
-                    width: posterWidth,
-                    height: posterHeight,
-                    uiImage: uiImage,
-                    filmID: viewModel.filmDisplay.id,
-                    namespace: namespace,
-                    isAnimationSource: false
-                )
-                .shadow(radius: 6, y: 3)
-
-                // TODO: Add a progress wheel
+            // Front
+            PosterView(
+                width: posterWidth,
+                height: posterHeight,
+                uiImage: uiImage,
+                filmID: viewModel.filmDisplay.id,
+                namespace: namespace,
+                isAnimationSource: false
+            )
+            .shadow(radius: 6, y: 3)
+            .overlay(alignment: .bottomTrailing) {
+                Text("Info")
+                    .font(.system(size: 12, weight: .medium))
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .foregroundStyle(.white)
+                    .background {
+                        Color(uiColor: viewModel.averageColor).opacity(0.5)
+                            .clipShape(Capsule())
+                    }
+                    .padding([.bottom, .trailing], 15)
+                    .onTapGesture {
+                        withAnimation(.bouncy(duration: 1.2)) {
+                            flipDegrees -= 180
+                        }
+                    }
             }
             .opacity(frontVisible ? 1 : 0)
             .rotation3DEffect(
@@ -270,7 +253,7 @@ struct FilmDetailView: View {
         .rotation3DEffect(.degrees(shimmyRotation), axis: (x: 0, y: 1, z: 0))
         .onAppear {
             let shimmyAnimation = Animation
-                .bouncy(duration: 1.2, extraBounce: 0.3)
+                .bouncy(duration: 1.2, extraBounce: 0.4)
                 .repeatCount(2)
 
             withAnimation(shimmyAnimation) {
@@ -299,93 +282,27 @@ struct FilmDetailView: View {
         )
     }
 
-    // MARK: CommentsView
+    // MARK: SeasonsScrollView
 
-    struct CommentsView: View {
-        let comments: [Comment]
+    struct SeasonsScrollView: View {
+        @ObservedObject var viewModel: FilmDetailView.ViewModel
 
         var body: some View {
-            Text("Comments")
+            Text("Seasons")
                 .font(.system(size: 16, weight: .bold))
                 .foregroundStyle(Color(uiColor: .systemGray2))
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.top, 45)
 
-            VStack(spacing: 15) {
-                ForEach(comments) { comment in
-                    VStack(spacing: 0) {
-                        // TODO: Format Date
-                        Text(comment.date?.description ?? "")
-                            .font(.system(size: 14, weight: .regular))
-                            .frame(maxWidth: .infinity, alignment: .leading)
-
-                        Text(comment.text ?? "")
-                            .font(.system(size: 14, weight: .regular))
-                            .frame(maxWidth: .infinity, alignment: .leading)
-
-                    }
-                    .padding(15)
-                    .background {
-                        Color(.white).opacity(0.1)
-                            .clipShape(RoundedRectangle(cornerRadius: 15))
-                    }
-
-                }
-            }
-            .padding(.top, 15)
-        }
-    }
-}
-
-// MARK: CommentModalView
-
-struct CommentModalView: View {
-    @ObservedObject var vm: FilmDetailView.ViewModel
-
-    @Environment(\.dismiss) private var dismiss
-
-    @State private var text: String = ""
-
-    var body: some View {
-        VStack(spacing: 0) {
-            TextField(text: $text) {
-                Text("Enter a comment...")
-                    .foregroundStyle(Color(uiColor: MovieNightColors.subtitle))
-            }
-
-            Spacer()
-
-            Button {
-                vm.addComment(text: text)
-                dismiss()
-
-            } label: {
-                Text("Submit")
-                    .font(.system(size: 16, weight: .regular))
-                    .foregroundStyle(.white)
-                    .padding(.vertical, 15)
-                    .frame(maxWidth: .infinity)
-            }
-            .background {
-                ZStack {
-                    Color(uiColor: vm.averageColor)
-
-                    if text.isEmpty == false {
-                        Color(.black).opacity(0.6)
-                    } else {
-                        Color(.black).opacity(0.2)
+            ScrollView(.horizontal) {
+                HStack(spacing: 10) {
+                    ForEach(viewModel.seasons, id: \.id) { season in
+                        SeasonPosterView(posterPath: season.posterPath, seasonNum: season.seasonNumber)
                     }
                 }
+                .padding([.horizontal], 30)
             }
-            .clipShape(RoundedRectangle(cornerRadius: 15))
-            .padding(.horizontal, 30)
-        }
-        .padding(.top, 40)
-        .padding(.horizontal, 30)
-        .frame(maxHeight: .infinity)
-        .background {
-            Color(uiColor: vm.averageColor)
-                .ignoresSafeArea()
+            .scrollIndicators(.hidden)
+            .padding([.horizontal], -30)
         }
     }
 }
@@ -413,10 +330,6 @@ extension FilmDetailView {
         @Published var seasons: [AdditionalDetailsTVShow.Season] = []
         @Published var trailer: AdditionalDetailsMovie.VideoResponse.Video?
         @Published var genres: String?
-
-        public var hasComments: Bool {
-            !(self.filmDisplay.comments.isEmpty)
-        }
 
         private let movieProvider: MovieProvider = .shared
 

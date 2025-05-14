@@ -77,7 +77,6 @@ class SearchViewModel: ObservableObject {
     public func getTrendingMovies() async -> [ResponseType] {
         do {
             let response: SearchResponse = try await networkManager.request(TrendingEndpoint.movies)
-
             return response.results
         } catch {
             print("⛔️ Error fetching trending movies: \(error)")

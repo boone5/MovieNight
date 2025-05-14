@@ -35,32 +35,12 @@ struct MovieActionsView: View {
     var body: some View {
         VStack(spacing: 15) {
             ActionCell {
-                Text("Mark as Watched")
-                    .font(.system(size: 14, weight: .regular))
-                    .foregroundStyle(.white)
-
-            } trailingItem: {
-                Image(systemName: "rectangle.badge.plus")
-                    .foregroundStyle(.white)
-            }
-
-            ActionCell {
-                Text("Add to Watch List")
-                    .font(.system(size: 14, weight: .regular))
-                    .foregroundStyle(.white)
-
-            } trailingItem: {
-                Image(systemName: "rectangle.stack.badge.plus")
-                    .foregroundStyle(.white)
-            }
-
-            ActionCell {
                 Text("Watched with")
                     .font(.system(size: 14, weight: .regular))
                     .foregroundStyle(.white)
 
             } trailingItem: {
-                Image(systemName: "person.crop.circle.fill.badge.plus")
+                Image(systemName: "person.crop.circle.badge.plus")
                     .foregroundStyle(.white)
             }
 

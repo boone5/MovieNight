@@ -75,7 +75,7 @@ struct SearchScreen: View {
                     }
                     .task {
                         async let movies = viewModel.getTrendingMovies()
-                        async let shows = await viewModel.getTrendingTVShows()
+                        async let shows = viewModel.getTrendingTVShows()
 
                         self.trendingMovies = await movies
                         self.trendingTVShows = await shows

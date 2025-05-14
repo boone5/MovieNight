@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ButtonsContainerView: View {
+struct FeedbackButtons: View {
     @Binding public var isLiked: Bool
     @Binding public var isLoved: Bool
     @Binding public var isDisliked: Bool
@@ -15,41 +15,71 @@ struct ButtonsContainerView: View {
     public let averageColor: UIColor
 
     public var didAddActivity: ((Bool, Bool, Bool) -> ())? = nil
-    public var didTapAddComment: (() -> Void)? = nil
-    public var comment: String? = nil
 
     var body: some View {
-        HStack(spacing: 15) {
-            ButtonView(type: .like(enabled: isLiked)) {
+        HStack(spacing: 20) {
+            ButtonView(type: .like(enabled: isLiked), averageColor: averageColor) {
                 isLiked.toggle()
                 isDisliked = false
                 isLoved = false
                 didAddActivity?(isLiked, isLoved, isDisliked)
             }
 
-            ButtonView(type: .dislike(enabled: isDisliked)) {
+            ButtonView(type: .dislike(enabled: isDisliked), averageColor: averageColor) {
                 isLiked = false
                 isDisliked.toggle()
                 isLoved = false
                 didAddActivity?(isLiked, isLoved, isDisliked)
             }
 
-            ButtonView(type: .love(enabled: isLoved)) {
+            ButtonView(type: .love(enabled: isLoved), averageColor: averageColor) {
                 isLiked = false
                 isDisliked = false
                 isLoved.toggle()
                 didAddActivity?(isLiked, isLoved, isDisliked)
             }
+        }
+    }
 
-            ButtonView(type: .comment) {
-                didTapAddComment?()
+    fileprivate struct ButtonView: View {
+        let type: Feedback
+        let averageColor: UIColor
+        let action: () -> Void
+
+        var isEnabled: Bool {
+            switch type {
+            case .like(let enabled):
+                enabled
+            case .dislike(let enabled):
+                enabled
+            case .love(let enabled):
+                enabled
             }
         }
-        .padding(.vertical, 15)
-        .frame(maxWidth: .infinity)
-        .background {
-            Color(uiColor: averageColor).opacity(0.3)
-                .clipShape(RoundedRectangle(cornerRadius: 15))
+
+        var body: some View {
+            Button {
+                action()
+            } label: {
+                Image(systemName: type.imageName)
+                    .resizable()
+                    .frame(width: 35, height: 35)
+                    .font(.system(size: 24, weight: .medium))
+                    .foregroundStyle(type.color)
+                    .padding(20)
+                    .background {
+                        Group {
+                            if isEnabled {
+                                Color(type.color).opacity(0.2)
+                            } else {
+                                Color(uiColor: averageColor).opacity(0.4)
+
+                            }
+                        }
+                        .clipShape(Circle())
+                        .shadow(color: .black.opacity(0.4), radius: 6, y: 3)
+                    }
+            }
         }
     }
 }
@@ -58,7 +88,6 @@ enum Feedback {
     case like(enabled: Bool)
     case dislike(enabled: Bool)
     case love(enabled: Bool)
-    case comment
 
     var imageName: String {
         switch self {
@@ -74,8 +103,6 @@ enum Feedback {
             "heart.fill"
         case .love(false):
             "heart"
-        case .comment:
-            "text.bubble"
         }
     }
 
@@ -87,29 +114,8 @@ enum Feedback {
             Color(.burntOrange)
         case .love(true):
             .red
-        case .like(false), .dislike(false), .love(false), .comment:
+        case .like(false), .dislike(false), .love(false):
             .white
-        }
-    }
-}
-
-fileprivate struct ButtonView: View {
-    let type: Feedback
-    let action: () -> Void
-
-    var body: some View {
-        Button {
-            action()
-        } label: {
-            Image(systemName: type.imageName)
-                .font(.system(size: 24, weight: .medium))
-                .foregroundStyle(type.color)
-                .padding(20)
-                .background {
-                    Color(type.color).opacity(0.2)
-                        .clipShape(Circle())
-                        .shadow(color: .black.opacity(0.4), radius: 6, y: 3)
-                }
         }
     }
 }

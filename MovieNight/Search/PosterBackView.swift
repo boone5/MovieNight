@@ -81,32 +81,6 @@ struct PosterBackView: View {
                         .font(.system(size: 14, weight: .regular))
                         .padding(.top, 10)
                         .padding(.horizontal, 15)
-
-                    Text("Cast")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundStyle(.white).opacity(0.6)
-                        .padding(.top, 30)
-                        .padding(.horizontal, 15)
-
-                    ScrollView(.horizontal) {
-                        HStack(spacing: 15) {
-                            ForEach(1..<5) { _ in
-                                VStack {
-                                    Circle()
-                                        .frame(width: 60, height: 60)
-                                        .foregroundStyle(Color(uiColor: .systemGray4))
-
-                                    Text("Leonardo")
-                                        .font(.system(size: 12, weight: .regular))
-                                        .foregroundStyle(Color(uiColor: .systemGray2))
-                                }
-                            }
-                        }
-                        .padding(.top, 10)
-                        .padding(.horizontal, 15)
-                        .padding(.bottom, 45)
-                    }
                 }
                 .padding(.bottom, 30)
             }

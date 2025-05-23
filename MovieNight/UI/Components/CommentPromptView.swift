@@ -56,6 +56,11 @@ struct CommentPromptView: View {
 
             if !comments.isEmpty {
                 VStack(spacing: 20) {
+                    Rectangle()
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 0.2)
+                        .foregroundStyle(.white)
+
                     ForEach(comments) { comment in
                         VStack(alignment: .leading) {
                             // TODO: Format Date
@@ -76,7 +81,6 @@ struct CommentPromptView: View {
                         }
                     }
                 }
-//                .padding(.top, 10)
             }
         }
         .padding(20)

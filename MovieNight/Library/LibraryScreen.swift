@@ -13,13 +13,6 @@ struct LibraryScreen: View {
     @FetchRequest(fetchRequest: Film.recentlyWatched())
     private var recentlyWatchedFilms: FetchedResults<Film>
 
-    @FetchRequest(
-        entity: Film.entity(),
-        sortDescriptors: [NSSortDescriptor(keyPath: \Film.dateWatched, ascending: true)],
-        predicate: NSPredicate(format: "collection.id == %@", FilmCollection.watchLaterID as CVarArg)
-    )
-    private var watchList: FetchedResults<Film>
-
     @State private var navigationPath = NavigationPath()
     @State var isExpanded: Bool = false
     @State var selectedFilm: SelectedFilm?
@@ -38,7 +31,7 @@ struct LibraryScreen: View {
                     .padding(.top, 15)
                     .padding(.bottom, 20)
 
-                    if recentlyWatchedFilms.isEmpty && watchList.isEmpty {
+                    if recentlyWatchedFilms.isEmpty {
                         Spacer()
                         Text("Start watching films to build your library.")
                             .font(.system(size: 14, weight: .semibold))
@@ -59,20 +52,6 @@ struct LibraryScreen: View {
                                     isExpanded: $isExpanded,
                                     selectedFilm: $selectedFilm,
                                     namespace: namespace
-                                )
-
-                                Text("Watch List")
-                                    .font(.system(size: 18, weight: .bold))
-                                    .padding([.leading, .bottom], 15)
-                                    .padding(.top, 30)
-
-                                FilmRow(
-                                    items: Array(watchList),
-                                    isExpanded: $isExpanded,
-                                    selectedFilm: $selectedFilm,
-                                    namespace: namespace,
-                                    thumbnailWidth: 100,
-                                    thumbnailHeight: 150
                                 )
 
                                 CollectionsView()

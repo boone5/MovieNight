@@ -38,7 +38,7 @@ struct FilmRow: View {
 
     var body: some View {
         ScrollView(.horizontal) {
-            HStack(spacing: 15) {
+            LazyHStack(spacing: 15) {
                 ForEach(items, id: \.id) { film in
                     if selectedFilm?.id == film.id, isExpanded {
                         RoundedRectangle(cornerRadius: 15)

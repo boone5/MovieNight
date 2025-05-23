@@ -24,9 +24,9 @@ extension TrendingEndpoint {
     func path() -> String {
         switch self {
         case .movies:
-            "/3/trending/movie/week"
+            "/3/trending/movie/day"
         case .tvShow:
-            "/3/trending/tv/week"
+            "/3/trending/tv/day"
         }
 
     }

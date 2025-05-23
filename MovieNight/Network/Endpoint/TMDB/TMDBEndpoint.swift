@@ -8,7 +8,7 @@
 import Foundation
 
 enum TMDBEndpoint: EndpointProviding {
-    case movieDetails(id: Int64, hasTrailer: Bool)
+    case movieDetails(id: Int64)
     case tvShowDetails(id: Int64)
 }
 
@@ -23,7 +23,7 @@ extension TMDBEndpoint {
     
     func path() -> String {
         switch self {
-        case .movieDetails(let id, _):
+        case .movieDetails(let id):
             "/3/movie/\(id)"
         case .tvShowDetails(let id):
             "/3/tv/\(id)"
@@ -32,8 +32,8 @@ extension TMDBEndpoint {
 
     func queryItems() -> [URLQueryItem]? {
         switch self {
-        case .movieDetails(let id, let hasTrailer):
-            [.init(name: "append_to_response", value: "videos,images")]
+        case .movieDetails:
+            [.init(name: "append_to_response", value: "videos,credits")]
         case .tvShowDetails:
             nil
         }

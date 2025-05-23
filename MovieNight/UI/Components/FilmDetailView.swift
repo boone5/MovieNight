@@ -18,8 +18,8 @@ import YouTubePlayerKit
     @Previewable @Namespace var namespace
 
     let previewCD = MovieProvider.preview.container.viewContext
-    let film: ResponseType = ResponseType.movie(MovieResponse())
-//    let film: ResponseType = ResponseType.tvShow(TVShowResponse())
+//    let film: ResponseType = ResponseType.movie(MovieResponse())
+    let film: ResponseType = ResponseType.tvShow(TVShowResponse())
 
     FilmDetailView(film: film, namespace: namespace, isExpanded: $isExpanded, uiImage: nil)
 }
@@ -124,8 +124,13 @@ struct FilmDetailView: View {
                         SeasonsScrollView(viewModel: viewModel)
                             .padding(.top, 30)
                     }
+
+                    CastScrollView(averageColor: viewModel.averageColor, cast: viewModel.cast)
+                        .padding(.top, 30)
                 }
                 .opacity(presentationDidFinish ? 1 : 0)
+
+                Spacer()
             }
             .padding(.vertical, 80)
             .padding(.horizontal, 20)
@@ -288,21 +293,25 @@ struct FilmDetailView: View {
         @ObservedObject var viewModel: FilmDetailView.ViewModel
 
         var body: some View {
-            Text("Seasons")
-                .font(.system(size: 16, weight: .bold))
-                .foregroundStyle(Color(uiColor: .systemGray2))
-                .frame(maxWidth: .infinity, alignment: .leading)
+            VStack(alignment: .leading, spacing: 20) {
+                Text("Seasons Watched")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(.white)
 
-            ScrollView(.horizontal) {
-                HStack(spacing: 10) {
-                    ForEach(viewModel.seasons, id: \.id) { season in
-                        SeasonPosterView(posterPath: season.posterPath, seasonNum: season.seasonNumber)
+                ScrollView(.horizontal) {
+                    HStack(spacing: 10) {
+                        ForEach(viewModel.seasons, id: \.id) { season in
+                            SeasonPosterView(posterPath: season.posterPath, seasonNum: season.seasonNumber)
+                        }
                     }
+                    .padding([.horizontal], 30)
                 }
-                .padding([.horizontal], 30)
+                .scrollIndicators(.hidden)
+                .padding([.horizontal], -30)
             }
-            .scrollIndicators(.hidden)
-            .padding([.horizontal], -30)
+            .padding(20)
+            .background(Color(uiColor: viewModel.averageColor).opacity(0.4))
+            .cornerRadius(12)
         }
     }
 }
@@ -325,8 +334,8 @@ extension FilmDetailView {
         @Published var isLoved: Bool = false
         @Published var isDisliked: Bool = false
 
-        @Published public var menuActions: [UIMenu] = []
-
+        @Published var menuActions: [UIMenu] = []
+        @Published var cast: [ActorResponse.Actor] = []
         @Published var seasons: [AdditionalDetailsTVShow.Season] = []
         @Published var trailer: AdditionalDetailsMovie.VideoResponse.Video?
         @Published var genres: String?
@@ -450,7 +459,7 @@ extension FilmDetailView {
         
         public func getAdditionalDetailsMovie() async {
             do {
-                let endpoint = TMDBEndpoint.movieDetails(id: filmDisplay.id, hasTrailer: filmDisplay.hasTrailer)
+                let endpoint = TMDBEndpoint.movieDetails(id: filmDisplay.id)
                 let movieDetails: AdditionalDetailsMovie = try await NetworkManager().request(endpoint)
                 let genres = movieDetails.genres.map { $0.name }.joined(separator: ", ")
 
@@ -458,6 +467,7 @@ extension FilmDetailView {
                     try await MainActor.run {
                         self.trailer = try movieDetails.videos.trailer()
                         self.genres = genres
+                        self.cast = Array(movieDetails.actorsOrderedByPopularity().prefix(10))
                     }
 
                 } catch {

@@ -11,9 +11,6 @@ import SwiftUI
 class SearchViewModel: ObservableObject {
     @Published var results: [ResponseType] = []
 
-    // Explore
-    @Published var trendingMovies = [ResponseType]()
-
     public var isLoading: Bool {
         state == .loading
     }
@@ -71,27 +68,6 @@ class SearchViewModel: ObservableObject {
             print("⛔️ Decoding error: \(error)")
         } catch {
             print("⛔️ Network error: \(error)")
-        }
-    }
-
-    public func getTrendingMovies() async -> [ResponseType] {
-        do {
-            let response: SearchResponse = try await networkManager.request(TrendingEndpoint.movies)
-            return response.results
-        } catch {
-            print("⛔️ Error fetching trending movies: \(error)")
-            return []
-        }
-    }
-
-    public func getTrendingTVShows() async -> [ResponseType] {
-        do {
-            let response: SearchResponse = try await networkManager.request(TrendingEndpoint.tvShow)
-
-            return response.results
-        } catch {
-            print("⛔️ Error fetching trending tv shows: \(error)")
-            return []
         }
     }
 }

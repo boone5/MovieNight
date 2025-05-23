@@ -24,8 +24,6 @@ struct SearchScreen: View {
 
     // View Properties
     @State private var searchState: SearchState = .explore
-    @State private var trendingMovies: [ResponseType] = []
-    @State private var trendingTVShows: [ResponseType] = []
 
     // Expanded View Properties
     @State private var isExpanded: Bool = false
@@ -64,22 +62,11 @@ struct SearchScreen: View {
 
                 switch searchState {
                 case .explore:
-                    ScrollView {
-                        ExploreView(
-                            trendingMovies: trendingMovies,
-                            trendingTVShows: trendingTVShows,
-                            namespace: namespace,
-                            isExpanded: $isExpanded,
-                            selectedFilm: $selectedFilm
-                        )
-                    }
-                    .task {
-                        async let movies = viewModel.getTrendingMovies()
-                        async let shows = viewModel.getTrendingTVShows()
-
-                        self.trendingMovies = await movies
-                        self.trendingTVShows = await shows
-                    }
+                    ExploreView(
+                        namespace: namespace,
+                        isExpanded: $isExpanded,
+                        selectedFilm: $selectedFilm
+                    )
 
                 case .results:
                     // Loading View

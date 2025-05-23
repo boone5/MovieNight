@@ -61,32 +61,11 @@ final class MovieProvider {
         if container.viewContext.hasChanges {
             do {
                 try container.viewContext.save()
-
+                
                 print("✅ Successfully saved Movie into Core Data")
             } catch {
                 print("⛔️ Error saving Movie into Core Data: \(error.localizedDescription)")
             }
-        }
-    }
-
-    @discardableResult
-    public func filmExists(_ id: Int64) -> Bool {
-        let fetchRequest: NSFetchRequest<Film> = Film.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "id == %d", id)
-        fetchRequest.fetchLimit = 1  // Limit to improve performance
-
-        do {
-            let count = try container.viewContext.count(for: fetchRequest)
-            if count > 0 {
-                return true
-            }
-            else {
-                return false
-            }
-
-        } catch {
-            print("Error checking if film exists: \(error)")
-            return false
         }
     }
 
@@ -99,11 +78,9 @@ final class MovieProvider {
             let results = try container.viewContext.fetch(fetchRequest)
             if let movie = results.first {
                 return movie
-            } else {
-                print("No movie found with ID \(id)")
             }
         } catch {
-            print("Error fetching movie for deletion: \(error)")
+            print("⛔️ Error fetching film: \(error)")
         }
 
         return nil
@@ -116,7 +93,7 @@ final class MovieProvider {
         do {
             return try container.viewContext.fetch(request).first
         } catch {
-            print("⛔️ Error fetching Collection from Core Data: \(error)")
+            print("⛔️ Error fetching Collection: \(error)")
             return nil
         }
     }

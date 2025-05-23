@@ -24,6 +24,8 @@ struct AdditionalDetailsMovie: Codable {
 
     // Appended to response
     let videos: VideoResponse
+    let credits: ActorResponse?
+
     enum CodingKeys: String, CodingKey {
         case backdropPath = "backdrop_path"
         case originalLanguage = "original_language"
@@ -32,7 +34,7 @@ struct AdditionalDetailsMovie: Codable {
         case releaseDate = "release_date"
         case voteAverage = "vote_average"
         case voteCount = "vote_count"
-        case revenue, runtime, status, tagline, title, video, videos, overview, popularity, genres, id, adult
+        case revenue, runtime, status, tagline, title, video, videos, overview, popularity, genres, id, adult, credits
     }
 
     // MARK: - SpokenLanguage
@@ -128,5 +130,12 @@ struct AdditionalDetailsMovie: Codable {
         //            case backdropPath = "backdrop_path"
         //        }
         //    }
+    }
+}
+
+extension AdditionalDetailsMovie {
+    public func actorsOrderedByPopularity() -> [ActorResponse.Actor] {
+        guard let actors = credits?.cast else { return [] }
+        return actors.sorted(by: { $0.popularity ?? 0 > $1.popularity ?? 0 })
     }
 }

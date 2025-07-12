@@ -8,7 +8,7 @@
 import Foundation
 
 // MARK: - AdditionalDetailsTVShow
-struct AdditionalDetailsTVShow: Codable {
+public struct AdditionalDetailsTVShow: Codable {
     let adult: Bool
     let backdropPath: String?
     let createdBy: [CreatedBy]
@@ -23,7 +23,7 @@ struct AdditionalDetailsTVShow: Codable {
     let originalLanguage, originalTitle, overview: String
     let popularity: Double
     let posterPath: String?
-    let seasons: [Season]?
+    let seasons: [SeasonResponse]?
     let firstAirDate: String
 
     let status, tagline: String
@@ -117,12 +117,12 @@ struct AdditionalDetailsTVShow: Codable {
     }
 
     // MARK: - Season
-    struct Season: Codable {
+    public struct SeasonResponse: Codable {
         let airDate: String?
         let episodeCount, id: Int
         let name, overview: String
         let posterPath: String?
-        let seasonNumber: Int
+        let number: Int
         let voteAverage: Double
 
         enum CodingKeys: String, CodingKey {
@@ -130,8 +130,23 @@ struct AdditionalDetailsTVShow: Codable {
             case episodeCount = "episode_count"
             case id, name, overview
             case posterPath = "poster_path"
-            case seasonNumber = "season_number"
+            case number = "season_number"
             case voteAverage = "vote_average"
         }
+
+        public func completed() {
+            // Core Data
+        }
+
+        public func remove() {
+            // Core Data
+        }
+    }
+}
+
+extension AdditionalDetailsTVShow {
+    public func releasedSeasons() -> [Self.SeasonResponse] {
+        guard let seasons else { return [] }
+        return seasons.filter { $0.episodeCount > 1 && $0.number != 0 }
     }
 }

@@ -99,7 +99,13 @@ final class MovieProvider {
     }
 
     @discardableResult
-    public func saveFilmToLibrary(_ film: DetailViewRepresentable, comment: Comment? = nil, isLiked: Bool, isDisliked: Bool, isLoved: Bool) -> Film {
+    public func saveFilmToLibrary(
+        _ film: DetailViewRepresentable,
+        comment: Comment? = nil,
+        isLiked: Bool,
+        isDisliked: Bool,
+        isLoved: Bool
+    ) -> Film {
         let movie = Film(context: container.viewContext)
         movie.title = film.title
         movie.id = film.id
@@ -210,10 +216,4 @@ final class MovieProvider {
             print("⛔️ Error preloading default data: \(error)")
         }
     }
-}
-
-extension FilmCollection {
-    static let movieID = UUID(uuidString: "00000000-0000-0000-0000-000000000001")!
-    static let tvShowID = UUID(uuidString: "00000000-0000-0000-0000-000000000002")!
-    static let watchLaterID = UUID(uuidString: "00000000-0000-0000-0000-000000000003")!
 }

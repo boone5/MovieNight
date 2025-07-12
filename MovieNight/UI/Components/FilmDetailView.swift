@@ -117,16 +117,19 @@ struct FilmDetailView: View {
                     )
                     .padding(.top, 30)
 
-                    ParticipantsView(averageColor: viewModel.averageColor)
-                        .padding(.top, 30)
+                    // V2 w/ Social Features
+//                    ParticipantsView(averageColor: viewModel.averageColor)
+//                        .padding(.top, 30)
 
                     if case .tvShow = viewModel.filmDisplay.mediaType {
                         SeasonsScrollView(viewModel: viewModel)
                             .padding(.top, 30)
                     }
 
-                    CastScrollView(averageColor: viewModel.averageColor, cast: viewModel.cast)
-                        .padding(.top, 30)
+                    if let cast = viewModel.cast {
+                        CastScrollView(averageColor: viewModel.averageColor, cast: cast)
+                            .padding(.top, 30)
+                    }
                 }
                 .opacity(presentationDidFinish ? 1 : 0)
 
@@ -301,7 +304,11 @@ struct FilmDetailView: View {
                 ScrollView(.horizontal) {
                     HStack(spacing: 10) {
                         ForEach(viewModel.seasons, id: \.id) { season in
-                            SeasonPosterView(posterPath: season.posterPath, seasonNum: season.seasonNumber)
+                            SeasonPosterView(
+                                posterPath: season.posterPath,
+                                seasonNum: season.number,
+                                averageColor: viewModel.averageColor
+                            )
                         }
                     }
                     .padding([.horizontal], 30)
@@ -319,13 +326,6 @@ struct FilmDetailView: View {
 // MARK: ViewModel
 
 extension FilmDetailView {
-
-    /*
-     - Check if current number of seasons watched and seasons released match before updating CoreData. New seasons can come out after a user has saved it.
-     - Could table this for later
-     - Could make notifications a premium feature when a new season is out
-     */
-
     class ViewModel: ObservableObject {
         @Published var averageColor: UIColor
         @Published var filmDisplay: FilmDisplay
@@ -335,8 +335,9 @@ extension FilmDetailView {
         @Published var isDisliked: Bool = false
 
         @Published var menuActions: [UIMenu] = []
-        @Published var cast: [ActorResponse.Actor] = []
-        @Published var seasons: [AdditionalDetailsTVShow.Season] = []
+        @Published var cast: [ActorResponse.Actor]?
+        @Published var seasons: [AdditionalDetailsTVShow.SeasonResponse] = []
+        @Published var seasonsWatched = [AdditionalDetailsTVShow.SeasonResponse]()
         @Published var trailer: AdditionalDetailsMovie.VideoResponse.Video?
         @Published var genres: String?
 
@@ -345,6 +346,7 @@ extension FilmDetailView {
         init(posterImage: UIImage?, film: some DetailViewRepresentable) {
             self.averageColor = posterImage?.averageColor ?? UIColor(resource: .brightRed)
 
+            // FIXME: Is performance an issue here? Could we move this to onAppear/onTask? Downcast instead?
             if let existingFilm = movieProvider.fetchFilmByID(film.id) {
                 isLiked = existingFilm.isLiked
                 isLoved = existingFilm.isLoved
@@ -359,40 +361,57 @@ extension FilmDetailView {
             setMenuActions()
         }
 
-        public func addComment(text: String) {
-            let date = Date()
-
+        public func saveToLibraryIfNecessary() -> Film {
             if let existingFilm = MovieProvider.shared.fetchFilmByID(filmDisplay.id) {
-                guard let context = existingFilm.managedObjectContext else { return }
-
-                let comment = Comment(context: context)
-                comment.date = date
-                comment.text = text
-                existingFilm.addToComments(comment)
-
-                do {
-                    try context.save()
-                } catch {
-                    print("Failed to save: \(error)")
-                }
-
-                self.filmDisplay = FilmDisplay(from: existingFilm)
-
+                existingFilm
             } else {
-                let comment = Comment(context: movieProvider.container.viewContext)
-                comment.text = text
-                comment.date = date
-
-                let coreDataFilm = movieProvider.saveFilmToLibrary(
+                movieProvider.saveFilmToLibrary(
                     filmDisplay,
-                    comment: comment,
                     isLiked: isLiked,
                     isDisliked: isDisliked,
                     isLoved: isLoved
                 )
-
-                self.filmDisplay = FilmDisplay(from: coreDataFilm)
             }
+        }
+
+        public func markSeasonAsWatched(_ season: AdditionalDetailsTVShow.SeasonResponse) {
+            let cdFilm = saveToLibraryIfNecessary()
+
+            guard let context = cdFilm.managedObjectContext else { return }
+
+            let seasonCD = Season(context: context)
+            seasonCD.id = Int64(season.id)
+            seasonCD.title = season.name
+            seasonCD.number = Int64(season.number)
+            cdFilm.addToSeasonsWatched(seasonCD)
+
+            do {
+                try context.save()
+            } catch {
+                print("Failed to save: \(error)")
+            }
+
+            self.filmDisplay = FilmDisplay(from: cdFilm)
+        }
+
+        public func addComment(text: String) {
+            let date = Date()
+            let cdFilm = saveToLibraryIfNecessary()
+
+            guard let context = cdFilm.managedObjectContext else { return }
+
+            let comment = Comment(context: context)
+            comment.date = date
+            comment.text = text
+            cdFilm.addToComments(comment)
+
+            do {
+                try context.save()
+            } catch {
+                print("Failed to save: \(error)")
+            }
+
+            self.filmDisplay = FilmDisplay(from: cdFilm)
         }
 
         public func addActivity(isLiked: Bool, isLoved: Bool, isDisliked: Bool) {
@@ -406,49 +425,35 @@ extension FilmDetailView {
             self.isLoved = isLoved
             self.isDisliked = isDisliked
 
-            if let existingFilm = MovieProvider.shared.fetchFilmByID(filmDisplay.id) {
-                guard let context = existingFilm.managedObjectContext else { return }
+            let cdFilm = saveToLibraryIfNecessary()
 
-                existingFilm.isLiked = isLiked
-                existingFilm.isLoved = isLoved
-                existingFilm.isDisliked = isDisliked
+            guard let context = cdFilm.managedObjectContext else { return }
 
-                do {
-                    try context.save()
-                } catch {
-                    print("Failed to save: \(error)")
-                }
+            cdFilm.isLiked = isLiked
+            cdFilm.isLoved = isLoved
+            cdFilm.isDisliked = isDisliked
 
-                self.filmDisplay = FilmDisplay(from: existingFilm)
-            } else {
-                let coreDataFilm = movieProvider.saveFilmToLibrary(
-                    filmDisplay,
-                    isLiked: isLiked,
-                    isDisliked: isDisliked,
-                    isLoved: isLoved
-                )
-                self.filmDisplay = FilmDisplay(from: coreDataFilm)
+            do {
+                try context.save()
+            } catch {
+                print("Failed to save: \(error)")
             }
+
+            self.filmDisplay = FilmDisplay(from: cdFilm)
 
             setMenuActions()
         }
 
+        // FIXME: Would be nice to live in its own service
         public func getAdditionalDetailsTVShow() async {
             do {
                 let endpoint = TMDBEndpoint.tvShowDetails(id: filmDisplay.id)
                 let tvShowDetails: AdditionalDetailsTVShow = try await NetworkManager().request(endpoint)
                 let genres = tvShowDetails.genres.map { $0.name }.joined(separator: ", ")
-
-                let releasedSeasons = tvShowDetails.seasons?.compactMap { season in
-                    if season.episodeCount > 1 && season.seasonNumber != 0 {
-                        return season
-                    } else {
-                        return nil
-                    }
-                }
+                let releasedSeasons = tvShowDetails.releasedSeasons()
 
                 await MainActor.run {
-                    self.seasons = releasedSeasons ?? []
+                    self.seasons = releasedSeasons
                     self.genres = genres
                 }
 
@@ -456,7 +461,8 @@ extension FilmDetailView {
                 print("⛔️ Error fetching additional details: \(error)")
             }
         }
-        
+
+        // FIXME: Would be nice to live in its own service
         public func getAdditionalDetailsMovie() async {
             do {
                 let endpoint = TMDBEndpoint.movieDetails(id: filmDisplay.id)
@@ -478,6 +484,9 @@ extension FilmDetailView {
                 print("⛔️ Error fetching additional details: \(error)")
             }
         }
+
+        // MARK: Menu Actions
+        // FIXME: Would be nice to live away from this VM
 
         private func removeFromLibrary() {
             self.isLiked = false

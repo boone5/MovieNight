@@ -38,6 +38,7 @@ struct CommentPromptView: View {
 
                     if text.isEmpty {
                         Text("What are your thoughts?")
+                            .font(.system(size: 14))
                             .foregroundStyle(.black.opacity(0.5))
                             .padding(.horizontal, 10)
                     }

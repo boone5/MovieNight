@@ -1,12 +1,11 @@
 //
-//  Details_CD.swift
+//  FilmDisplay.swift
 //  MovieNight
 //
-//  Created by Boone on 1/1/24.
+//  Created by Boone on 5/26/25.
 //
 
 import Foundation
-import CoreData
 
 struct FilmDisplay: DetailViewRepresentable {
     let id: Int64
@@ -44,27 +43,5 @@ struct FilmDisplay: DetailViewRepresentable {
 
         let comments = film.comments?.array as? [Comment] ?? []
         self.comments = comments
-    }
-}
-
-extension Film: DetailViewRepresentable {
-    var mediaType: MediaType {
-        switch mediaTypeAsString {
-        case MediaType.movie.rawValue:
-                .movie
-        case MediaType.tvShow.rawValue:
-                .tvShow
-        default:
-                .movie
-        }
-    }
-}
-
-extension Film {
-    public static func recentlyWatched() -> NSFetchRequest<Film> {
-        let request: NSFetchRequest<Film> = .init(entityName: "Film")
-        request.sortDescriptors = [NSSortDescriptor(key: "dateWatched", ascending: false)]
-        request.predicate = NSPredicate(format: "dateWatched != nil")
-        return request
     }
 }

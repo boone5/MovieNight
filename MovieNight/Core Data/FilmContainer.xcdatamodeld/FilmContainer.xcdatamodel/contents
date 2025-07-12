@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23788" systemVersion="24E5238a" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23788" systemVersion="24F5068b" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
     <entity name="Comment" representedClassName="Comment" syncable="YES" codeGenerationType="class">
         <attribute name="date" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="text" attributeType="String" defaultValueString=""/>
@@ -21,6 +21,7 @@
         <attribute name="title" optional="YES" attributeType="String"/>
         <relationship name="collection" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="FilmCollection" inverseName="films" inverseEntity="FilmCollection"/>
         <relationship name="comments" optional="YES" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="Comment" inverseName="film" inverseEntity="Comment"/>
+        <relationship name="seasonsWatched" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Season" inverseName="film" inverseEntity="Season"/>
     </entity>
     <entity name="FilmCollection" representedClassName="FilmCollection" syncable="YES" codeGenerationType="class">
         <attribute name="dateCreated" attributeType="Date" usesScalarValueType="NO"/>
@@ -28,5 +29,11 @@
         <attribute name="imageName" optional="YES" attributeType="String"/>
         <attribute name="title" optional="YES" attributeType="String"/>
         <relationship name="films" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Film" inverseName="collection" inverseEntity="Film"/>
+    </entity>
+    <entity name="Season" representedClassName="Season" syncable="YES" codeGenerationType="class">
+        <attribute name="id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="number" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="title" attributeType="String"/>
+        <relationship name="film" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Film" inverseName="seasonsWatched" inverseEntity="Film"/>
     </entity>
 </model>

@@ -8,7 +8,7 @@
 import SwiftUI
 
 #Preview {
-    SeasonPosterView(posterPath: nil, seasonNum: 1)
+    SeasonPosterView(posterPath: nil, seasonNum: 1, averageColor: .red)
 }
 
 struct SeasonPosterView: View {
@@ -16,9 +16,12 @@ struct SeasonPosterView: View {
     @StateObject private var viewModel = ThumbnailView.ViewModel()
     
     @State private var uiImage: UIImage?
+    @State private var isWatched: Bool = false
 
     let posterPath: String?
     let seasonNum: Int
+    let averageColor: UIColor
+    var didToggle: ((Bool) -> Void)? = nil
 
     var body: some View {
         ZStack {
@@ -41,10 +44,10 @@ struct SeasonPosterView: View {
             }
             .overlay(alignment: .center) {
                 VStack {
-                    Image(systemName: "circle")
+                    Image(systemName: isWatched ? "checkmark.circle.fill" : "circle")
                         .resizable()
                         .frame(width: 40, height: 40)
-                        .foregroundStyle(.gray)
+                        .foregroundStyle(Color(uiColor: averageColor))
 
                     Text("Season \(seasonNum)")
                         .font(.system(size: 14, weight: .regular))
@@ -57,6 +60,10 @@ struct SeasonPosterView: View {
             if let posterPath {
                 await loadImage(url: posterPath)
             }
+        }
+        .onTapGesture {
+            isWatched.toggle()
+            didToggle?(isWatched)
         }
     }
 

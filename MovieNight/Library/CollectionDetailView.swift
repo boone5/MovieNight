@@ -11,26 +11,22 @@ struct CollectionDetailView: View {
     let title: String?
     let films: [Film]
 
+    @State var isExpanded: Bool = false
+    @State var selectedFilm: SelectedFilm?
+    @Namespace private var namespace
+
     var body: some View {
-        ZStack {
-            Color.clear
-                .background {
-                    LinearGradient(
-                        colors: [Color("BackgroundColor1"), Color("BackgroundColor2")],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                }
-                .ignoresSafeArea()
-
-            VStack(spacing: 0) {
-                Text("Hello World")
+        BackgroundColorView {
+            ScrollView {
+                WatchList(
+                    watchList: films,
+                    namespace: namespace,
+                    isExpanded: $isExpanded,
+                    selectedFilm: $selectedFilm
+                )
+                .padding(.horizontal, 15)
             }
+            .navigationTitle(title ?? "-")
         }
-        .navigationTitle(title ?? "-")
     }
-}
-
-#Preview {
-    CollectionDetailView(title: "Hello World", films: [])
 }

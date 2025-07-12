@@ -71,6 +71,8 @@ struct WatchList: View {
                 }
                 .padding(.vertical, 5)
             }
+
+            Spacer()
         }
     }
 }

@@ -45,7 +45,7 @@ struct CollectionsView: View {
                     }
 
                     Rectangle()
-                        .foregroundStyle(.white.opacity(0.3))
+                        .foregroundStyle(.gray.opacity(0.3))
                         .frame(height: 1)
                 }
             }

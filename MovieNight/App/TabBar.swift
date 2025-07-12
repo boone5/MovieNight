@@ -22,7 +22,7 @@ struct TabBarView: View {
                         Label("Search", systemImage: "magnifyingglass")
                     }
 
-                WatchWheelView()
+                WheelScreen()
                     .tabItem {
                         Label("Wheel", systemImage: "chart.pie")
                     }

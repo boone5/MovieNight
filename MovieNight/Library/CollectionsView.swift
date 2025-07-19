@@ -13,14 +13,18 @@ import SwiftUI
 
 struct CollectionsView: View {
     @FetchRequest(sortDescriptors: [SortDescriptor(\.dateCreated, order: .forward)])
-    var collections: FetchedResults<FilmCollection>
+    private var collections: FetchedResults<FilmCollection>
+
+    private var visibleCollections: [FilmCollection] {
+        collections.filter { $0.id != FilmCollection.watchLaterID }
+    }
 
     var body: some View {
         VStack(alignment: .leading) {
             Text("Collections")
                 .font(.system(size: 18, weight: .bold))
 
-            ForEach(collections, id: \.self) { collection in
+            ForEach(visibleCollections, id: \.self) { collection in
                 VStack {
                     NavigationLink(value: collection) {
                         HStack(spacing: 15) {

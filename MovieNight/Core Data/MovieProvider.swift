@@ -216,4 +216,18 @@ final class MovieProvider {
             print("⛔️ Error preloading default data: \(error)")
         }
     }
+
+    static func makeMockFilms(count: Int) -> [Film] {
+        let context = MovieProvider.preview.container.viewContext
+        var films: [Film] = []
+
+        for i in 1...count {
+            let film = Film(context: context)
+            film.title = "Mock Film \(i)"
+            // Add other Film properties here
+            films.append(film)
+        }
+
+        return films
+    }
 }

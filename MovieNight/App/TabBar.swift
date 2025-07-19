@@ -22,9 +22,9 @@ struct TabBarView: View {
                         Label("Search", systemImage: "magnifyingglass")
                     }
 
-                WheelScreen()
+                UpNextScreen()
                     .tabItem {
-                        Label("Wheel", systemImage: "chart.pie")
+                        Label("Up Next", systemImage: "chart.pie")
                     }
                     .environment(\.managedObjectContext, MovieProvider.shared.container.viewContext)
             }
@@ -34,8 +34,6 @@ struct TabBarView: View {
     }
 }
 
-struct LandingPage_Previews: PreviewProvider {
-    static var previews: some View {
-        LandingPageScreen()
-    }
+#Preview {
+    TabBarView()
 }

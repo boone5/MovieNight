@@ -16,6 +16,11 @@ struct WatchList: View {
     @Binding var isExpanded: Bool
     @Binding var selectedFilm: SelectedFilm?
 
+    let gridItems: [GridItem] = [
+        GridItem(.flexible(), spacing: 20, alignment: .center),
+        GridItem(.flexible(), spacing: 20, alignment: .center)
+    ]
+
     init(
         watchList: [Film],
         namespace: Namespace.ID,
@@ -29,13 +34,13 @@ struct WatchList: View {
     }
 
     var body: some View {
-        LazyVStack(spacing: 15) {
-            ForEach(Array(watchList), id: \.id) { film in
-                HStack(spacing: 0) {
+        LazyVGrid(columns: gridItems, spacing: 20) {
+            ForEach(Array(watchList.enumerated()), id: \.element.id) { index, film in
+                Group {
                     if selectedFilm?.id == film.id, isExpanded {
                         RoundedRectangle(cornerRadius: 8)
                             .foregroundStyle(.gray)
-                            .frame(width: 80, height: 120)
+                            .frame(width: 150, height: 200)
                             .shadow(radius: 3, y: 4)
 
                     } else {
@@ -43,36 +48,19 @@ struct WatchList: View {
                             viewModel: thumbnailViewModel,
                             filmID: film.id,
                             posterPath: film.posterPath,
-                            width: 80,
-                            height: 120,
+                            width: 175,
+                            height: 225,
                             namespace: namespace
                         )
-                        .onTapGesture {
-                            withAnimation(.spring()) {
-                                isExpanded = true
-                                selectedFilm = SelectedFilm(id: film.id, film: film, posterImage: thumbnailViewModel.posterImage(for: film.posterPath))
-                            }
-                        }
                     }
-
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text(film.title ?? "")
-                            .font(.system(size: 16, weight: .medium))
-
-                        Text(film.mediaType.title)
-                            .font(.system(size: 14, weight: .regular))
-                    }
-                    .padding(.leading, 20)
-
-                    Spacer()
-
-                    Image(systemName: "chevron.right")
-                        .foregroundColor(.gray)
                 }
-                .padding(.vertical, 5)
+                .onTapGesture {
+                    withAnimation(.spring()) {
+                        isExpanded = true
+                        selectedFilm = SelectedFilm(id: film.id, film: film, posterImage: thumbnailViewModel.posterImage(for: film.posterPath))
+                    }
+                }
             }
-
-            Spacer()
         }
     }
 }

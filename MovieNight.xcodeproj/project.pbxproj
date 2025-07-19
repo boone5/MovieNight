@@ -47,6 +47,7 @@
 		D5C811322B9528E4005E206C /* MarqueeLightFrameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5C811312B9528E4005E206C /* MarqueeLightFrameView.swift */; };
 		D5C9D95E2E22C4DB007E7664 /* WheelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5C9D95D2E22C4DB007E7664 /* WheelView.swift */; };
 		D5C9D9602E22CE29007E7664 /* WatchList.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5C9D95F2E22CE29007E7664 /* WatchList.swift */; };
+		D5CA94F52E26010E0016CC3B /* SharedWithYouStackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5CA94F42E26010E0016CC3B /* SharedWithYouStackView.swift */; };
 		D5D06ED32B70231B00548157 /* RecommendedEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D06ED22B70231B00548157 /* RecommendedEndpoint.swift */; };
 		D5D06ED72B702E4200548157 /* LoadingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D06ED62B702E4200548157 /* LoadingState.swift */; };
 		D5D06EDB2B748BC500548157 /* CastEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D06EDA2B748BC500548157 /* CastEndpoint.swift */; };
@@ -72,7 +73,7 @@
 		D5EF68322C4760C4009A8435 /* FilmRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5EF68312C4760C4009A8435 /* FilmRow.swift */; };
 		D5F18D202BB0E6AB0067F719 /* AdditionalDetailsTVShow.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5F18D1F2BB0E6AB0067F719 /* AdditionalDetailsTVShow.swift */; };
 		D5F4593F2D920AD300D6E5F5 /* ActionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5F4593E2D920AD300D6E5F5 /* ActionView.swift */; };
-		D5F459432D98745D00D6E5F5 /* WheelScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5F459422D98745D00D6E5F5 /* WheelScreen.swift */; };
+		D5F459432D98745D00D6E5F5 /* UpNextScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5F459422D98745D00D6E5F5 /* UpNextScreen.swift */; };
 		D5F9AB812A888AA900C076CD /* MovieNightApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5F9AB802A888AA900C076CD /* MovieNightApp.swift */; };
 		D5F9AB832A888AA900C076CD /* SearchScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5F9AB822A888AA900C076CD /* SearchScreen.swift */; };
 		D5F9AB852A888AAA00C076CD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D5F9AB842A888AAA00C076CD /* Assets.xcassets */; };
@@ -137,6 +138,7 @@
 		D5C811312B9528E4005E206C /* MarqueeLightFrameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarqueeLightFrameView.swift; sourceTree = "<group>"; };
 		D5C9D95D2E22C4DB007E7664 /* WheelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WheelView.swift; sourceTree = "<group>"; };
 		D5C9D95F2E22CE29007E7664 /* WatchList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchList.swift; sourceTree = "<group>"; };
+		D5CA94F42E26010E0016CC3B /* SharedWithYouStackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedWithYouStackView.swift; sourceTree = "<group>"; };
 		D5D06ED22B70231B00548157 /* RecommendedEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendedEndpoint.swift; sourceTree = "<group>"; };
 		D5D06ED62B702E4200548157 /* LoadingState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingState.swift; sourceTree = "<group>"; };
 		D5D06EDA2B748BC500548157 /* CastEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CastEndpoint.swift; sourceTree = "<group>"; };
@@ -162,7 +164,7 @@
 		D5EF68312C4760C4009A8435 /* FilmRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilmRow.swift; sourceTree = "<group>"; };
 		D5F18D1F2BB0E6AB0067F719 /* AdditionalDetailsTVShow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdditionalDetailsTVShow.swift; sourceTree = "<group>"; };
 		D5F4593E2D920AD300D6E5F5 /* ActionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionView.swift; sourceTree = "<group>"; };
-		D5F459422D98745D00D6E5F5 /* WheelScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WheelScreen.swift; sourceTree = "<group>"; };
+		D5F459422D98745D00D6E5F5 /* UpNextScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpNextScreen.swift; sourceTree = "<group>"; };
 		D5F9AB7D2A888AA900C076CD /* MovieNight.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MovieNight.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D5F9AB802A888AA900C076CD /* MovieNightApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieNightApp.swift; sourceTree = "<group>"; };
 		D5F9AB822A888AA900C076CD /* SearchScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchScreen.swift; sourceTree = "<group>"; };
@@ -277,14 +279,15 @@
 			path = Explore;
 			sourceTree = "<group>";
 		};
-		D5C9D95C2E22C4D3007E7664 /* WatchWheelTab */ = {
+		D5C9D95C2E22C4D3007E7664 /* UpNextTab */ = {
 			isa = PBXGroup;
 			children = (
-				D5F459422D98745D00D6E5F5 /* WheelScreen.swift */,
+				D5F459422D98745D00D6E5F5 /* UpNextScreen.swift */,
 				D5C9D95D2E22C4DB007E7664 /* WheelView.swift */,
 				D5C9D95F2E22CE29007E7664 /* WatchList.swift */,
+				D5CA94F42E26010E0016CC3B /* SharedWithYouStackView.swift */,
 			);
-			path = WatchWheelTab;
+			path = UpNextTab;
 			sourceTree = "<group>";
 		};
 		D5D7B62B2AA69AE900BA6619 /* Network */ = {
@@ -434,7 +437,7 @@
 		D5F9AB7F2A888AA900C076CD /* MovieNight */ = {
 			isa = PBXGroup;
 			children = (
-				D5C9D95C2E22C4D3007E7664 /* WatchWheelTab */,
+				D5C9D95C2E22C4D3007E7664 /* UpNextTab */,
 				D52CEBB52D2D853E006E4120 /* Util */,
 				D5E692122B3E6DA400466A34 /* App */,
 				D5E692132B3E6F7B00466A34 /* Services */,
@@ -662,7 +665,8 @@
 				D52CEBBB2D307DF0006E4120 /* CollectionsView.swift in Sources */,
 				D5C811322B9528E4005E206C /* MarqueeLightFrameView.swift in Sources */,
 				D51FA58E2BCCC6D40063BBDA /* LandingPageScreen.swift in Sources */,
-				D5F459432D98745D00D6E5F5 /* WheelScreen.swift in Sources */,
+				D5CA94F52E26010E0016CC3B /* SharedWithYouStackView.swift in Sources */,
+				D5F459432D98745D00D6E5F5 /* UpNextScreen.swift in Sources */,
 				D5E71AF02BE09BD60034D46B /* LogInScreen.swift in Sources */,
 				D531F2CD2D6A3303005B25D2 /* FlippablePosterView.swift in Sources */,
 				D5EF68262C42EA7C009A8435 /* ExploreView.swift in Sources */,

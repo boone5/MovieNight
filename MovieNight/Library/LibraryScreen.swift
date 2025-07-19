@@ -61,23 +61,22 @@ struct LibraryScreen: View {
                         }
                     }
                 }
-                .opacity(isExpanded ? 0 : 1)
-                .overlay {
-                    if let selectedFilm, isExpanded {
-                        FilmDetailView(
-                            film: selectedFilm.film,
-                            namespace: namespace,
-                            isExpanded: $isExpanded,
-                            uiImage: selectedFilm.posterImage
-                        )
-                        .transition(.asymmetric(insertion: .identity, removal: .opacity))
-                    }
-                }
-                .toolbar(isExpanded ? .hidden : .visible, for: .tabBar)
             }
             .navigationDestination(for: FilmCollection.self) { collection in
                 let films = collection.films?.array as? [Film] ?? []
                 CollectionDetailView(title: collection.title, films: films)
+            }
+            .opacity(isExpanded ? 0 : 1)
+            .overlay {
+                if let selectedFilm, isExpanded {
+                    FilmDetailView(
+                        film: selectedFilm.film,
+                        namespace: namespace,
+                        isExpanded: $isExpanded,
+                        uiImage: selectedFilm.posterImage
+                    )
+                    .transition(.asymmetric(insertion: .identity, removal: .opacity))
+                }
             }
         }
     }

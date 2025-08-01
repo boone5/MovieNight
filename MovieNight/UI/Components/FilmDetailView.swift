@@ -169,6 +169,7 @@ struct FilmDetailView: View {
             }
         }
         .task {
+            await viewModel.loadInitialData()
             if viewModel.filmDisplay.mediaType == .movie {
                 await viewModel.getAdditionalDetailsMovie()
             } else {
@@ -342,20 +343,29 @@ extension FilmDetailView {
         @Published var genres: String?
 
         private let movieProvider: MovieProvider = .shared
+        private let posterImage: UIImage?
 
         init(posterImage: UIImage?, film: some DetailViewRepresentable) {
-            self.averageColor = posterImage?.averageColor ?? UIColor(resource: .brightRed)
+            self.posterImage = posterImage
+            self.averageColor = UIColor(resource: .brightRed)
+            self.filmDisplay = FilmDisplay(from: film)
+        }
 
-            // FIXME: Is performance an issue here? Could we move this to onAppear/onTask? Downcast instead?
-            if let existingFilm = movieProvider.fetchFilmByID(film.id) {
+        @MainActor
+        func loadInitialData() async {
+            if let image = posterImage {
+                let color = await Task.detached(priority: .userInitiated) {
+                    image.averageColor
+                }.value
+
+                self.averageColor = color
+            }
+
+            if let existingFilm = movieProvider.fetchFilmByID(filmDisplay.id) {
                 isLiked = existingFilm.isLiked
                 isLoved = existingFilm.isLoved
                 isDisliked = existingFilm.isDisliked
-
                 self.filmDisplay = FilmDisplay(from: existingFilm)
-
-            } else {
-                self.filmDisplay = FilmDisplay(from: film)
             }
 
             setMenuActions()

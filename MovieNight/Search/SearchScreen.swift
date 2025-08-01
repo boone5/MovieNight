@@ -107,6 +107,9 @@ struct SearchScreen: View {
 
                 shouldLoad = false
             }
+            .onChange(of: searchText) { newValue in
+                viewModel.search(query: newValue)
+            }
         }
     }
 

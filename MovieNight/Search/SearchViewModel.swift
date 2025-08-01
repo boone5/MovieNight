@@ -11,6 +11,8 @@ import SwiftUI
 class SearchViewModel: ObservableObject {
     @Published var results: [ResponseType] = []
 
+    private let debouncer = Debouncer(delay: 0.5)
+
     public var isLoading: Bool {
         state == .loading
     }
@@ -19,6 +21,18 @@ class SearchViewModel: ObservableObject {
     private var page: Int = 1
     private var networkManager = NetworkManager()
     private var searchQuery: String = ""
+
+    func search(query: String) {
+        guard !query.isEmpty else {
+            debouncer.cancel()
+            results = []
+            return
+        }
+
+        debouncer.run { [weak self] in
+            await self?.fetchAllResults(for: query)
+        }
+    }
 
     func fetchAllResults(for query: String) async {
         self.searchQuery = query

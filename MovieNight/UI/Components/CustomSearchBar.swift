@@ -26,7 +26,11 @@ struct SearchBar: View {
                 .animation(.easeInOut, value: searchText)
 
             if !searchText.isEmpty {
-                Text("Cancel")
+                Button {
+                    searchText.removeAll()
+                } label: {
+                    Text("Cancel")
+                }
             }
         }
     }

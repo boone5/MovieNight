@@ -73,6 +73,7 @@ struct SearchScreen: View {
 
                     // Results
                     ListView(
+                        viewModel: viewModel,
                         results: viewModel.results,
                         namespace: namespace,
                         isExpanded: $isExpanded,
@@ -135,78 +136,74 @@ struct SearchScreen: View {
 }
 
 struct ListView: View {
+    @StateObject private var thumbnailViewModel = ThumbnailView.ViewModel()
+
+    @ObservedObject var viewModel: SearchViewModel
     let results: [DetailViewRepresentable]
     let namespace: Namespace.ID
-
-    @StateObject private var thumbnailViewModel = ThumbnailView.ViewModel()
 
     @Binding var isExpanded: Bool
     @Binding var selectedFilm: SelectedFilm?
 
-    init(
-        results: [DetailViewRepresentable],
-        namespace: Namespace.ID,
-        isExpanded: Binding<Bool>,
-        selectedFilm: Binding<SelectedFilm?>
-    ) {
-        self.results = results
-        self.namespace = namespace
-        _isExpanded = isExpanded
-        _selectedFilm = selectedFilm
-    }
-
     var body: some View {
         List {
-            Group {
-                ForEach(results, id: \.id) { film in
-                    HStack(spacing: 0) {
-                        if selectedFilm?.id == film.id, isExpanded {
-                            RoundedRectangle(cornerRadius: 8)
-                                .foregroundStyle(.gray)
-                                .frame(width: 80, height: 120)
-                                .shadow(radius: 3, y: 4)
+            if !results.isEmpty {
+                Group {
+                    ForEach(results, id: \.id) { film in
+                        HStack(spacing: 0) {
+                            if selectedFilm?.id == film.id, isExpanded {
+                                RoundedRectangle(cornerRadius: 8)
+                                    .foregroundStyle(.gray)
+                                    .frame(width: 80, height: 120)
+                                    .shadow(radius: 3, y: 4)
 
-                        } else {
-                            ThumbnailView(
-                                viewModel: thumbnailViewModel,
-                                filmID: film.id,
-                                posterPath: film.posterPath,
-                                width: 80,
-                                height: 120,
-                                namespace: namespace
-                            )
-                            .onTapGesture {
-                                withAnimation(.spring()) {
-                                    isExpanded = true
-                                    selectedFilm = SelectedFilm(id: film.id, film: film, posterImage: thumbnailViewModel.posterImage(for: film.posterPath))
+                            } else {
+                                ThumbnailView(
+                                    viewModel: thumbnailViewModel,
+                                    filmID: film.id,
+                                    posterPath: film.posterPath,
+                                    width: 80,
+                                    height: 120,
+                                    namespace: namespace
+                                )
+                                .onTapGesture {
+                                    withAnimation(.spring()) {
+                                        isExpanded = true
+                                        selectedFilm = SelectedFilm(id: film.id, film: film, posterImage: thumbnailViewModel.posterImage(for: film.posterPath))
+                                    }
                                 }
                             }
+
+                            VStack(alignment: .leading, spacing: 5) {
+                                Text(film.title ?? "")
+                                    .font(.system(size: 16, weight: .medium))
+
+                                Text(film.mediaType.title)
+                                    .font(.system(size: 14, weight: .regular))
+                            }
+                            .padding(.leading, 20)
+
+                            Spacer()
+
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.gray)
                         }
-
-                        VStack(alignment: .leading, spacing: 5) {
-                            Text(film.title ?? "")
-                                .font(.system(size: 16, weight: .medium))
-
-                            Text(film.mediaType.title)
-                                .font(.system(size: 14, weight: .regular))
-                        }
-                        .padding(.leading, 20)
-
-                        Spacer()
-
-                        Image(systemName: "chevron.right")
-                            .foregroundColor(.gray)
+                        .padding(.vertical, 5)
                     }
-                    .padding(.vertical, 5)
-                }
 
-                // Make this a "couldn't find what you were looking for?" button to submit feedback
-                Text("End of List")
-                    .foregroundStyle(.white)
-                    .listRowBackground(Color.clear)
+                    // Make this a "couldn't find what you were looking for?" button to submit feedback
+                    Text("End of List")
+                        .foregroundStyle(.white)
+                        .listRowBackground(Color.clear)
+                        .onAppear {
+                            Task {
+                                await viewModel.loadMore()
+                            }
+                        }
+                }
+                .listRowBackground(Color.clear)
+                .buttonStyle(PlainButtonStyle())
             }
-            .listRowBackground(Color.clear)
-            .buttonStyle(PlainButtonStyle())
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)

@@ -15,7 +15,6 @@ struct FilmDisplay: DetailViewRepresentable {
     let posterPath: String?
     let releaseDate: String?
     let mediaType: MediaType
-    let hasTrailer: Bool
 
     var comments: [Comment]
 
@@ -27,7 +26,6 @@ struct FilmDisplay: DetailViewRepresentable {
         self.posterPath = film.posterPath
         self.releaseDate = film.releaseDate
         self.mediaType = film.mediaType
-        self.hasTrailer = film.hasTrailer
         self.comments = []
     }
 
@@ -39,7 +37,6 @@ struct FilmDisplay: DetailViewRepresentable {
         self.posterPath = film.posterPath
         self.releaseDate = film.releaseDate
         self.mediaType = film.mediaType
-        self.hasTrailer = film.hasTrailer
 
         let comments = film.comments?.array as? [Comment] ?? []
         self.comments = comments

@@ -75,10 +75,22 @@ struct UpNextScreen: View {
                     .padding(.horizontal, 20)
                 }
             }
-            .navigationTitle("Up Next")
             .navigationDestination(isPresented: $navigateToWatchWheel) {
                 WheelView(films: Array(watchList))
             }
+            .opacity(isExpanded ? 0 : 1)
+            .overlay {
+                if let selectedFilm, isExpanded {
+                    FilmDetailView(
+                        film: selectedFilm.film,
+                        namespace: namespace,
+                        isExpanded: $isExpanded,
+                        uiImage: selectedFilm.posterImage
+                    )
+                    .transition(.asymmetric(insertion: .identity, removal: .opacity))
+                }
+            }
+            .toolbar(isExpanded ? .hidden : .visible, for: .tabBar)
         }
     }
 }

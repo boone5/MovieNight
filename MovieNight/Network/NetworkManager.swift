@@ -12,13 +12,14 @@ final public class NetworkManager {
     public func request<T: Decodable>(_ endpoint: EndpointProviding) async throws -> T {
         guard let url = try? createURL(from: endpoint) else { throw APIError.badURL }
         let request = createRequest(url: url, apiKey: endpoint.apiKey)
+
+        print("🛜: \(request.url!)")
+
         let (data, response) = try await URLSession.shared.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
             throw URLError(.badServerResponse)
         }
-
-        print("making network request")
 
         return try JSONDecoder().decode(T.self, from: data)
     }

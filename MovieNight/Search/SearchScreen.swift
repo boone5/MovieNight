@@ -19,32 +19,25 @@ struct SelectedFilm {
     var posterImage: UIImage?
 }
 
+// filter by provider (apple tv, prime, hulu, etc)
+
 struct SearchScreen: View {
     @StateObject private var viewModel = SearchViewModel()
-
-    // View Properties
-    @State private var searchState: SearchState = .explore
 
     // Expanded View Properties
     @State private var isExpanded: Bool = false
     @State private var selectedFilm: SelectedFilm?
     @Namespace private var namespace
 
-    // Search Bar Properties
+    @State private var shouldLoad = true
     @State private var searchText: String = ""
+    @State private var trendingMovies: [MovieResponse] = []
+    @State private var trendingTVShows: [TVShowResponse] = []
+
+    private let networkManager = NetworkManager()
 
     var body: some View {
-        ZStack {
-            Color.clear
-                .background {
-                    LinearGradient(
-                        colors: [Color("BackgroundColor1"), Color("BackgroundColor2")],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                }
-                .ignoresSafeArea()
-
+        BackgroundColorView {
             VStack(alignment: .leading, spacing: 0) {
                 // Header
                 VStack(alignment: .leading, spacing: 7) {
@@ -52,23 +45,22 @@ struct SearchScreen: View {
                         .font(.system(size: 42, weight: .bold))
                         .padding([.leading, .trailing], 15)
 
-                    CustomSearchBar(vm: viewModel, searchText: $searchText, searchState: $searchState)
-                    // no way to adjust default padding from UISearchBar https://stackoverflow.com/questions/55636460/remove-padding-around-uisearchbar-textfield
-                        .padding(.horizontal, -8)
-                        .padding([.leading, .trailing], 15)
+                    SearchBar(searchText: $searchText)
+                        .padding(.horizontal, 15)
                 }
                 .padding(.top, 15)
                 .padding(.bottom, 20)
 
-                switch searchState {
-                case .explore:
+                if searchText.isEmpty {
                     ExploreView(
+                        trendingMovies: trendingMovies,
+                        trendingTVShows: trendingTVShows,
                         namespace: namespace,
                         isExpanded: $isExpanded,
                         selectedFilm: $selectedFilm
                     )
 
-                case .results:
+                } else {
                     // Loading View
                     if viewModel.isLoading {
                         HStack {
@@ -100,10 +92,42 @@ struct SearchScreen: View {
                     .transition(.asymmetric(insertion: .identity, removal: .opacity))
                 }
             }
+            .scrollDismissesKeyboard(.immediately)
+            .toolbar(isExpanded ? .hidden : .visible, for: .tabBar)
+            .task {
+                guard shouldLoad else { return }
+
+                async let movies = getTrendingMovies()
+                async let shows = getTrendingTVShows()
+                //            async let upcoming = getNowShowing()
+
+                self.trendingMovies = await movies
+                self.trendingTVShows = await shows
+                //            self.upcoming = await upcoming
+
+                shouldLoad = false
+            }
         }
-        .frame(maxWidth: .infinity, alignment: .center)
-        .scrollDismissesKeyboard(.immediately)
-        .toolbar(isExpanded ? .hidden : .visible, for: .tabBar)
+    }
+
+    public func getTrendingMovies() async -> [MovieResponse] {
+        do {
+            let response: TrendingMoviesResponse = try await networkManager.request(TMDBEndpoint.trendingMovies)
+            return response.results
+        } catch {
+            print("⛔️ Error fetching trending movies: \(error)")
+            return []
+        }
+    }
+
+    public func getTrendingTVShows() async -> [TVShowResponse] {
+        do {
+            let response: TrendingTVShowsResponse = try await networkManager.request(TMDBEndpoint.trendingTVShows)
+            return response.results
+        } catch {
+            print("⛔️ Error fetching trending tv shows: \(error)")
+            return []
+        }
     }
 }
 

@@ -7,7 +7,7 @@
 
 import UIKit
 
-struct MovieResponse: Codable, Hashable, Identifiable {
+struct MovieResponse: Codable, Hashable, Identifiable, DetailViewRepresentable {
     let id: Int64
     let adult: Bool?
     let backdropPath: String?
@@ -19,8 +19,8 @@ struct MovieResponse: Codable, Hashable, Identifiable {
     let video: Bool?
     let voteAverage: Double?
     let voteCount: Int64?
-    let mediaType: String?
-    
+    let mediaType: MediaType
+
     // Additional Properties
     var posterData: Data?
     var rating: Int16 = 0
@@ -58,7 +58,7 @@ struct MovieResponse: Codable, Hashable, Identifiable {
         self.video = false
         self.voteAverage = 0
         self.voteCount = 0
-        self.mediaType = "movie"
+        self.mediaType = .movie
         self.adult = nil
         self.backdropPath = nil
     }

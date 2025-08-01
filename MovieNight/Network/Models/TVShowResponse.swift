@@ -7,7 +7,11 @@
 
 import UIKit
 
-struct TVShowResponse: Codable, Hashable, Identifiable {
+struct TVShowResponse: Codable, Hashable, Identifiable, DetailViewRepresentable {
+    var releaseDate: String? {
+        firstAirDate
+    }
+    
     let id: Int64
     let adult: Bool?
     let backdropPath: String?
@@ -16,7 +20,7 @@ struct TVShowResponse: Codable, Hashable, Identifiable {
     let originalTitle: String?
     let originalLanguage: String?
     let overview: String?
-    let mediaType: String?
+    let mediaType: MediaType
     let genreIds: [Int]?
     let popularity: Double?
     let firstAirDate: String?
@@ -37,7 +41,7 @@ struct TVShowResponse: Codable, Hashable, Identifiable {
         self.originalTitle = ""
         self.originalLanguage = ""
         self.overview = "Lorem ipsum dolor sit amet, consect adipisc elit, sed do eiusmod tempor incidid ut labore et dolore magna. Ut enim ad minim veniam, quis"
-        self.mediaType = ""
+        self.mediaType = .tvShow
         self.genreIds = []
         self.popularity = 0.0
         self.firstAirDate = "air date"

@@ -19,7 +19,7 @@ struct SearchResponse: Decodable {
     }
 }
 
-enum MediaType: String, Decodable {
+enum MediaType: String, Codable {
     case movie = "movie"
     case tvShow = "tv"
 
@@ -143,14 +143,6 @@ extension ResponseType: Identifiable, DetailViewRepresentable {
             tVShowResponse.posterData
         case .empty:
             nil
-        }
-    }
-
-    var hasTrailer: Bool {
-        if case let .movie(movieResponse) = self {
-            return movieResponse.video ?? false
-        } else {
-            return false
         }
     }
 }

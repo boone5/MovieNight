@@ -10,6 +10,8 @@ import Foundation
 enum TMDBEndpoint: EndpointProviding {
     case movieDetails(id: Int64)
     case tvShowDetails(id: Int64)
+    case trendingMovies
+    case trendingTVShows
 }
 
 extension TMDBEndpoint {
@@ -27,6 +29,10 @@ extension TMDBEndpoint {
             "/3/movie/\(id)"
         case .tvShowDetails(let id):
             "/3/tv/\(id)"
+        case .trendingMovies:
+            "/3/trending/movie/day"
+        case .trendingTVShows:
+            "/3/trending/tv/day"
         }
     }
 
@@ -34,7 +40,7 @@ extension TMDBEndpoint {
         switch self {
         case .movieDetails:
             [.init(name: "append_to_response", value: "videos,credits")]
-        case .tvShowDetails:
+        case .tvShowDetails, .trendingMovies, .trendingTVShows:
             nil
         }
     }

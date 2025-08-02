@@ -12,7 +12,7 @@ struct FeedbackButtons: View {
     @Binding public var isLoved: Bool
     @Binding public var isDisliked: Bool
 
-    public let averageColor: UIColor
+    public let averageColor: Color
 
     public var didAddActivity: ((Bool, Bool, Bool) -> ())? = nil
 
@@ -43,7 +43,7 @@ struct FeedbackButtons: View {
 
     fileprivate struct ButtonView: View {
         let type: Feedback
-        let averageColor: UIColor
+        let averageColor: Color
         let action: () -> Void
 
         var isEnabled: Bool {
@@ -72,7 +72,7 @@ struct FeedbackButtons: View {
                             if isEnabled {
                                 Color(type.color).opacity(0.2)
                             } else {
-                                Color(uiColor: averageColor).opacity(0.4)
+                                averageColor.opacity(0.4)
 
                             }
                         }
@@ -114,8 +114,15 @@ enum Feedback {
             Color(.burntOrange)
         case .love(true):
             .red
-        case .like(false), .dislike(false), .love(false):
-            .white
+
+        case .like(false):
+            .green.opacity(0.6)
+        case .dislike(false):
+            Color(.burntOrange).opacity(0.6)
+        case .love(false):
+            .red.opacity(0.6)
+//        case .like(false), .dislike(false), .love(false):
+//            .white
         }
     }
 }

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct CommentPromptView: View {
-    let averageColor: UIColor
+    let averageColor: Color
     let comments: [Comment]
     var didTapSave: ((String) -> Void)? = nil
 
@@ -16,15 +16,11 @@ struct CommentPromptView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            Text("Thoughts")
+            Text("Comments")
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundStyle(.white)
 
             HStack(alignment: .bottom, spacing: 15) {
-                Image(systemName: "text.bubble")
-                    .foregroundStyle(.white)
-                    .offset(y: -10)
-
                 ZStack(alignment: .leading) {
                     TextEditor(text: $text)
                         .frame(minHeight: 40)
@@ -37,7 +33,7 @@ struct CommentPromptView: View {
                         }
 
                     if text.isEmpty {
-                        Text("What are your thoughts?")
+                        Text("What'd you think?")
                             .font(.system(size: 14))
                             .foregroundStyle(.black.opacity(0.5))
                             .padding(.horizontal, 10)
@@ -77,7 +73,7 @@ struct CommentPromptView: View {
                                 .padding(10)
                                 .background {
                                     RoundedRectangle(cornerRadius: 12)
-                                        .foregroundStyle(Color(uiColor: averageColor))
+                                        .foregroundStyle(averageColor)
                                 }
                         }
                     }
@@ -85,7 +81,7 @@ struct CommentPromptView: View {
             }
         }
         .padding(20)
-        .background(Color(uiColor: averageColor).opacity(0.4))
+        .background(averageColor.opacity(0.4))
         .cornerRadius(12)
     }
 }

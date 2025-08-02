@@ -18,8 +18,8 @@ import YouTubePlayerKit
     @Previewable @Namespace var namespace
 
     let previewCD = MovieProvider.preview.container.viewContext
-//    let film: ResponseType = ResponseType.movie(MovieResponse())
-    let film: ResponseType = ResponseType.tvShow(TVShowResponse())
+    let film: ResponseType = ResponseType.movie(MovieResponse())
+//    let film: ResponseType = ResponseType.tvShow(TVShowResponse())
 
     FilmDetailView(film: film, namespace: namespace, isExpanded: $isExpanded, uiImage: nil)
 }
@@ -29,29 +29,12 @@ import YouTubePlayerKit
 struct FilmDetailView: View {
     @StateObject var viewModel: FilmDetailView.ViewModel
 
-    private let posterWidth: CGFloat
-    private let posterHeight: CGFloat
-
     let uiImage: UIImage?
     let namespace: Namespace.ID
-
     @Binding var isExpanded: Bool
 
     @State private var scrollViewContentOffset = CGFloat(0)
     @State private var presentationDidFinish: Bool = false
-
-    // This state tracks the cumulative rotation of the card.
-    @State private var flipDegrees: Double = 0
-    @State private var shimmyRotation: Double = 0
-
-    // Normalize the degrees into [0, 360) for determining which side is visible.
-    var normalizedDegrees: Double {
-        abs(flipDegrees.truncatingRemainder(dividingBy: 360))
-    }
-
-    var frontVisible: Bool {
-        normalizedDegrees < 90 || normalizedDegrees > 270
-    }
 
     init(
         film: some DetailViewRepresentable,
@@ -64,11 +47,6 @@ struct FilmDetailView: View {
 
         self.namespace = namespace
         self.uiImage = uiImage
-
-        let size = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.screen.bounds.size ?? .zero
-
-        self.posterWidth = size.width / 1.5
-        self.posterHeight = size.height / 2.4
     }
 
     var body: some View {
@@ -77,25 +55,29 @@ struct FilmDetailView: View {
             showIndicators: true,
             contentOffset: $scrollViewContentOffset
         ) {
-            VStack(alignment: .center, spacing: 0) {
+            VStack(alignment: .center, spacing: 30) {
                 headerView
-                    .padding(.bottom, 30)
                     .opacity(presentationDidFinish ? 1 : 0)
 
                 // MARK: TODO
                 // - Add gloss finish
-                FlippablePosterView
+                FlippablePosterView(
+                    film: viewModel.filmDisplay,
+                    averageColor: viewModel.averageColor,
+                    namespace: namespace,
+                    uiImage: uiImage,
+                    trailer: $viewModel.trailer
+                )
 
                 Group {
                     Text(viewModel.filmDisplay.title ?? "")
                         .font(.system(size: 18, weight: .bold))
                         .foregroundStyle(.white)
-                        .padding(.top, 30)
 
                     Text(viewModel.genres ?? "-")
                         .font(.system(size: 12, weight: .regular))
                         .foregroundStyle(Color(uiColor: .systemGray2))
-                        .padding(.top, 10)
+                        .padding(.top, -20)
 
                     FeedbackButtons(
                         isLiked: $viewModel.isLiked,
@@ -106,7 +88,6 @@ struct FilmDetailView: View {
                             viewModel.addActivity(isLiked: isLiked, isLoved: isLoved, isDisliked: isDisliked)
                         }
                     )
-                    .padding(.top, 30)
 
                     CommentPromptView(
                         averageColor: viewModel.averageColor,
@@ -115,7 +96,8 @@ struct FilmDetailView: View {
                             viewModel.addComment(text: comment)
                         }
                     )
-                    .padding(.top, 30)
+
+                    QuickActionsView(mediaType: viewModel.filmDisplay.mediaType, averageColor: viewModel.averageColor)
 
                     // V2 w/ Social Features
 //                    ParticipantsView(averageColor: viewModel.averageColor)
@@ -123,12 +105,10 @@ struct FilmDetailView: View {
 
                     if case .tvShow = viewModel.filmDisplay.mediaType {
                         SeasonsScrollView(viewModel: viewModel)
-                            .padding(.top, 30)
                     }
 
                     if let cast = viewModel.cast {
                         CastScrollView(averageColor: viewModel.averageColor, cast: cast)
-                            .padding(.top, 30)
                     }
                 }
                 .opacity(presentationDidFinish ? 1 : 0)
@@ -143,7 +123,7 @@ struct FilmDetailView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [Color(uiColor: viewModel.averageColor), .black],
+                            colors: [viewModel.averageColor, .black],
                             startPoint: .top,
                             endPoint: .bottom
                         )
@@ -207,90 +187,6 @@ struct FilmDetailView: View {
         }
     }
 
-    @MainActor
-    var FlippablePosterView: some View {
-        ZStack {
-            // Front
-            PosterView(
-                width: posterWidth,
-                height: posterHeight,
-                uiImage: uiImage,
-                filmID: viewModel.filmDisplay.id,
-                namespace: namespace,
-                isAnimationSource: false
-            )
-            .shadow(radius: 6, y: 3)
-            .overlay(alignment: .bottomTrailing) {
-                Text("Info")
-                    .font(.system(size: 12, weight: .medium))
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .foregroundStyle(.white)
-                    .background {
-                        Color(uiColor: viewModel.averageColor).opacity(0.5)
-                            .clipShape(Capsule())
-                    }
-                    .padding([.bottom, .trailing], 15)
-                    .onTapGesture {
-                        withAnimation(.bouncy(duration: 1.2)) {
-                            flipDegrees -= 180
-                        }
-                    }
-            }
-            .opacity(frontVisible ? 1 : 0)
-            .rotation3DEffect(
-                .degrees(flipDegrees),
-                axis: (x: 0, y: 1, z: 0)
-            )
-
-            PosterBackView(
-                film: viewModel.filmDisplay,
-                backgroundColor: viewModel.averageColor,
-                trailer: $viewModel.trailer
-            )
-                .shadow(radius: 6, y: 3)
-                .frame(width: posterWidth, height: posterHeight)
-                .cornerRadius(8)
-                .opacity(frontVisible ? 0 : 1)
-                // Add 180° so that when the card flips, the back isn’t upside down.
-                .rotation3DEffect(
-                    .degrees(flipDegrees + 180),
-                    axis: (x: 0, y: 1, z: 0)
-                )
-        }
-        // Apply the shimmy rotation effect.
-        .rotation3DEffect(.degrees(shimmyRotation), axis: (x: 0, y: 1, z: 0))
-        .onAppear {
-            let shimmyAnimation = Animation
-                .bouncy(duration: 1.2, extraBounce: 0.4)
-                .repeatCount(2)
-
-            withAnimation(shimmyAnimation) {
-                shimmyRotation = 7
-
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    withAnimation(shimmyAnimation) {
-                        shimmyRotation = 0
-                    }
-                }
-            }
-        }
-        .gesture(
-            DragGesture(minimumDistance: 30)
-                .onEnded { value in
-                    withAnimation(.bouncy(duration: 1.2)) {
-                        // For a left-to-right swipe, add 180°.
-                        if value.translation.width > 0 {
-                            flipDegrees += 180
-                        } else if value.translation.width < 0 {
-                            // For a right-to-left swipe, subtract 180°.
-                            flipDegrees -= 180
-                        }
-                    }
-                }
-        )
-    }
-
     // MARK: SeasonsScrollView
 
     struct SeasonsScrollView: View {
@@ -318,7 +214,7 @@ struct FilmDetailView: View {
                 .padding([.horizontal], -30)
             }
             .padding(20)
-            .background(Color(uiColor: viewModel.averageColor).opacity(0.4))
+            .background(viewModel.averageColor.opacity(0.4))
             .cornerRadius(12)
         }
     }
@@ -328,7 +224,7 @@ struct FilmDetailView: View {
 
 extension FilmDetailView {
     class ViewModel: ObservableObject {
-        @Published var averageColor: UIColor
+        @Published var averageColor: Color
         @Published var filmDisplay: FilmDisplay
 
         @Published var isLiked: Bool = false
@@ -347,7 +243,7 @@ extension FilmDetailView {
 
         init(posterImage: UIImage?, film: some DetailViewRepresentable) {
             self.posterImage = posterImage
-            self.averageColor = UIColor(resource: .brightRed)
+            self.averageColor = Color(uiColor: UIColor(resource: .brightRed))
             self.filmDisplay = FilmDisplay(from: film)
         }
 
@@ -358,7 +254,7 @@ extension FilmDetailView {
                     image.averageColor
                 }.value
 
-                self.averageColor = color
+                self.averageColor = Color(uiColor: color)
             }
 
             if let existingFilm = movieProvider.fetchFilmByID(filmDisplay.id) {

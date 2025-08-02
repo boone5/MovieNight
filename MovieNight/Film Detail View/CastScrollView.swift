@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct CastScrollView: View {
-    let averageColor: UIColor
+    let averageColor: Color
     let cast: [ActorResponse.Actor]
 
     @State var uiImage: UIImage? = nil
@@ -32,7 +32,7 @@ struct CastScrollView: View {
             .frame(height: 100) // profileView height + name height
         }
         .padding(20)
-        .background(Color(uiColor: averageColor).opacity(0.4))
+        .background(averageColor.opacity(0.4))
         .cornerRadius(12)
     }
 

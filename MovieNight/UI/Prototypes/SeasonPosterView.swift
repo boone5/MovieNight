@@ -20,7 +20,7 @@ struct SeasonPosterView: View {
 
     let posterPath: String?
     let seasonNum: Int
-    let averageColor: UIColor
+    let averageColor: Color
     var didToggle: ((Bool) -> Void)? = nil
 
     var body: some View {
@@ -47,7 +47,7 @@ struct SeasonPosterView: View {
                     Image(systemName: isWatched ? "checkmark.circle.fill" : "circle")
                         .resizable()
                         .frame(width: 40, height: 40)
-                        .foregroundStyle(Color(uiColor: averageColor))
+                        .foregroundStyle(averageColor)
 
                     Text("Season \(seasonNum)")
                         .font(.system(size: 14, weight: .regular))

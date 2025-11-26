@@ -29,13 +29,8 @@ struct SearchScreen: View {
     @State private var selectedFilm: SelectedFilm?
     @Namespace private var namespace
 
-    @State private var shouldLoad = true
     @State private var searchText: String = ""
-    @State private var trendingMovies: [MovieResponse] = []
-    @State private var trendingTVShows: [TVShowResponse] = []
     @State private var headerOpacity: Double = 1.0
-
-    private let networkManager = NetworkManager()
 
     var body: some View {
         BackgroundColorView {
@@ -56,14 +51,6 @@ struct SearchScreen: View {
                             headerOpacity = max(0, min(1, (minY + fadeThreshold) / fadeThreshold))
                         }
                         .padding(.bottom, 10)
-
-                    ExploreView(
-                        trendingMovies: trendingMovies,
-                        trendingTVShows: trendingTVShows,
-                        namespace: namespace,
-                        isExpanded: $isExpanded,
-                        selectedFilm: $selectedFilm
-                    )
                 }
                 .scrollEdgeEffectStyle(.hard, for: .top)
 
@@ -106,39 +93,6 @@ struct SearchScreen: View {
                 )
                 .transition(.asymmetric(insertion: .identity, removal: .opacity))
             }
-        }
-        .task {
-            guard shouldLoad else { return }
-
-            async let movies = getTrendingMovies()
-            async let shows = getTrendingTVShows()
-            //            async let upcoming = getNowShowing()
-
-            self.trendingMovies = await movies
-            self.trendingTVShows = await shows
-            //            self.upcoming = await upcoming
-
-            shouldLoad = false
-        }
-    }
-
-    public func getTrendingMovies() async -> [MovieResponse] {
-        do {
-            let response: TrendingMoviesResponse = try await networkManager.request(TMDBEndpoint.trendingMovies)
-            return response.results
-        } catch {
-            print("⛔️ Error fetching trending movies: \(error)")
-            return []
-        }
-    }
-
-    public func getTrendingTVShows() async -> [TVShowResponse] {
-        do {
-            let response: TrendingTVShowsResponse = try await networkManager.request(TMDBEndpoint.trendingTVShows)
-            return response.results
-        } catch {
-            print("⛔️ Error fetching trending tv shows: \(error)")
-            return []
         }
     }
 }

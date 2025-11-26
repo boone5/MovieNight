@@ -47,7 +47,6 @@ struct LibraryScreen: View {
                             Text("Library")
                                 .font(.largeTitle.bold())
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.horizontal, 15)
                                 .opacity(headerOpacity)
                                 .onGeometryChange(for: CGFloat.self) { proxy in
                                     proxy.frame(in: .scrollView).minY
@@ -60,7 +59,6 @@ struct LibraryScreen: View {
 
                             Text("Recently watched")
                                 .font(.system(size: 18, weight: .bold))
-                                .padding(.horizontal, 15)
 
                             FilmRow(
                                 items: Array(recentlyWatchedFilms),
@@ -71,8 +69,8 @@ struct LibraryScreen: View {
 
                             CollectionsView()
                                 .padding(.top, 10)
-                                .padding(.horizontal, 15)
                         }
+                        .padding(.horizontal, 15)
                     }
                 }
             }

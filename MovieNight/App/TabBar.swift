@@ -12,6 +12,11 @@ struct TabBarView: View {
 
     var body: some View {
         TabView {
+            Tab("Home", systemImage: "house") {
+                HomeScreen()
+                    .environment(\.managedObjectContext, MovieProvider.shared.container.viewContext)
+            }
+
             Tab("Library", systemImage: "books.vertical") {
                 LibraryScreen()
                     .environment(\.managedObjectContext, MovieProvider.shared.container.viewContext)

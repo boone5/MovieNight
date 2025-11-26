@@ -29,8 +29,8 @@ struct LibraryScreen: View {
     var body: some View {
         NavigationStack(path: $navigationPath) {
             BackgroundColorView {
-                VStack(alignment: .leading, spacing: 15) {
-                    if recentlyWatchedFilms.isEmpty {
+                if recentlyWatchedFilms.isEmpty {
+                    VStack {
                         Spacer()
                         Text("Start watching films to build your library.")
                             .font(.system(size: 14, weight: .semibold))
@@ -38,9 +38,11 @@ struct LibraryScreen: View {
                             .frame(maxWidth: .infinity, alignment: .center)
                             .padding(.horizontal, 15)
                         Spacer()
+                    }
 
-                    } else {
-                        ScrollView(showsIndicators: false) {
+                } else {
+                    ScrollView(showsIndicators: false) {
+                        VStack(alignment: .leading, spacing: 15) {
                             // Custom header
                             Text("Library")
                                 .font(.largeTitle.bold())
@@ -51,28 +53,25 @@ struct LibraryScreen: View {
                                     proxy.frame(in: .scrollView).minY
                                 } action: { minY in
                                     // how many points until fully invisible
-                                    print(minY)
                                     let fadeThreshold = 50.0
                                     headerOpacity = max(0, min(1, (minY + fadeThreshold) / fadeThreshold))
                                 }
-                                .padding(.bottom, 10)
+                                .padding(.bottom, 5)
 
-                            VStack(alignment: .leading, spacing: 15) {
-                                Text("Recently watched")
-                                    .font(.system(size: 18, weight: .bold))
-                                    .padding(.horizontal, 15)
+                            Text("Recently watched")
+                                .font(.system(size: 18, weight: .bold))
+                                .padding(.horizontal, 15)
 
-                                FilmRow(
-                                    items: Array(recentlyWatchedFilms),
-                                    isExpanded: $isExpanded,
-                                    selectedFilm: $selectedFilm,
-                                    namespace: namespace
-                                )
+                            FilmRow(
+                                items: Array(recentlyWatchedFilms),
+                                isExpanded: $isExpanded,
+                                selectedFilm: $selectedFilm,
+                                namespace: namespace
+                            )
 
-                                CollectionsView()
-                                    .padding(.top, 10)
-                                    .padding(.horizontal, 15)
-                            }
+                            CollectionsView()
+                                .padding(.top, 10)
+                                .padding(.horizontal, 15)
                         }
                     }
                 }

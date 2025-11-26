@@ -33,25 +33,30 @@ struct SearchScreen: View {
     @State private var searchText: String = ""
     @State private var trendingMovies: [MovieResponse] = []
     @State private var trendingTVShows: [TVShowResponse] = []
+    @State private var headerOpacity: Double = 1.0
 
     private let networkManager = NetworkManager()
 
     var body: some View {
         BackgroundColorView {
-            VStack(alignment: .leading, spacing: 0) {
-                // Header
-                VStack(alignment: .leading, spacing: 7) {
+            if searchText.isEmpty {
+                ScrollView {
+                    // Custom header
                     Text("Search")
-                        .font(.system(size: 42, weight: .bold))
-                        .padding([.leading, .trailing], 15)
-
-                    SearchBar(searchText: $searchText)
+                        .font(.largeTitle.bold())
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 15)
-                }
-                .padding(.top, 15)
-                .padding(.bottom, 20)
+                        .opacity(headerOpacity)
+                        .onGeometryChange(for: CGFloat.self) { proxy in
+                            proxy.frame(in: .scrollView).minY
+                        } action: { minY in
+                            // how many points until fully invisible
+                            print(minY)
+                            let fadeThreshold = 50.0
+                            headerOpacity = max(0, min(1, (minY + fadeThreshold) / fadeThreshold))
+                        }
+                        .padding(.bottom, 10)
 
-                if searchText.isEmpty {
                     ExploreView(
                         trendingMovies: trendingMovies,
                         trendingTVShows: trendingTVShows,
@@ -59,18 +64,19 @@ struct SearchScreen: View {
                         isExpanded: $isExpanded,
                         selectedFilm: $selectedFilm
                     )
+                }
+                .scrollEdgeEffectStyle(.hard, for: .top)
 
-                } else {
-                    // Loading View
-                    if viewModel.isLoading {
-                        HStack {
-                            Spacer()
-                            ProgressView()
-                            Spacer()
-                        }
-                        .padding(.top, 30)
+            } else {
+                // Loading View
+                if viewModel.isLoading {
+                    HStack {
+                        Spacer()
+                        ProgressView()
+                        Spacer()
                     }
-
+                    .padding(.top, 30)
+                } else {
                     // Results
                     ListView(
                         viewModel: viewModel,
@@ -81,36 +87,38 @@ struct SearchScreen: View {
                     )
                 }
             }
-            .opacity(isExpanded ? 0 : 1)
-            .overlay {
-                if let selectedFilm, isExpanded {
-                    FilmDetailView(
-                        film: selectedFilm.film,
-                        namespace: namespace,
-                        isExpanded: $isExpanded,
-                        uiImage: selectedFilm.posterImage
-                    )
-                    .transition(.asymmetric(insertion: .identity, removal: .opacity))
-                }
+        }
+        .toolbar(.hidden, for: .navigationBar)
+        .searchable(text: $searchText)
+        .scrollDismissesKeyboard(.immediately)
+        .toolbar(isExpanded ? .hidden : .visible, for: .tabBar)
+        .onChange(of: searchText) { _, newValue in
+            viewModel.search(query: newValue)
+        }
+        .opacity(isExpanded ? 0 : 1)
+        .overlay {
+            if let selectedFilm, isExpanded {
+                FilmDetailView(
+                    film: selectedFilm.film,
+                    namespace: namespace,
+                    isExpanded: $isExpanded,
+                    uiImage: selectedFilm.posterImage
+                )
+                .transition(.asymmetric(insertion: .identity, removal: .opacity))
             }
-            .scrollDismissesKeyboard(.immediately)
-            .toolbar(isExpanded ? .hidden : .visible, for: .tabBar)
-            .task {
-                guard shouldLoad else { return }
+        }
+        .task {
+            guard shouldLoad else { return }
 
-                async let movies = getTrendingMovies()
-                async let shows = getTrendingTVShows()
-                //            async let upcoming = getNowShowing()
+            async let movies = getTrendingMovies()
+            async let shows = getTrendingTVShows()
+            //            async let upcoming = getNowShowing()
 
-                self.trendingMovies = await movies
-                self.trendingTVShows = await shows
-                //            self.upcoming = await upcoming
+            self.trendingMovies = await movies
+            self.trendingTVShows = await shows
+            //            self.upcoming = await upcoming
 
-                shouldLoad = false
-            }
-            .onChange(of: searchText) { newValue in
-                viewModel.search(query: newValue)
-            }
+            shouldLoad = false
         }
     }
 

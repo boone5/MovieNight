@@ -13,24 +13,23 @@ struct LibraryScreen: View {
     @FetchRequest(fetchRequest: Film.recentlyWatched())
     private var recentlyWatchedFilms: FetchedResults<Film>
 
+    @FetchRequest(
+        entity: Film.entity(),
+        sortDescriptors: [NSSortDescriptor(keyPath: \Film.dateWatched, ascending: true)],
+        predicate: NSPredicate(format: "collection.id == %@", FilmCollection.watchLaterID as CVarArg)
+    )
+    private var watchList: FetchedResults<Film>
+
     @State private var navigationPath = NavigationPath()
     @State var isExpanded: Bool = false
     @State var selectedFilm: SelectedFilm?
+    @State private var headerOpacity: Double = 1.0
     @Namespace private var namespace
 
     var body: some View {
         NavigationStack(path: $navigationPath) {
             BackgroundColorView {
-                VStack(alignment: .leading, spacing: 0) {
-                    // Header
-                    VStack(alignment: .leading, spacing: 7) {
-                        Text("Library")
-                            .font(.system(size: 42, weight: .bold))
-                            .padding([.leading, .trailing], 15)
-                    }
-                    .padding(.top, 15)
-                    .padding(.bottom, 20)
-
+                VStack(alignment: .leading, spacing: 15) {
                     if recentlyWatchedFilms.isEmpty {
                         Spacer()
                         Text("Start watching films to build your library.")
@@ -42,10 +41,26 @@ struct LibraryScreen: View {
 
                     } else {
                         ScrollView(showsIndicators: false) {
-                            VStack(alignment: .leading, spacing: 0) {
+                            // Custom header
+                            Text("Library")
+                                .font(.largeTitle.bold())
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.horizontal, 15)
+                                .opacity(headerOpacity)
+                                .onGeometryChange(for: CGFloat.self) { proxy in
+                                    proxy.frame(in: .scrollView).minY
+                                } action: { minY in
+                                    // how many points until fully invisible
+                                    print(minY)
+                                    let fadeThreshold = 50.0
+                                    headerOpacity = max(0, min(1, (minY + fadeThreshold) / fadeThreshold))
+                                }
+                                .padding(.bottom, 10)
+
+                            VStack(alignment: .leading, spacing: 15) {
                                 Text("Recently watched")
                                     .font(.system(size: 18, weight: .bold))
-                                    .padding([.leading, .bottom], 15)
+                                    .padding(.horizontal, 15)
 
                                 FilmRow(
                                     items: Array(recentlyWatchedFilms),
@@ -55,8 +70,8 @@ struct LibraryScreen: View {
                                 )
 
                                 CollectionsView()
-                                    .padding(.top, 30)
-                                    .padding([.leading, .trailing], 15)
+                                    .padding(.top, 10)
+                                    .padding(.horizontal, 15)
                             }
                         }
                     }

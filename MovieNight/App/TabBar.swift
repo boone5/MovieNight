@@ -8,28 +8,25 @@
 import SwiftUI
 
 struct TabBarView: View {
+    @State private var showSearchTitle = true
+
     var body: some View {
         TabView {
-            Group {
+            Tab("Library", systemImage: "books.vertical") {
                 LibraryScreen()
-                    .tabItem {
-                        Label("Library", systemImage: "books.vertical")
-                    }
-                    .environment(\.managedObjectContext, MovieProvider.shared.container.viewContext)
-
-                SearchScreen()
-                    .tabItem {
-                        Label("Search", systemImage: "magnifyingglass")
-                    }
-
-                UpNextScreen()
-                    .tabItem {
-                        Label("Up Next", systemImage: "chart.pie")
-                    }
                     .environment(\.managedObjectContext, MovieProvider.shared.container.viewContext)
             }
-            .toolbarBackground(Color(.backgroundColor2), for: .tabBar)
-            .toolbarBackground(.visible, for: .tabBar)
+
+            Tab("Up Next", systemImage: "chart.pie") {
+                UpNextScreen()
+                    .environment(\.managedObjectContext, MovieProvider.shared.container.viewContext)
+            }
+
+            Tab("Search", systemImage: "magnifyingglass", role: .search) {
+                NavigationStack {
+                    SearchScreen()
+                }
+            }
         }
     }
 }

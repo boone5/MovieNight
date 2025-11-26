@@ -18,48 +18,46 @@ struct ExploreView: View {
     var selectedFilm: Binding<SelectedFilm?>
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 0) {
-                Text("Popular Movies")
-                    .font(.system(size: 18, weight: .bold))
-                    .padding([.leading, .trailing, .bottom], 15)
+        VStack(alignment: .leading, spacing: 15) {
+            Text("Popular Movies")
+                .font(.system(size: 18, weight: .bold))
+                .padding(.horizontal, 15)
 
-                FilmRow(
-                    items: trendingMovies,
-                    isExpanded: isExpanded,
-                    selectedFilm: selectedFilm,
-                    namespace: namespace
-                )
+            FilmRow(
+                items: trendingMovies,
+                isExpanded: isExpanded,
+                selectedFilm: selectedFilm,
+                namespace: namespace
+            )
 
-                Text("Popular TV Shows")
-                    .font(.system(size: 18, weight: .bold))
-                    .padding(.top, 30)
-                    .padding([.leading, .trailing, .bottom], 15)
+            Text("Popular TV Shows")
+                .font(.system(size: 18, weight: .bold))
+                .padding(.top, 10)
+                .padding(.horizontal, 15)
 
-                FilmRow(
-                    items: trendingTVShows,
-                    isExpanded: isExpanded,
-                    selectedFilm: selectedFilm,
-                    namespace: namespace
-                )
+            FilmRow(
+                items: trendingTVShows,
+                isExpanded: isExpanded,
+                selectedFilm: selectedFilm,
+                namespace: namespace
+            )
 
-    //            Text("Upcoming")
-    //                .font(.system(size: 18, weight: .bold))
-    //                .foregroundStyle(.white)
-    //                .padding(.top, 20)
-    //                .padding(.bottom, 15)
-    //                .padding([.leading, .trailing], 15)
-    //
-    //            FilmRow(
-    //                items: upcoming,
-    //                isExpanded: isExpanded,
-    //                showDetailView: showDetailView,
-    //                expandedID: expandedID,
-    //                namespace: namespace
-    //            )
-            }
-            .padding(.bottom, 30)
+//            Text("Upcoming")
+//                .font(.system(size: 18, weight: .bold))
+//                .foregroundStyle(.white)
+//                .padding(.top, 20)
+//                .padding(.bottom, 15)
+//                .padding([.leading, .trailing], 15)
+//
+//            FilmRow(
+//                items: upcoming,
+//                isExpanded: isExpanded,
+//                showDetailView: showDetailView,
+//                expandedID: expandedID,
+//                namespace: namespace
+//            )
         }
+        .padding(.bottom, 15)
     }
 
 //    private func getNowShowing() async -> [UpcomingResponse.Movie] {

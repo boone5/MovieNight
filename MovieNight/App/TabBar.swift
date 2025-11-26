@@ -17,7 +17,7 @@ struct TabBarView: View {
                     .environment(\.managedObjectContext, MovieProvider.shared.container.viewContext)
             }
 
-            Tab("Up Next", systemImage: "chart.pie") {
+            Tab("Watch Later", systemImage: "chart.pie") {
                 UpNextScreen()
                     .environment(\.managedObjectContext, MovieProvider.shared.container.viewContext)
             }

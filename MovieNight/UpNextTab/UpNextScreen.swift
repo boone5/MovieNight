@@ -12,6 +12,7 @@ struct UpNextScreen: View {
     @State private var navigateToWatchWheel = false
     @State var isExpanded: Bool = false
     @State var selectedFilm: SelectedFilm?
+    @State private var headerOpacity: Double = 1.0
     @Namespace private var namespace
 
     @FetchRequest(
@@ -26,6 +27,21 @@ struct UpNextScreen: View {
             BackgroundColorView {
                 ScrollView {
                     VStack(alignment: .leading) {
+                        // Custom header
+                        Text("Watch Later")
+                            .font(.largeTitle.bold())
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .opacity(headerOpacity)
+                            .onGeometryChange(for: CGFloat.self) { proxy in
+                                proxy.frame(in: .scrollView).minY
+                            } action: { minY in
+                                // how many points until fully invisible
+                                print(minY)
+                                let fadeThreshold = 50.0
+                                headerOpacity = max(0, min(1, (minY + fadeThreshold) / fadeThreshold))
+                            }
+                            .padding(.bottom, 10)
+
                         HStack(spacing: 10) {
                             Image(systemName: "chart.pie")
                                 .resizable()
@@ -46,15 +62,10 @@ struct UpNextScreen: View {
                             Color.gray
                         }
                         .clipShape(.rect(cornerRadius: 12))
-                        .padding(.top, 20)
                         .contentShape(Rectangle())
                         .onTapGesture {
                             navigateToWatchWheel = true
                         }
-
-                        Text("Watch Later")
-                            .font(.system(size: 18, weight: .bold))
-                            .padding(.top, 20)
 
                         Group {
                             if watchList.isEmpty {
@@ -72,7 +83,7 @@ struct UpNextScreen: View {
 
                         Spacer()
                     }
-                    .padding(.horizontal, 20)
+                    .padding(.horizontal, 15)
                 }
             }
             .navigationDestination(isPresented: $navigateToWatchWheel) {

@@ -28,43 +28,21 @@ struct SearchScreen: View {
     @State private var selectedFilm: SelectedFilm?
     @Namespace private var namespace
 
-    @State private var shouldLoad = true
     @State private var searchText: String = ""
-    @State private var trendingMovies: [MovieResponse] = []
-    @State private var trendingTVShows: [TVShowResponse] = []
     @State private var headerOpacity: Double = 1.0
-
-    private let networkManager = NetworkManager()
 
     var body: some View {
         BackgroundColorView {
             if searchText.isEmpty {
-                ScrollView {
-                    // Custom header
-                    Text("Search")
-                        .font(.largeTitle.bold())
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 15)
-                        .opacity(headerOpacity)
-                        .onGeometryChange(for: CGFloat.self) { proxy in
-                            proxy.frame(in: .scrollView).minY
-                        } action: { minY in
-                            // how many points until fully invisible
-                            print(minY)
-                            let fadeThreshold = 50.0
-                            headerOpacity = max(0, min(1, (minY + fadeThreshold) / fadeThreshold))
-                        }
-                        .padding(.bottom, 10)
+                VStack(spacing: 10) {
+                    Text("What's Pop'n?")
+                        .font(.title3.bold())
 
-                    ExploreView(
-                        trendingMovies: trendingMovies,
-                        trendingTVShows: trendingTVShows,
-                        namespace: namespace,
-                        isExpanded: $isExpanded,
-                        selectedFilm: $selectedFilm
-                    )
+                    Text("Find your next movie, tv show, friend, or favorite cast member.")
+                        .font(.system(size: 16))
+                        .multilineTextAlignment(.center)
                 }
-                .scrollEdgeEffectStyle(.hard, for: .top)
+                .padding(.horizontal, 15)
 
             } else {
                 // Loading View
@@ -105,39 +83,6 @@ struct SearchScreen: View {
                 )
                 .transition(.asymmetric(insertion: .identity, removal: .opacity))
             }
-        }
-        .task {
-            guard shouldLoad else { return }
-
-            async let movies = getTrendingMovies()
-            async let shows = getTrendingTVShows()
-            //            async let upcoming = getNowShowing()
-
-            self.trendingMovies = await movies
-            self.trendingTVShows = await shows
-            //            self.upcoming = await upcoming
-
-            shouldLoad = false
-        }
-    }
-
-    public func getTrendingMovies() async -> [MovieResponse] {
-        do {
-            let response: TrendingMoviesResponse = try await networkManager.request(TMDBEndpoint.trendingMovies)
-            return response.results
-        } catch {
-            print("⛔️ Error fetching trending movies: \(error)")
-            return []
-        }
-    }
-
-    public func getTrendingTVShows() async -> [TVShowResponse] {
-        do {
-            let response: TrendingTVShowsResponse = try await networkManager.request(TMDBEndpoint.trendingTVShows)
-            return response.results
-        } catch {
-            print("⛔️ Error fetching trending tv shows: \(error)")
-            return []
         }
     }
 }
@@ -217,6 +162,6 @@ struct ListView: View {
     }
 }
 
-//#Preview {
-//    SearchScreen.ListView()
-//}
+#Preview {
+    SearchScreen()
+}

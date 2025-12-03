@@ -35,6 +35,8 @@ struct FilmDetailView: View {
 
     @State private var scrollViewContentOffset = CGFloat(0)
     @State private var presentationDidFinish: Bool = false
+    @State private var actionTapped: QuickAction?
+    @State private var watchCount = 0
 
     init(
         film: some DetailViewRepresentable,
@@ -47,6 +49,10 @@ struct FilmDetailView: View {
 
         self.namespace = namespace
         self.uiImage = uiImage
+    }
+
+    var averageColor: Color {
+        viewModel.averageColor
     }
 
     var body: some View {
@@ -97,7 +103,83 @@ struct FilmDetailView: View {
                         }
                     )
 
-                    QuickActionsView(mediaType: viewModel.filmDisplay.mediaType, averageColor: viewModel.averageColor)
+                    QuickActionsView(
+                        mediaType: viewModel.filmDisplay.mediaType,
+                        averageColor: viewModel.averageColor,
+                        actionTapped: $actionTapped
+                    )
+
+                    if let actionTapped {
+                        switch actionTapped {
+                        case .collection:
+                            ActionView(averageColor: averageColor) {
+                                HStack {
+                                    Text(actionTapped.longTitle)
+                                        .font(.system(size: 16, weight: .semibold))
+                                        .foregroundStyle(.white)
+
+                                    Spacer()
+
+                                    Label {
+                                        Text("Add a collection")
+                                            .font(.system(size: 14))
+                                    } icon: {
+                                        Image(systemName: "plus")
+                                            .font(.system(size: 14))
+                                    }
+                                    .padding(.vertical, 10)
+                                    .padding(.horizontal, 8)
+                                    .background(averageColor.opacity(0.4))
+                                    .cornerRadius(12)
+                                }
+                            }
+                        case .location:
+                            WatchedAtView(averageColor: viewModel.averageColor)
+                        case .watchCount:
+                            ActionView(averageColor: averageColor) {
+                                HStack(spacing: 0) {
+                                    Text(actionTapped.longTitle + " \(watchCount) times")
+                                        .font(.system(size: 16, weight: .semibold))
+                                        .foregroundStyle(.white)
+
+                                    Spacer()
+
+                                    CustomStepper(steps: 10, startStep: $watchCount)
+                                }
+                                .padding(.vertical, 10)
+                            }
+                        case .watchedWith:
+                            ActionView(averageColor: averageColor) {
+                                Text(actionTapped.longTitle)
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundStyle(.white)
+                            }
+                        case .occasion:
+                            ActionView(averageColor: averageColor) {
+                                Text(actionTapped.longTitle)
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundStyle(.white)
+                            }
+                        case .seasonsWatched:
+                            ActionView(averageColor: averageColor) {
+                                Text(actionTapped.longTitle)
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundStyle(.white)
+                            }
+                        case .favoriteSeason:
+                            ActionView(averageColor: averageColor) {
+                                Text(actionTapped.longTitle)
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundStyle(.white)
+                            }
+                        case .favoriteEpisode:
+                            ActionView(averageColor: averageColor) {
+                                Text(actionTapped.longTitle)
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundStyle(.white)
+                            }
+                        }
+                    }
 
                     // V2 w/ Social Features
 //                    ParticipantsView(averageColor: viewModel.averageColor)

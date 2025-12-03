@@ -35,24 +35,15 @@ struct SearchScreen: View {
     var body: some View {
         BackgroundColorView {
             if searchText.isEmpty {
-                ScrollView {
-                    // Custom header
-                    Text("Search")
-                        .font(.largeTitle.bold())
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 15)
-                        .opacity(headerOpacity)
-                        .onGeometryChange(for: CGFloat.self) { proxy in
-                            proxy.frame(in: .scrollView).minY
-                        } action: { minY in
-                            // how many points until fully invisible
-                            print(minY)
-                            let fadeThreshold = 50.0
-                            headerOpacity = max(0, min(1, (minY + fadeThreshold) / fadeThreshold))
-                        }
-                        .padding(.bottom, 10)
+                VStack(spacing: 10) {
+                    Text("What's Pop'n?")
+                        .font(.title3.bold())
+
+                    Text("Find your next movie, tv show, friend, or favorite cast member.")
+                        .font(.system(size: 16))
+                        .multilineTextAlignment(.center)
                 }
-                .scrollEdgeEffectStyle(.hard, for: .top)
+                .padding(.horizontal, 15)
 
             } else {
                 // Loading View
@@ -172,6 +163,6 @@ struct ListView: View {
     }
 }
 
-//#Preview {
-//    SearchScreen.ListView()
-//}
+#Preview {
+    SearchScreen()
+}

@@ -62,9 +62,9 @@ struct FilmRow: View {
                     }
                 }
             }
-            .padding(15)
+            .padding(.horizontal, 15)
         }
-        .padding(.vertical, -15)
+        .padding(.horizontal, -15)
         .toolbar(isExpanded ? .hidden : .visible, for: .tabBar)
     }
 }

@@ -67,6 +67,20 @@ struct LibraryScreen: View {
                                 namespace: namespace
                             )
 
+                            Text("In Progress")
+                                .font(.system(size: 18, weight: .bold))
+
+                            ScrollView(.horizontal) {
+                                HStack {
+                                    ForEach(1..<5) { _ in
+                                        RoundedRectangle(cornerRadius: 15)
+                                            .frame(width: 125, height: 175)
+                                    }
+                                }
+                                .padding(.horizontal, 15)
+                            }
+                            .padding(.horizontal, -15)
+
                             CollectionsView()
                                 .padding(.top, 10)
                         }

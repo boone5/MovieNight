@@ -1,14 +1,15 @@
+import BundlePlugin
 import ProjectDescription
 
 let project = Project(
-    name: "MovieNight",
+    name: "App",
     targets: [
         .target(
-            name: "MovieNight",
+            name: "App",
             destinations: [.iPhone, .iPad],
             product: .app,
-            bundleId: "com.hunterboone.MovieNight",
-            deploymentTargets: .iOS("26.0"),
+            bundleId: .bundleId(for: "MovieNight"),
+            deploymentTargets: .minimumDeploymentTarget,
             infoPlist: .extendingDefault(
                 with: [
                     "UILaunchScreen": [
@@ -17,9 +18,10 @@ let project = Project(
                     ],
                 ]
             ),
-            sources: ["MovieNight/Sources/**"],
-            resources: ["MovieNight/Resources/**"],
+            sources: ["App/Sources/**"],
+            resources: ["App/Resources/**"],
             dependencies: [
+                .project(target: "Networking", path: "Frameworks"),
                 .external(name: "SwiftUITrackableScrollView"),
                 .external(name: "YouTubePlayerKit")
             ],
@@ -29,24 +31,24 @@ let project = Project(
             ]
         ),
         .target(
-            name: "MovieNightTests",
+            name: "AppTests",
             destinations: .iOS,
             product: .unitTests,
-            bundleId: "com.hunterboone.MovieNightTests",
+            bundleId: .bundleId(for: "MovieNightTests"),
             infoPlist: .default,
-            sources: ["MovieNight/Tests/**"],
+            sources: ["App/Tests/**"],
             resources: [],
-            dependencies: [.target(name: "MovieNight")]
+            dependencies: [.target(name: "App")]
         ),
         .target(
-            name: "MovieNightUITests",
+            name: "AppUITests",
             destinations: .iOS,
             product: .uiTests,
-            bundleId: "com.hunterboone.MovieNightTests",
+            bundleId: .bundleId(for: "MovieNightUITests"),
             infoPlist: .default,
-            sources: ["MovieNight/UITests/**"],
+            sources: ["App/UITests/**"],
             resources: [],
-            dependencies: [.target(name: "MovieNight")]
+            dependencies: [.target(name: "App")]
         ),
     ],
 )

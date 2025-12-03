@@ -7,12 +7,6 @@
 
 import UIKit
 
-enum MovieNightColors {
-    static var title = UIColor(hex: "#f5f2f2")
-    static var subtitle = UIColor(hex: "#D3D3D3")
-    static var body = UIColor(hex: "#C8C8C8")
-}
-
 extension UIColor {
     public convenience init(hex: String) {
         let r, g, b, a: CGFloat

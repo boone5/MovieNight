@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import SwiftUIIntrospect
+
 
 struct ExploreView: View {
     @EnvironmentObject var searchViewModel: SearchViewModel

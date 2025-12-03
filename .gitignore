@@ -1,5 +1,32 @@
-MovieNight.xcodeproj/xcshareddata/*
-MovieNight.xcodeproj/xcuserdata/*
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Xcode Patch
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcworkspace/contents.xcworkspacedata
+/*.gcno
+
+# Projects
+*.xcodeproj
+*.xcworkspace
+
+# Tuist derived files
+graph.dot
+Derived/
+Frameworks/build
+
+# Tuist managed dependencies
+Tuist/.build
+
+# User settings
+xcuserdata/
+
+# Vscode
+.vscode/
 
 # Sensitive
 /APIKey.swift

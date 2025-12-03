@@ -12,8 +12,8 @@
 </p>
 
 <p align="center">
-<img src= "readme/search.png" height="300" >
-<img src= "readme/tron-search.png" height="300" >
+<img src= "Readme/search.png" height="300" >
+<img src= "Readme/tron-search.png" height="300" >
 </p>
 
 Pop'n (a.k.a. MovieNight) is an evolving SwiftUI app that helps users discover upcoming movies and TV shows, rate and favorite titles, build a personal library, and pick something to watch when indecision strikes.

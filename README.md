@@ -4,7 +4,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/boon5/MovieNight">
-    <img src="readme/popcorn.png" alt="Logo" width="80" height="80" style="border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.3); padding: 5px; background: rgba(255, 255, 255, 0.2);">
+    <img src="Readme/popcorn.png" alt="Logo" width="80" height="80" style="border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.3); padding: 5px; background: rgba(255, 255, 255, 0.2);">
   </a>
   <p align="center">
     A modern iOS app for discovering, rating, organizing and sharing movies and TV shows — like Spotify but for film and TV.

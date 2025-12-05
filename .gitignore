@@ -29,5 +29,4 @@ xcuserdata/
 .vscode/
 
 # Sensitive
-/APIKey.swift
-MovieNight/Network/APIKey.swift
+**/APIKey.swift

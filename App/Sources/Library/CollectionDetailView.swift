@@ -5,7 +5,9 @@
 //  Created by Boone on 2/18/25.
 //
 
+import Models
 import SwiftUI
+import UI
 
 struct CollectionDetailView: View {
     let title: String?

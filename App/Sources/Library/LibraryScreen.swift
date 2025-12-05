@@ -5,7 +5,9 @@
 //  Created by Boone on 6/30/24.
 //
 
+import Models
 import SwiftUI
+import UI
 
 struct LibraryScreen: View {
     @StateObject private var thumbnailViewModel = ThumbnailView.ViewModel()

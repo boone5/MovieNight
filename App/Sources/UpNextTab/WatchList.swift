@@ -5,7 +5,9 @@
 //  Created by Boone on 7/12/25.
 //
 
+import Models
 import SwiftUI
+import UI
 
 struct WatchList: View {
     @StateObject private var thumbnailViewModel = ThumbnailView.ViewModel()

@@ -1,33 +1,190 @@
 //
-//  MovieProvider.swift
-//  MovieNight
+//  LiveMovieProvider.swift
+//  Networking
 //
-//  Created by Boone on 1/1/24.
+//  Created by Ayren King on 12/5/25.
 //
 
-import Foundation
 import CoreData
+import Dependencies
+import Foundation
+import Logger
 import Models
 
-// Help us manage and interact with Data
-// Should only have one instance to interact with memory
-public final class MovieProvider {
-    public static let shared = MovieProvider()
-
-    public static let preview: MovieProvider = {
-        let controller = MovieProvider(inMemory: true)
-        return controller
-    }()
-
+public class MovieProvider: MovieProviderClient {
+    @Dependency(\.logger.log) var log
     private let inMemory: Bool
 
-    private init(inMemory: Bool = false) {
+    internal init(inMemory: Bool = false) {
         self.inMemory = inMemory
     }
 
     /// A persistent container to set up the Core Data stack.
     public lazy var container: NSPersistentContainer = {
-        /// - Tag: persistentContainer
+        NSPersistentContainer.filmContainer(inMemory: inMemory)
+    }()
+
+    public func save() {
+        if container.viewContext.hasChanges {
+            do {
+                try container.viewContext.save()
+                log(.movieProvider, .info, "✅ Successfully saved Movie into Core Data")
+            } catch {
+                log(.movieProvider, .error, "⛔️ Error saving Movie into Core Data: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    public func fetchFilm(_ id: Film.ID) -> Film? {
+        let fetchRequest: NSFetchRequest<Film> = Film.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %d", id)
+        fetchRequest.fetchLimit = 1
+
+        do {
+            let results = try container.viewContext.fetch(fetchRequest)
+            if let movie = results.first {
+                return movie
+            }
+        } catch {
+            log(.movieProvider, .error, "⛔️ Error fetching film: \(error.localizedDescription)")
+        }
+
+        return nil
+    }
+
+    public func fetchCollection(_ id: UUID) -> FilmCollection? {
+        let request: NSFetchRequest<FilmCollection> = FilmCollection.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+
+        do {
+            return try container.viewContext.fetch(request).first
+        } catch {
+            log(.movieProvider, .error, "⛔️ Error fetching Collection: \(error)")
+            return nil
+        }
+    }
+
+    @discardableResult
+    public func saveFilmToLibrary(_ request: FilmSaveRequest) throws(MovieError) -> Film {
+        let movie = Film(context: container.viewContext)
+        movie.title = request.film.title
+        movie.id = request.film.id
+        movie.dateWatched = Date()
+        movie.posterPath = request.film.posterPath
+        movie.overview = request.film.overview
+        movie.releaseDate = request.film.releaseDate
+        movie.isLiked = request.isLiked
+        movie.isDisliked = request.isDisliked
+        movie.isLoved = request.isLoved
+
+        if let comment = request.comment {
+            movie.addToComments(comment)
+        }
+
+        switch request.film.mediaType {
+        case .movie:
+            // add to movie collection
+            if let movieCollection = fetchCollection(withIdentifier: FilmCollection.movieID) {
+                movieCollection.addToFilms(movie)
+                movie.collection = movieCollection
+            }
+
+        case .tvShow:
+            // add to tvshow collection
+            if let tvShowCollection = fetchCollection(withIdentifier: FilmCollection.tvShowID) {
+                tvShowCollection.addToFilms(movie)
+                movie.collection = tvShowCollection
+            }
+        }
+
+        if let context = movie.managedObjectContext {
+            do {
+                try context.save()
+            } catch {
+                log(.movieProvider, .error, "⛔️ Failed to save: \(error)")
+                throw MovieError.unableToSaveFilm
+            }
+        }
+        return movie
+    }
+
+    @discardableResult
+    public func saveFilmToWatchLater(_ film: DetailViewRepresentable) throws(MovieError) -> Film {
+        let filmCD = Film(context: container.viewContext)
+        filmCD.title = film.title
+        filmCD.id = film.id
+        filmCD.dateWatched = nil
+        filmCD.posterPath = film.posterPath
+        filmCD.overview = film.overview
+        filmCD.releaseDate = film.releaseDate
+        filmCD.isOnWatchList = true
+
+        if let watchLaterCollection = fetchCollection(withIdentifier: FilmCollection.watchLaterID) {
+            watchLaterCollection.addToFilms(filmCD)
+            filmCD.collection = watchLaterCollection
+        }
+
+        if let context = filmCD.managedObjectContext {
+            do {
+                try context.save()
+            } catch {
+                log(.movieProvider, .error, "⛔️ Failed to save: \(error)")
+                throw MovieError.unableToSaveFilm
+            }
+        }
+        return filmCD
+    }
+
+    public func deleteFilm(_ id: Film.ID) throws(MovieError) {
+        guard  let movieToDelete = fetchFilmByID(id) else {
+            throw MovieError.filmNotFound
+        }
+        container.viewContext.delete(movieToDelete)
+        saveContext()
+    }
+
+    /// Loads default Collections into Core Data
+    public func prepareDefaultCollections() throws(MovieError) {
+        // Get the managed object context from your Core Data stack
+        let context = container.viewContext
+
+        let fetchRequest: NSFetchRequest<FilmCollection> = FilmCollection.fetchRequest()
+
+        do {
+            let count = try context.count(for: fetchRequest)
+
+            // If count is 0, the store is empty and we need to seed it
+            if count == 0 {
+                let movieCollection = FilmCollection(context: context)
+                movieCollection.id = FilmCollection.movieID
+                movieCollection.title = "Movies"
+                movieCollection.imageName = "movieclapper"
+                movieCollection.dateCreated = Date()
+
+                let tvShowCollection = FilmCollection(context: context)
+                tvShowCollection.id = FilmCollection.tvShowID
+                tvShowCollection.title = "TV Shows"
+                tvShowCollection.imageName = "rectangle.portrait.on.rectangle.portrait.angled"
+                tvShowCollection.dateCreated = Date()
+
+                let watchLaterCollection = FilmCollection(context: context)
+                watchLaterCollection.id = FilmCollection.watchLaterID
+                watchLaterCollection.title = "Watch Later"
+                watchLaterCollection.imageName = "text.badge.checkmark"
+                watchLaterCollection.dateCreated = Date()
+
+                try context.save()
+
+                log(.movieProvider, .info, "✅ Default collections added!")
+            }
+        } catch {
+            log(.movieProvider, .error, "⛔️ Error preloading default data: \(error)")
+        }
+    }
+}
+
+extension NSPersistentContainer {
+    static func filmContainer(inMemory: Bool) -> NSPersistentContainer {
         guard let modelURL = CoreDataInfo.modelURL, let managedObjectModel = NSManagedObjectModel(contentsOf: modelURL) else {
             fatalError("Unable to load the managed object model.")
         }
@@ -59,179 +216,10 @@ public final class MovieProvider {
         container.viewContext.name = "viewContext"
 
         return container
-    }()
-
-    func saveContext() {
-        if container.viewContext.hasChanges {
-            do {
-                try container.viewContext.save()
-                
-                print("✅ Successfully saved Movie into Core Data")
-            } catch {
-                print("⛔️ Error saving Movie into Core Data: \(error.localizedDescription)")
-            }
-        }
     }
+}
 
-    public func fetchFilmByID(_ id: Int64) -> Film? {
-        let fetchRequest: NSFetchRequest<Film> = Film.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "id == %d", id)
-        fetchRequest.fetchLimit = 1
-
-        do {
-            let results = try container.viewContext.fetch(fetchRequest)
-            if let movie = results.first {
-                return movie
-            }
-        } catch {
-            print("⛔️ Error fetching film: \(error)")
-        }
-
-        return nil
-    }
-
-    func fetchCollection(withIdentifier id: UUID) -> FilmCollection? {
-        let request: NSFetchRequest<FilmCollection> = FilmCollection.fetchRequest()
-        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
-
-        do {
-            return try container.viewContext.fetch(request).first
-        } catch {
-            print("⛔️ Error fetching Collection: \(error)")
-            return nil
-        }
-    }
-
-    @discardableResult
-    public func saveFilmToLibrary(
-        _ film: DetailViewRepresentable,
-        comment: Comment? = nil,
-        isLiked: Bool,
-        isDisliked: Bool,
-        isLoved: Bool
-    ) -> Film {
-        let movie = Film(context: container.viewContext)
-        movie.title = film.title
-        movie.id = film.id
-        movie.dateWatched = Date()
-        movie.posterPath = film.posterPath
-        movie.overview = film.overview
-        movie.releaseDate = film.releaseDate
-        movie.isLiked = isLiked
-        movie.isDisliked = isDisliked
-        movie.isLoved = isLoved
-
-        if let comment {
-            movie.addToComments(comment)
-        }
-
-        switch film.mediaType {
-        case .movie:
-            // add to movie collection
-            if let movieCollection = fetchCollection(withIdentifier: FilmCollection.movieID) {
-                movieCollection.addToFilms(movie)
-                movie.collection = movieCollection
-            }
-
-        case .tvShow:
-            // add to tvshow collection
-            if let tvShowCollection = fetchCollection(withIdentifier: FilmCollection.tvShowID) {
-                tvShowCollection.addToFilms(movie)
-                movie.collection = tvShowCollection
-            }
-        }
-
-        if let context = movie.managedObjectContext {
-            do {
-                try context.save()
-            } catch {
-                print("Failed to save: \(error)")
-            }
-        }
-        return movie
-    }
-
-    public func saveFilmToWatchLater(_ film: DetailViewRepresentable) {
-        let filmCD = Film(context: container.viewContext)
-        filmCD.title = film.title
-        filmCD.id = film.id
-        filmCD.dateWatched = nil
-        filmCD.posterPath = film.posterPath
-        filmCD.overview = film.overview
-        filmCD.releaseDate = film.releaseDate
-        filmCD.isOnWatchList = true
-
-        if let watchLaterCollection = fetchCollection(withIdentifier: FilmCollection.watchLaterID) {
-            watchLaterCollection.addToFilms(filmCD)
-            filmCD.collection = watchLaterCollection
-        }
-
-        if let context = filmCD.managedObjectContext {
-            do {
-                try context.save()
-            } catch {
-                print("Failed to save: \(error)")
-            }
-        }
-    }
-
-    public func deleteMovie(by id: Int64) {
-        if let movieToDelete = fetchFilmByID(id) {
-            container.viewContext.delete(movieToDelete)
-            saveContext()
-        }
-    }
-
-    /// Loads default Collections into Core Data
-    public func preloadDefaultCollectionsIfNeeded() {
-        // Get the managed object context from your Core Data stack
-        let context = container.viewContext
-
-        let fetchRequest: NSFetchRequest<FilmCollection> = FilmCollection.fetchRequest()
-
-        do {
-            let count = try context.count(for: fetchRequest)
-
-            // If count is 0, the store is empty and we need to seed it
-            if count == 0 {
-                let movieCollection = FilmCollection(context: context)
-                movieCollection.id = FilmCollection.movieID
-                movieCollection.title = "Movies"
-                movieCollection.imageName = "movieclapper"
-                movieCollection.dateCreated = Date()
-
-                let tvShowCollection = FilmCollection(context: context)
-                tvShowCollection.id = FilmCollection.tvShowID
-                tvShowCollection.title = "TV Shows"
-                tvShowCollection.imageName = "rectangle.portrait.on.rectangle.portrait.angled"
-                tvShowCollection.dateCreated = Date()
-
-                let watchLaterCollection = FilmCollection(context: context)
-                watchLaterCollection.id = FilmCollection.watchLaterID
-                watchLaterCollection.title = "Watch Later"
-                watchLaterCollection.imageName = "text.badge.checkmark"
-                watchLaterCollection.dateCreated = Date()
-
-                try context.save()
-
-                print("✅ Default collections added!")
-            }
-        } catch {
-            print("⛔️ Error preloading default data: \(error)")
-        }
-    }
-
-    static func makeMockFilms(count: Int) -> [Film] {
-        let context = MovieProvider.preview.container.viewContext
-        var films: [Film] = []
-
-        for i in 1...count {
-            let film = Film(context: context)
-            film.title = "Mock Film \(i)"
-            // Add other Film properties here
-            films.append(film)
-        }
-
-        return films
-    }
+public enum MovieError: Error {
+    case unableToSaveFilm
+    case filmNotFound
 }

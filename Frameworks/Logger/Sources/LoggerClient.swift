@@ -19,7 +19,8 @@ public struct LoggerClient {
 private enum LoggerClientKey: DependencyKey {
     private static let loggers: [LoggerCategory: Logger] = {[
         .networking: Logger(category: .networking),
-        .imageLoading: Logger(category: .imageLoading)
+        .imageLoading: Logger(category: .imageLoading),
+        .movieProvider: Logger(category: .movieProvider),
     ]}()
 
     static var liveValue: LoggerClient {
@@ -46,6 +47,7 @@ public extension DependencyValues {
 public enum LoggerCategory {
     case networking
     case imageLoading
+    case movieProvider
 
     var categoryName: String {
         switch self {
@@ -53,6 +55,8 @@ public enum LoggerCategory {
             return "Networking"
         case .imageLoading:
             return "ImageLoading"
+            case .movieProvider:
+            return "MovieProvider"
         }
     }
 }

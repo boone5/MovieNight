@@ -6,6 +6,7 @@
 //
 
 import CoreData
+import Dependencies
 import Networking
 import SwiftUI
 // Taken from https://stackoverflow.com/questions/72941738/closing-a-view-when-it-reaches-the-top-that-has-a-scrollview-in-swiftui
@@ -324,6 +325,8 @@ extension FilmDetailView {
         private let movieProvider: MovieProvider = .shared
         private let posterImage: UIImage?
 
+        @Dependency(\.networkClient) var networkClient
+
         init(posterImage: UIImage?, film: some DetailViewRepresentable) {
             self.posterImage = posterImage
             self.averageColor = Color(uiColor: UIColor(resource: .brightRed))
@@ -437,7 +440,7 @@ extension FilmDetailView {
         public func getAdditionalDetailsTVShow() async {
             do {
                 let endpoint = TMDBEndpoint.tvShowDetails(id: filmDisplay.id)
-                let tvShowDetails: AdditionalDetailsTVShow = try await NetworkManager().request(endpoint)
+                let tvShowDetails: AdditionalDetailsTVShow = try await networkClient.request(endpoint)
                 let genres = tvShowDetails.genres.map { $0.name }.joined(separator: ", ")
                 let releasedSeasons = tvShowDetails.releasedSeasons()
 
@@ -455,7 +458,7 @@ extension FilmDetailView {
         public func getAdditionalDetailsMovie() async {
             do {
                 let endpoint = TMDBEndpoint.movieDetails(id: filmDisplay.id)
-                let movieDetails: AdditionalDetailsMovie = try await NetworkManager().request(endpoint)
+                let movieDetails: AdditionalDetailsMovie = try await networkClient.request(endpoint)
                 let genres = movieDetails.genres.map { $0.name }.joined(separator: ", ")
 
                 do {

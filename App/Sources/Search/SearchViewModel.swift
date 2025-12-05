@@ -6,6 +6,7 @@
 //
 
 import Combine
+import Dependencies
 import Networking
 import SwiftUI
 
@@ -20,7 +21,7 @@ class SearchViewModel: ObservableObject {
 
     private var state: LoadingState = .ready
     private var page: Int = 1
-    private var networkManager = NetworkManager()
+    @Dependency(\.networkClient) private var networkClient
     private var searchQuery: String = ""
 
     func search(query: String) {
@@ -41,7 +42,7 @@ class SearchViewModel: ObservableObject {
         self.page = 1
 
         do {
-            let response: SearchResponse = try await networkManager.request(SearchEndpoint.multi(query: query, page: page))
+            let response: SearchResponse = try await networkClient.request(SearchEndpoint.multi(query: query, page: page))
 
             // this causes problems w/ pagination if cleanResults are less than 3
             let cleanResults = response.results.filter { $0 != .empty }
@@ -68,7 +69,7 @@ class SearchViewModel: ObservableObject {
         self.state = .fetching
 
         do {
-            let response: SearchResponse = try await networkManager.request(SearchEndpoint.multi(query: searchQuery, page: page))
+            let response: SearchResponse = try await networkClient.request(SearchEndpoint.multi(query: searchQuery, page: page))
 
             let cleanResults = response.results.filter { $0 != .empty }
 

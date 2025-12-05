@@ -96,26 +96,26 @@ struct LogInScreen: View {
     }
 
     private func login() async {
-        do {
-            let loginRequest = LoginRequest(username: username, password: password)
-            let encoded = try JSONEncoder().encode(loginRequest)
-
-            let url = try NetworkManager().createURL(from: LoginEndpoint.login)
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-            request.setValue(APIKey.key_AWS, forHTTPHeaderField: "x-api-key")
-            request.httpBody = encoded
-
-            let (data, res) = try await URLSession.shared.data(for: request)
-
-            guard let res = res as? HTTPURLResponse else {
-                return
-            }
-
-            //                self.statusCode = res.description
-        } catch {
-            print("Error: \(error)")
-        }
+//        do {
+//            let loginRequest = LoginRequest(username: username, password: password)
+//            let encoded = try JSONEncoder().encode(loginRequest)
+//
+//            let url = try NetworkManager().createURL(from: LoginEndpoint.login)
+//            var request = URLRequest(url: url)
+//            request.httpMethod = "POST"
+//            request.setValue(APIKey.key_AWS, forHTTPHeaderField: "x-api-key")
+//            request.httpBody = encoded
+//
+//            let (data, res) = try await URLSession.shared.data(for: request)
+//
+//            guard let res = res as? HTTPURLResponse else {
+//                return
+//            }
+//
+//            //                self.statusCode = res.description
+//        } catch {
+//            print("Error: \(error)")
+//        }
     }
 
     struct LoginRequest: Encodable {

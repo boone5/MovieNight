@@ -5,6 +5,7 @@
 //  Created by Boone on 12/3/23.
 //
 
+import Dependencies
 import Networking
 import Foundation
 import UIKit
@@ -14,7 +15,8 @@ actor ImageLoader {
     // The key will be a String representation of the URL. The value will be the image object stored as Data.
     typealias CacheType = NSCache<NSString, NSData>
 
-    private let networkManager: NetworkManager = NetworkManager()
+    @Dependency(\.logger.log) var log
+    @Dependency(\.networkClient.requestData) var requestData
     private var map: [String: LoaderStatus] = [:]
 
     private lazy var cache: CacheType = {
@@ -35,10 +37,10 @@ actor ImageLoader {
         if let status = map[imgExtension] {
             switch status {
             case .inProgress(let task):
-                print("⚠️ Awaiting outgoing task")
+                log(.imageLoading, .debug, "⚠️ Awaiting outgoing task")
                 let data = try await task.value
 
-                print("✅ Outgoing Task finished loading")
+                log(.imageLoading, .debug, "✅ Outgoing Task finished loading")
 
                 map[imgExtension] = nil
 
@@ -53,7 +55,7 @@ actor ImageLoader {
 
         // 3) Request image
         let task: Task<Data, Error> = Task {
-            let data = try await self.networkManager.requestData(PosterEndpoint.poster(imgExtension))
+            let data = try await requestData(PosterEndpoint.poster(imgExtension))
             set(object: data, forKey: imgExtension)
             return data
         }
@@ -69,7 +71,7 @@ actor ImageLoader {
 
     // Get from Cache
     private func getObject(forKey key: String?) -> Data? {
-        print("⬇️ Fetching Image from Cache for key: \(String(describing: key))")
+        log(.imageLoading, .debug, "⬇️ Fetching Image from Cache for key: \(String(describing: key))")
 
         guard let key else { return nil }
 
@@ -78,7 +80,7 @@ actor ImageLoader {
 
     // Save to Cache
     private func set(object: Data, forKey key: String) {
-        print("⬆️ Storing image in Cache for key: \(key)")
+        log(.imageLoading, .debug, "⬆️ Storing image in Cache for key: \(key)")
         cache.setObject(object as NSData, forKey: key as NSString)
     }
 

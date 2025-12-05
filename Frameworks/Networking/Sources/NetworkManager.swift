@@ -7,6 +7,7 @@
 
 import Dependencies
 import Foundation
+import Logger
 
 public struct NetworkClient {
     public var requestData: (_ endpoint: EndpointProviding) async throws -> Data
@@ -17,18 +18,26 @@ public struct NetworkClient {
     ///   - decoder: The JSON decoder to use for decoding the response. Defaults to `JSONDecoder()`.
     /// - Returns: Decoded object of type `T`.
     public func request<T: Decodable>(_ endpoint: EndpointProviding, decoder: JSONDecoder = JSONDecoder()) async throws -> T {
-        let data = try await requestData(endpoint)
-        return try decoder.decode(T.self, from: data)
+        do {
+            let data = try await requestData(endpoint)
+            return try decoder.decode(T.self, from: data)
+        } catch let error as DecodingError {
+            @Dependency(\.logger.log) var log
+            log(.networking, .error, "Failed to decode response for endpoint: \(endpoint.path()) with error: \(error)")
+            throw error
+        }
     }
 }
 
 extension NetworkClient: DependencyKey {
     public static let liveValue =  Self(
         requestData: { endpoint in
+            @Dependency(\.logger.log) var log
             guard let url = try? RequestUtils.createURL(from: endpoint) else { throw APIError.badURL }
             let request = RequestUtils.createRequest(url: url, apiKey: endpoint.apiKey)
 
             do {
+                log(.networking, .info, "🛜 \(url)")
                 let (data, res) = try await URLSession.shared.data(for: request)
 
                 guard let res = res as? HTTPURLResponse, res.statusCode == 200 else {
@@ -37,6 +46,7 @@ extension NetworkClient: DependencyKey {
 
                 return data
             } catch {
+                log(.networking, .error, "Network request failed for endpoint: \(endpoint.path()) with error: \(error)")
                 throw APIError.networkError(error)
             }
         }

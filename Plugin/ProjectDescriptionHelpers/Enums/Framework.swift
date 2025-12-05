@@ -8,6 +8,7 @@
 import ProjectDescription
 
 public enum Framework: String {
+    case logger = "Logger"
     case networking = "Networking"
 
     public var name: String {

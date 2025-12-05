@@ -21,10 +21,17 @@ let project = Project(
             sources: ["App/Sources/**"],
             resources: ["App/Resources/**"],
             dependencies: [
+                .project(.logger, from: .frameworks),
                 .project(.networking, from: .frameworks),
+                .external(.composableArchitecture),
                 .external(name: "SwiftUITrackableScrollView"),
                 .external(name: "YouTubePlayerKit")
             ],
+            settings: .settings(
+                base: [
+                    "OTHER_LDFLAGS": .otherLDFlags
+                ]
+            ),
             coreDataModels: [
                 .coreDataModel("CoreData/FilmContainer.xcdatamodeld"),
                 .coreDataModel("CoreData/MovieNight.xcdatamodeld"),

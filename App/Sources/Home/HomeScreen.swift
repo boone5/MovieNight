@@ -5,6 +5,7 @@
 //  Created by Boone on 11/26/25.
 //
 
+import Dependencies
 import Networking
 import SwiftUI
 
@@ -22,8 +23,7 @@ struct HomeScreen: View {
     @State private var selectedFilm: SelectedFilm?
     @Namespace private var namespace
 
-    // TODO: Turn into Dependency via environment
-    private let networkManager = NetworkManager()
+    @Dependency(\.networkClient) var networkClient
 
     var body: some View {
         ScrollView {
@@ -117,7 +117,7 @@ struct HomeScreen: View {
 extension HomeScreen {
     public func getTrendingMovies() async -> [MovieResponse] {
         do {
-            let response: TrendingMoviesResponse = try await networkManager.request(TMDBEndpoint.trendingMovies)
+            let response: TrendingMoviesResponse = try await networkClient.request(TMDBEndpoint.trendingMovies)
             return response.results
         } catch {
             print("⛔️ Error fetching trending movies: \(error)")
@@ -127,7 +127,7 @@ extension HomeScreen {
 
     public func getTrendingTVShows() async -> [TVShowResponse] {
         do {
-            let response: TrendingTVShowsResponse = try await networkManager.request(TMDBEndpoint.trendingTVShows)
+            let response: TrendingTVShowsResponse = try await networkClient.request(TMDBEndpoint.trendingTVShows)
             return response.results
         } catch {
             print("⛔️ Error fetching trending tv shows: \(error)")

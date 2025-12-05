@@ -5,6 +5,7 @@
 //  Created by Boone on 3/29/25.
 //
 
+import Dependencies
 import Models
 import Networking
 import SwiftUI
@@ -109,18 +110,30 @@ struct UpNextScreen: View {
     }
 }
 
-#Preview {
-    let context = MovieProvider.preview.container.viewContext
-    let watchList = FilmCollection(context: context)
-    watchList.id = FilmCollection.watchLaterID
+import CoreData
 
-    for i in 0..<3 {
-        let film = Film(context: context)
-        film.id = Int64(i)
-        film.title = "Mock Film \(i)"
-        film.collection =  watchList
+#Preview {
+    struct UpNextScreenPreviews: View {
+        let context: NSManagedObjectContext = {
+            @Dependency(\.movieProvider) var movieProvider
+            let context = movieProvider.container.viewContext
+            let watchList = FilmCollection(context: context)
+            watchList.id = FilmCollection.watchLaterID
+
+            for i in 0..<3 {
+                let film = Film(context: context)
+                film.id = Int64(i)
+                film.title = "Mock Film \(i)"
+                film.collection =  watchList
+            }
+            return context
+        }()
+
+        var body: some View {
+            UpNextScreen()
+                .environment(\.managedObjectContext, context)
+        }
     }
 
-    return UpNextScreen()
-        .environment(\.managedObjectContext, context)
+    return UpNextScreenPreviews()
 }

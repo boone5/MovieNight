@@ -84,14 +84,14 @@ public class MovieProvider: MovieProviderClient {
         switch request.film.mediaType {
         case .movie:
             // add to movie collection
-            if let movieCollection = fetchCollection(withIdentifier: FilmCollection.movieID) {
+            if let movieCollection = fetchCollection(FilmCollection.movieID) {
                 movieCollection.addToFilms(movie)
                 movie.collection = movieCollection
             }
 
         case .tvShow:
             // add to tvshow collection
-            if let tvShowCollection = fetchCollection(withIdentifier: FilmCollection.tvShowID) {
+            if let tvShowCollection = fetchCollection(FilmCollection.tvShowID) {
                 tvShowCollection.addToFilms(movie)
                 movie.collection = tvShowCollection
             }
@@ -119,7 +119,7 @@ public class MovieProvider: MovieProviderClient {
         filmCD.releaseDate = film.releaseDate
         filmCD.isOnWatchList = true
 
-        if let watchLaterCollection = fetchCollection(withIdentifier: FilmCollection.watchLaterID) {
+        if let watchLaterCollection = fetchCollection(FilmCollection.watchLaterID) {
             watchLaterCollection.addToFilms(filmCD)
             filmCD.collection = watchLaterCollection
         }
@@ -136,11 +136,11 @@ public class MovieProvider: MovieProviderClient {
     }
 
     public func deleteFilm(_ id: Film.ID) throws(MovieError) {
-        guard  let movieToDelete = fetchFilmByID(id) else {
+        guard  let movieToDelete = fetchFilm(id) else {
             throw MovieError.filmNotFound
         }
         container.viewContext.delete(movieToDelete)
-        saveContext()
+        save()
     }
 
     /// Loads default Collections into Core Data

@@ -5,12 +5,14 @@
 //  Created by Boone on 12/12/24.
 //
 
+import Dependencies
 import Networking
 import SwiftUI
 
 public struct ThumbnailView: View {
     @Environment(\.imageLoader) private var imageLoader
     @ObservedObject var viewModel: ThumbnailView.ViewModel
+    @Dependency(\.movieProvider) var movieProvider
 
     @State private var uiImage: UIImage?
 
@@ -75,7 +77,7 @@ public struct ThumbnailView: View {
                 await loadImage(url: posterPath)
             }
 
-            if let film = MovieProvider.shared.fetchFilmByID(filmID) {
+            if let film = movieProvider.fetchFilm(filmID) {
                 if film.isLiked {
                     feedback = .like(enabled: true)
                 } else if film.isDisliked {

@@ -20,7 +20,6 @@ import YouTubePlayerKit
     @Previewable @State var isExpanded: Bool = true
     @Previewable @Namespace var namespace
 
-    let previewCD = MovieProvider.preview.container.viewContext
     let film: ResponseType = ResponseType.movie(MovieResponse())
 //    let film: ResponseType = ResponseType.tvShow(TVShowResponse())
 
@@ -323,9 +322,10 @@ extension FilmDetailView {
         @Published var trailer: AdditionalDetailsMovie.VideoResponse.Video?
         @Published var genres: String?
 
-        private let movieProvider: MovieProvider = .shared
         private let posterImage: UIImage?
 
+        @Dependency(\.date.now) var now
+        @Dependency(\.movieProvider) var movieProvider
         @Dependency(\.networkClient) var networkClient
 
         init(posterImage: UIImage?, film: some DetailViewRepresentable) {
@@ -344,7 +344,7 @@ extension FilmDetailView {
                 self.averageColor = Color(uiColor: color)
             }
 
-            if let existingFilm = movieProvider.fetchFilmByID(filmDisplay.id) {
+            if let existingFilm = movieProvider.fetchFilm(filmDisplay.id) {
                 isLiked = existingFilm.isLiked
                 isLoved = existingFilm.isLoved
                 isDisliked = existingFilm.isDisliked
@@ -354,15 +354,17 @@ extension FilmDetailView {
             setMenuActions()
         }
 
-        public func saveToLibraryIfNecessary() -> Film {
-            if let existingFilm = MovieProvider.shared.fetchFilmByID(filmDisplay.id) {
+        public func saveToLibraryIfNecessary() -> Film? {
+            if let existingFilm = movieProvider.fetchFilm(filmDisplay.id) {
                 existingFilm
             } else {
-                movieProvider.saveFilmToLibrary(
-                    filmDisplay,
-                    isLiked: isLiked,
-                    isDisliked: isDisliked,
-                    isLoved: isLoved
+                try? movieProvider.saveFilmToLibrary(
+                    .init(
+                        filmDisplay,
+                        isLiked: isLiked,
+                        isDisliked: isDisliked,
+                        isLoved: isLoved
+                    )
                 )
             }
         }
@@ -370,7 +372,7 @@ extension FilmDetailView {
         public func markSeasonAsWatched(_ season: AdditionalDetailsTVShow.SeasonResponse) {
             let cdFilm = saveToLibraryIfNecessary()
 
-            guard let context = cdFilm.managedObjectContext else { return }
+            guard let cdFilm, let context = cdFilm.managedObjectContext else { return }
 
             let seasonCD = Season(context: context)
             seasonCD.id = Int64(season.id)
@@ -388,10 +390,10 @@ extension FilmDetailView {
         }
 
         public func addComment(text: String) {
-            let date = Date()
+            let date = now
             let cdFilm = saveToLibraryIfNecessary()
 
-            guard let context = cdFilm.managedObjectContext else { return }
+            guard let cdFilm, let context = cdFilm.managedObjectContext else { return }
 
             let comment = Comment(context: context)
             comment.date = date
@@ -420,7 +422,7 @@ extension FilmDetailView {
 
             let cdFilm = saveToLibraryIfNecessary()
 
-            guard let context = cdFilm.managedObjectContext else { return }
+            guard let cdFilm, let context = cdFilm.managedObjectContext else { return }
 
             cdFilm.isLiked = isLiked
             cdFilm.isLoved = isLoved
@@ -486,7 +488,7 @@ extension FilmDetailView {
             self.isLoved = false
             self.isDisliked = false
 
-            MovieProvider.shared.deleteMovie(by: filmDisplay.id)
+            try? movieProvider.deleteFilm(filmDisplay.id)
             setMenuActions()
         }
 
@@ -495,11 +497,13 @@ extension FilmDetailView {
             self.isLoved = false
             self.isDisliked = false
 
-            MovieProvider.shared.saveFilmToLibrary(
-                filmDisplay,
-                isLiked: false,
-                isDisliked: false,
-                isLoved: false
+            try? movieProvider.saveFilmToLibrary(
+                .init(
+                    filmDisplay,
+                    isLiked: false,
+                    isDisliked: false,
+                    isLoved: false
+                )
             )
             setMenuActions()
         }
@@ -509,7 +513,7 @@ extension FilmDetailView {
             self.isLoved = false
             self.isDisliked = false
 
-            MovieProvider.shared.saveFilmToWatchLater(self.filmDisplay)
+            try? movieProvider.saveFilmToWatchLater(self.filmDisplay)
             setMenuActions()
         }
 
@@ -518,7 +522,7 @@ extension FilmDetailView {
             var menu = [UIMenu]()
             var actions = [UIAction]()
 
-            outer: if let existingFilm = MovieProvider.shared.fetchFilmByID(filmDisplay.id) {
+            outer: if let existingFilm = movieProvider.fetchFilm(filmDisplay.id) {
                 guard existingFilm.isOnWatchList else {
                     destructiveAction = UIAction(title: "Remove from Library", image: UIImage(systemName: "trash"), attributes: .destructive) { (action) in
                         self.removeFromLibrary()

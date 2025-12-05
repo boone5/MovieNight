@@ -19,6 +19,8 @@ public protocol MovieProviderClient {
     func saveFilmToWatchLater(_ film: DetailViewRepresentable) throws(MovieError) -> Film
     func deleteFilm(_ id: Film.ID) throws(MovieError)
     func prepareDefaultCollections() throws(MovieError)
+
+    var container: NSPersistentContainer { get }
 }
 
 private enum MovieProviderClientKey: DependencyKey {

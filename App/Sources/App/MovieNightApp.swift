@@ -11,12 +11,12 @@ import SwiftUI
 
 @main
 struct MovieNightApp: App {
-    let movieProvider = MovieProvider.shared
 
     @MainActor
     static let store: StoreOf<AppFeature> = {
         let store = Store(initialState: AppFeature.State(), reducer: AppFeature.init)
-        MovieProvider.shared.preloadDefaultCollectionsIfNeeded()
+        @Dependency(\.movieProvider) var movieProvider
+        try? movieProvider.prepareDefaultCollections()
         return store
     }()
 

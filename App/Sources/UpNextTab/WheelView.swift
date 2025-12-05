@@ -5,6 +5,7 @@
 //  Created by Boone on 7/12/25.
 //
 
+import Dependencies
 import Models
 import Networking
 import SwiftUI
@@ -170,18 +171,30 @@ extension Collection {
     }
 }
 
+import CoreData
+
 #Preview {
-    let context = MovieProvider.preview.container.viewContext
-    let watchList = FilmCollection(context: context)
-    watchList.id = FilmCollection.watchLaterID
+    struct WheelViewPreview: View {
+        let films: [Film] = {
+            @Dependency(\.movieProvider) var movieProvider
+            let context = movieProvider.container.viewContext
+            let watchList = FilmCollection(context: context)
+            watchList.id = FilmCollection.watchLaterID
 
-    var films: [Film] = []
+            var films: [Film] = []
 
-    for i in 0..<3 {
-        let film = Film(context: context)
-        film.title = "Mock Film \(i)"
-        films.append(film)
+            for i in 0..<3 {
+                let film = Film(context: context)
+                film.title = "Mock Film \(i)"
+                films.append(film)
+            }
+            return films
+        }()
+
+        var body: some View {
+            WheelView(films: films)
+        }
     }
 
-    return WheelView(films: films)
+    return WheelViewPreview()
 }

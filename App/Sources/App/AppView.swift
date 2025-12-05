@@ -13,21 +13,23 @@ import SwiftUI
 struct AppView: View {
     @Bindable var store: StoreOf<AppFeature>
 
+    @Dependency(\.movieProvider.container.viewContext) var context
+
     var body: some View {
         TabView(selection: $store.selectedTab) {
             Tab("Home", systemImage: "house", value: .home) {
                 HomeScreen()
-                    .environment(\.managedObjectContext, MovieProvider.shared.container.viewContext)
+                    .environment(\.managedObjectContext, context)
             }
 
             Tab("Library", systemImage: "books.vertical", value: .library) {
                 LibraryScreen()
-                    .environment(\.managedObjectContext, MovieProvider.shared.container.viewContext)
+                    .environment(\.managedObjectContext, context)
             }
 
             Tab("Watch Later", systemImage: "chart.pie", value: .watchLater) {
                 UpNextScreen()
-                    .environment(\.managedObjectContext, MovieProvider.shared.container.viewContext)
+                    .environment(\.managedObjectContext, context)
             }
 
             Tab("Search", systemImage: "magnifyingglass", value: .search, role: .search) {

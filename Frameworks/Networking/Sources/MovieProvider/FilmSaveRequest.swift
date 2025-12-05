@@ -7,14 +7,14 @@
 
 import Models
 
-public struct FilmSaveRequest: Equatable {
-    public let film: Film
+public struct FilmSaveRequest {
+    public let film: any DetailViewRepresentable
     public let comment: Comment?
     public let isLiked: Bool
     public let isDisliked: Bool
     public let isLoved: Bool
 
-    public init(film: Film, comment: Comment? = nil, isLiked: Bool, isDisliked: Bool, isLoved: Bool) {
+    public init(_ film: any DetailViewRepresentable, comment: Comment? = nil, isLiked: Bool, isDisliked: Bool, isLoved: Bool) {
         self.film = film
         self.comment = comment
         self.isLiked = isLiked

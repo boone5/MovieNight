@@ -2,16 +2,13 @@ import BundlePlugin
 import ProjectDescription
 
 let project = Project(
-    name: "Frameworks",
+    name: ProjectReference.frameworks.rawValue,
     targets: [
         .target(
-            name: "Networking",
-            destinations: [.iPhone, .iPad],
-            product: .framework,
-            bundleId: .bundleId(for: "Networking"),
-            infoPlist: .default,
-            sources: ["Networking/Sources/**"],
-            resources: [],
+            framework: .networking,
+            dependencies: [
+                .external(.composableArchitecture),
+            ]
         )
     ]
 )

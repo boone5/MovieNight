@@ -1,14 +1,15 @@
 //
-//  LandingPage.swift
+//  AppView.swift
 //  MovieNight
 //
 //  Created by Boone on 9/4/23.
 //
 
+import ComposableArchitecture
 import SwiftUI
 
-struct TabBarView: View {
-    @State private var showSearchTitle = true
+struct AppView: View {
+    let store: StoreOf<AppFeature>
 
     var body: some View {
         TabView {
@@ -37,5 +38,9 @@ struct TabBarView: View {
 }
 
 #Preview {
-    TabBarView()
+    AppView(
+        store: Store(initialState: AppFeature.State()) {
+            AppFeature()
+        }
+    )
 }

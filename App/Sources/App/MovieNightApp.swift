@@ -5,6 +5,7 @@
 //  Created by Boone on 8/12/23.
 //
 
+import ComposableArchitecture
 import SwiftUI
 
 @main
@@ -15,10 +16,20 @@ struct MovieNightApp: App {
         movieProvider.preloadDefaultCollectionsIfNeeded()
     }
 
+    @MainActor
+    static let store: StoreOf<AppFeature> = {
+        let store = Store(initialState: AppFeature.State(), reducer: AppFeature.init)
+        MovieProvider.shared.preloadDefaultCollectionsIfNeeded()
+        return store
+    }()
+
     var body: some Scene {
         WindowGroup {
-            TabBarView()
-//            Search()
+            if !isTesting {
+                AppView(store: Self.store)
+            } else {
+                EmptyView()
+            }
         }
     }
 }

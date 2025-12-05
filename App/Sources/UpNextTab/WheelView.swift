@@ -5,6 +5,8 @@
 //  Created by Boone on 7/12/25.
 //
 
+import Models
+import Networking
 import SwiftUI
 
 struct WheelView: View {

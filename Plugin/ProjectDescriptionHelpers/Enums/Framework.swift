@@ -9,7 +9,10 @@ import ProjectDescription
 
 public enum Framework: String {
     case logger = "Logger"
+    case models = "Models"
     case networking = "Networking"
+    case search = "Search"
+    case ui = "UI"
 
     public var name: String {
         rawValue

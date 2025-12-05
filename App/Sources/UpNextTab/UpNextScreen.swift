@@ -5,7 +5,10 @@
 //  Created by Boone on 3/29/25.
 //
 
+import Models
+import Networking
 import SwiftUI
+import UI
 
 struct UpNextScreen: View {
     @State private var navigationPath = NavigationPath()

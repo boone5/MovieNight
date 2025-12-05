@@ -6,8 +6,10 @@
 //
 
 import Dependencies
+import Models
 import Networking
 import SwiftUI
+import UI
 
 struct HomeScreen: View {
 //    @FetchRequest(fetchRequest: Film.recentlyWatched())

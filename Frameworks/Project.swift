@@ -13,6 +13,7 @@ let project = Project(
             framework: .networking,
             dependencies: [
                 .target(.logger),
+                .target(.models),
                 .external(.composableArchitecture),
             ]
         ),
@@ -20,6 +21,38 @@ let project = Project(
             framework: .logger,
             dependencies: [
                 .external(.composableArchitecture),
+            ]
+        ),
+        .target(
+            framework: .models,
+            dependencies: [
+                .external(.composableArchitecture),
+            ],
+            coreDataModels: [
+                .coreDataModel("../CoreData/FilmContainer.xcdatamodeld"),
+                .coreDataModel("../CoreData/MovieNight.xcdatamodeld"),
+            ]
+        ),
+        .target(
+            framework: .search,
+            dependencies: [
+                .target(.logger),
+                .target(.models),
+                .target(.networking),
+                .target(.ui),
+                .external(.composableArchitecture),
+            ]
+        ),
+        .target(
+            framework: .ui,
+            resources: .resources(.ui),
+            dependencies: [
+                .target(.logger),
+                .target(.models),
+                .target(.networking),
+                .external(.composableArchitecture),
+                .external(name: "SwiftUITrackableScrollView"),
+                .external(name: "YouTubePlayerKit")
             ]
         ),
     ]

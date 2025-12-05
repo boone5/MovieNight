@@ -58,6 +58,7 @@ public extension Target {
             scripts: scripts,
             dependencies: dependencies,
             settings: settings,
+            coreDataModels: coreDataModels,
             additionalFiles: additionalFiles,
             buildRules: buildRules,
             mergedBinaryType: mergedBinaryType,

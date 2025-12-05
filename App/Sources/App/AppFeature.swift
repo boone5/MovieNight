@@ -10,5 +10,19 @@ import ComposableArchitecture
 @Reducer
 struct AppFeature {
     @ObservableState
-    struct State: Equatable {}
+    struct State: Equatable {
+        init(selectedTab: AppTab = .home) {
+            self.selectedTab = selectedTab
+        }
+
+        var selectedTab: AppTab
+    }
+
+    enum Action: BindableAction, Equatable {
+        case binding(BindingAction<State>)
+    }
+
+    var body: some ReducerOf<Self> {
+        BindingReducer()
+    }
 }

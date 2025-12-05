@@ -41,7 +41,7 @@ public extension Target {
         .target(
             name: app.uiTestName,
             destinations: .iOS,
-            product: .unitTests,
+            product: .uiTests,
             bundleId: .bundleId(for: app.uiTestName),
             deploymentTargets: .minimumDeploymentTarget,
             infoPlist: .default,

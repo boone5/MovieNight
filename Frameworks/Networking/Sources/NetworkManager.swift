@@ -5,45 +5,53 @@
 //  Created by Boone on 8/12/23.
 //
 
+import Dependencies
 import Foundation
-import Combine
 
-final public class NetworkManager {
-    public init() {}
-    
-    public func request<T: Decodable>(_ endpoint: EndpointProviding) async throws -> T {
-        guard let url = try? createURL(from: endpoint) else { throw APIError.badURL }
-        let request = createRequest(url: url, apiKey: endpoint.apiKey)
+public struct NetworkClient {
+    public var requestData: (_ endpoint: EndpointProviding) async throws -> Data
 
-        print("🛜: \(request.url!)")
-
-        let (data, response) = try await URLSession.shared.data(for: request)
-
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            throw URLError(.badServerResponse)
-        }
-
-        return try JSONDecoder().decode(T.self, from: data)
+    /// Generic request function that fetches and decodes data from a given endpoint.
+    /// - Parameters:
+    ///   - endpoint: The endpoint conforming to `EndpointProviding`.
+    ///   - decoder: The JSON decoder to use for decoding the response. Defaults to `JSONDecoder()`.
+    /// - Returns: Decoded object of type `T`.
+    public func request<T: Decodable>(_ endpoint: EndpointProviding, decoder: JSONDecoder = JSONDecoder()) async throws -> T {
+        let data = try await requestData(endpoint)
+        return try decoder.decode(T.self, from: data)
     }
+}
 
-    public func requestData(_ endpoint: EndpointProviding) async throws -> Data {
-        guard let url = try? createURL(from: endpoint) else { throw APIError.badURL }
-        let request = createRequest(url: url, apiKey: endpoint.apiKey)
+extension NetworkClient: DependencyKey {
+    public static let liveValue =  Self(
+        requestData: { endpoint in
+            guard let url = try? RequestUtils.createURL(from: endpoint) else { throw APIError.badURL }
+            let request = RequestUtils.createRequest(url: url, apiKey: endpoint.apiKey)
 
-        do {
-            let (data, res) = try await URLSession.shared.data(for: request)
+            do {
+                let (data, res) = try await URLSession.shared.data(for: request)
 
-            guard let res = res as? HTTPURLResponse, res.statusCode == 200 else {
-                throw APIError.networkError(URLError(.badServerResponse))
+                guard let res = res as? HTTPURLResponse, res.statusCode == 200 else {
+                    throw APIError.networkError(URLError(.badServerResponse))
+                }
+
+                return data
+            } catch {
+                throw APIError.networkError(error)
             }
-
-            return data
-        } catch {
-            throw APIError.networkError(error)
         }
-    }
+    )
+}
 
-    public func createURL(from endpoint: EndpointProviding) throws -> URL {
+public extension DependencyValues {
+    var networkClient: NetworkClient {
+        get { self[NetworkClient.self] }
+        set { self[NetworkClient.self] = newValue }
+    }
+}
+
+private enum RequestUtils {
+    static func createURL(from endpoint: EndpointProviding) throws -> URL {
         var urlComponents = URLComponents()
         urlComponents.scheme = "https"
         urlComponents.host = endpoint.host()
@@ -57,7 +65,7 @@ final public class NetworkManager {
         return url
     }
 
-    private func createRequest(url: URL, apiKey: String, method: String = "GET") -> URLRequest {
+    static func createRequest(url: URL, apiKey: String, method: String = "GET") -> URLRequest {
         var request = URLRequest(url: url)
         request.httpMethod = method
         request.addValue(apiKey, forHTTPHeaderField: "Authorization")

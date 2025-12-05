@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SearchBar: View {
+struct CustomSearchBar: View {
     @Binding var searchText: String
 
     var body: some View {
@@ -38,5 +38,5 @@ struct SearchBar: View {
 
 #Preview {
     @Previewable @State var searchText = ""
-    SearchBar(searchText: $searchText)
+    CustomSearchBar(searchText: $searchText)
 }

@@ -1,33 +1,11 @@
 //
-//  ActionCell.swift
+//  CustomStepper.swift
 //  MovieNight
 //
 //  Created by Boone on 3/24/25.
 //
 
 import SwiftUI
-
-struct ActionCell<Label: View, Trailing: View>: View {
-    let label: (() -> Label)
-    let trailingItem: (() -> Trailing)
-
-    var body: some View {
-        HStack {
-            RoundedRectangle(cornerRadius: 15)
-                .frame(height: 50)
-                .foregroundStyle(Color(.white).opacity(0.2))
-                .shadow(radius: 6, y: 3)
-                .overlay {
-                    HStack {
-                        label()
-                        Spacer()
-                        trailingItem()
-                    }
-                    .padding(.horizontal, 15)
-                }
-        }
-    }
-}
 
 struct CustomStepper: View {
     let steps: Int
@@ -122,36 +100,5 @@ struct CustomStepper: View {
                         }
                 )
         }
-    }
-}
-
-extension View {
-    func roundedBackground(
-        color: Color,
-        opacity: Double = 0.3,
-        cornerRadius: CGFloat = 15
-    ) -> some View {
-        self.modifier(
-            AverageColorBackground(
-                color: color,
-                opacity: opacity,
-                cornerRadius: cornerRadius
-            )
-        )
-    }
-}
-
-struct AverageColorBackground: ViewModifier {
-    var color: Color
-    var opacity: Double = 0.3
-    var cornerRadius: CGFloat = 15
-
-    func body(content: Content) -> some View {
-        content
-            .padding(20)
-            .background {
-                color.opacity(opacity)
-                    .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
-            }
     }
 }

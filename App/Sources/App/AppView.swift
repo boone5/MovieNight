@@ -33,9 +33,7 @@ struct AppView: View {
             }
 
             Tab("Search", systemImage: "magnifyingglass", value: .search, role: .search) {
-                NavigationStack {
-                    SearchScreen()
-                }
+                SearchScreen()
             }
         }
     }

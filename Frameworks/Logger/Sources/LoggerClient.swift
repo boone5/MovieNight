@@ -55,7 +55,7 @@ public enum LoggerCategory {
             return "Networking"
         case .imageLoading:
             return "ImageLoading"
-            case .movieProvider:
+        case .movieProvider:
             return "MovieProvider"
         }
     }

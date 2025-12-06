@@ -31,7 +31,8 @@ struct LibraryScreen: View {
     var body: some View {
         NavigationStack(path: $navigationPath) {
             BackgroundColorView {
-                if recentlyWatchedFilms.isEmpty {
+                if false {
+//                if recentlyWatchedFilms.isEmpty {
                     VStack {
                         Spacer()
                         Text("Start watching films to build your library.")
@@ -46,18 +47,31 @@ struct LibraryScreen: View {
                     ScrollView(showsIndicators: false) {
                         VStack(alignment: .leading, spacing: 15) {
                             // Custom header
-                            Text("Library")
-                                .font(.largeTitle.bold())
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .opacity(headerOpacity)
-                                .onGeometryChange(for: CGFloat.self) { proxy in
-                                    proxy.frame(in: .scrollView).minY
-                                } action: { minY in
-                                    // how many points until fully invisible
-                                    let fadeThreshold = 50.0
-                                    headerOpacity = max(0, min(1, (minY + fadeThreshold) / fadeThreshold))
+                            HStack {
+                                Text("Library")
+                                    .font(.largeTitle.bold())
+
+                                Spacer()
+
+                                // Collection Button
+                                Button {
+                                    print("")
+                                } label: {
+                                    Image(systemName: "list.bullet")
+                                        .padding(5)
                                 }
-                                .padding(.bottom, 5)
+                                .buttonStyle(.glass)
+                                .clipShape(Circle())
+                            }
+                            .opacity(headerOpacity)
+                            .onGeometryChange(for: CGFloat.self) { proxy in
+                                proxy.frame(in: .scrollView).minY
+                            } action: { minY in
+                                // how many points until fully invisible
+                                let fadeThreshold = 50.0
+                                headerOpacity = max(0, min(1, (minY + fadeThreshold) / fadeThreshold))
+                            }
+                            .padding(.bottom, 5)
 
                             Text("Recently watched")
                                 .font(.system(size: 18, weight: .bold))
@@ -110,6 +124,6 @@ struct LibraryScreen: View {
     }
 }
 
-//#Preview {
-//    MockLibraryScreen()
-//}
+#Preview {
+    LibraryScreen()
+}

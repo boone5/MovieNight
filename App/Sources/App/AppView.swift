@@ -17,22 +17,22 @@ struct AppView: View {
 
     var body: some View {
         TabView(selection: $store.selectedTab) {
-            Tab("Home", systemImage: "house", value: .home) {
+            Tab(AppTab.home.label, systemImage: AppTab.home.icon, value: .home) {
                 HomeScreen()
                     .environment(\.managedObjectContext, context)
             }
 
-            Tab("Library", systemImage: "books.vertical", value: .library) {
+            Tab(AppTab.library.label, systemImage: AppTab.library.icon, value: .library) {
                 LibraryScreen()
                     .environment(\.managedObjectContext, context)
             }
 
-            Tab("Watch Later", systemImage: "chart.pie", value: .watchLater) {
+            Tab(AppTab.watchLater.label, systemImage: AppTab.watchLater.icon, value: .watchLater) {
                 UpNextScreen()
                     .environment(\.managedObjectContext, context)
             }
 
-            Tab("Search", systemImage: "magnifyingglass", value: .search, role: .search) {
+            Tab(AppTab.search.label, systemImage: AppTab.search.icon, value: .search, role: .search) {
                 SearchScreen()
             }
         }

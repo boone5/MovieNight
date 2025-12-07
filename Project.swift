@@ -6,7 +6,7 @@ let project = Project(
     targets: [
         .target(
             name: "App",
-            destinations: [.iPhone, .iPad],
+            destinations: .iOS,
             product: .app,
             bundleId: .bundleId(for: "MovieNight"),
             deploymentTargets: .minimumDeploymentTarget,
@@ -21,34 +21,22 @@ let project = Project(
             sources: ["App/Sources/**"],
             resources: ["App/Resources/**"],
             dependencies: [
-                .project(target: "Networking", path: "Frameworks"),
+                .project(.logger, from: .frameworks),
+                .project(.models, from: .frameworks),
+                .project(.networking, from: .frameworks),
+                .project(.search, from: .frameworks),
+                .project(.ui, from: .frameworks),
+                .external(.composableArchitecture),
                 .external(name: "SwiftUITrackableScrollView"),
                 .external(name: "YouTubePlayerKit")
             ],
-            coreDataModels: [
-                .coreDataModel("CoreData/FilmContainer.xcdatamodeld"),
-                .coreDataModel("CoreData/MovieNight.xcdatamodeld"),
-            ]
+            settings: .settings(
+                base: [
+                    "OTHER_LDFLAGS": .otherLDFlags
+                ]
+            )
         ),
-        .target(
-            name: "AppTests",
-            destinations: .iOS,
-            product: .unitTests,
-            bundleId: .bundleId(for: "MovieNightTests"),
-            infoPlist: .default,
-            sources: ["App/Tests/**"],
-            resources: [],
-            dependencies: [.target(name: "App")]
-        ),
-        .target(
-            name: "AppUITests",
-            destinations: .iOS,
-            product: .uiTests,
-            bundleId: .bundleId(for: "MovieNightUITests"),
-            infoPlist: .default,
-            sources: ["App/UITests/**"],
-            resources: [],
-            dependencies: [.target(name: "App")]
-        ),
+        .unitTests(for: .app),
+        .uiTests(for: .app)
     ],
 )

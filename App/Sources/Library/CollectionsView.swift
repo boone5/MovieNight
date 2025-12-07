@@ -5,6 +5,7 @@
 //  Created by Boone on 1/9/25.
 //
 
+import Models
 import SwiftUI
 
 #Preview {

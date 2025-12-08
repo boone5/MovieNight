@@ -60,7 +60,6 @@ public struct ThumbnailView: View {
             .overlay(alignment: .bottomLeading) {
                 if let feedback {
                     FeedbackOverlayView(feedback: feedback)
-                        .padding([.leading, .bottom], 10)
                 }
             }
             .shadow(radius: 3, y: 4)
@@ -109,8 +108,18 @@ struct FeedbackOverlayView: View {
 
     var body: some View {
         Image(systemName: feedback.imageName)
-            .font(.system(size: 18, weight: .medium))
+            .renderingMode(.template)
+            .resizable()
+            .frame(width: 18, height: 18)
             .foregroundStyle(feedback.color)
+            .padding(8)
+            .background {
+                feedback.color
+                    .opacity(0.2)
+                    .glassEffect(.clear)
+            }
+            .clipShape(Circle())
+            .padding(8)
     }
 }
 

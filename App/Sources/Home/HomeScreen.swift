@@ -21,7 +21,6 @@ struct HomeScreen: View {
     @State private var shouldLoad = true
 
     // Film Detail View Properties
-    @State private var isExpanded: Bool = false
     @State private var selectedFilm: SelectedFilm?
     @Namespace private var namespace
 
@@ -69,7 +68,6 @@ struct HomeScreen: View {
 
                 FilmRow(
                     items: trendingMovies,
-                    isExpanded: $isExpanded,
                     selectedFilm: $selectedFilm,
                     namespace: namespace
                 )
@@ -79,7 +77,6 @@ struct HomeScreen: View {
 
                 FilmRow(
                     items: trendingTVShows,
-                    isExpanded: $isExpanded,
                     selectedFilm: $selectedFilm,
                     namespace: namespace
                 )
@@ -99,15 +96,15 @@ struct HomeScreen: View {
 
             shouldLoad = false
         }
-        .opacity(isExpanded ? 0 : 1)
+        .opacity(selectedFilm != nil ? 0 : 1)
         .overlay {
-            if let selectedFilm, isExpanded {
+            if let selectedFilm {
                 FilmDetailView(
                     film: selectedFilm.film,
                     namespace: namespace,
-                    isExpanded: $isExpanded,
-                    uiImage: selectedFilm.posterImage
-                )
+                ) {
+                    self.selectedFilm = nil
+                }
                 .transition(.asymmetric(insertion: .identity, removal: .opacity))
             }
         }

@@ -33,7 +33,7 @@ struct AppView: View {
             }
 
             Tab(AppTab.search.label, systemImage: AppTab.search.icon, value: .search, role: .search) {
-                SearchScreen()
+                SearchScreen(store: store.scope(state: \.search, action: \.search))
             }
         }
     }

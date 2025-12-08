@@ -17,40 +17,35 @@ import YouTubePlayerKit
 // MARK: Preview
 
 #Preview {
-    @Previewable @State var isExpanded: Bool = true
     @Previewable @Namespace var namespace
 
     let film: ResponseType = ResponseType.movie(MovieResponse())
 //    let film: ResponseType = ResponseType.tvShow(TVShowResponse())
 
-    FilmDetailView(film: film, namespace: namespace, isExpanded: $isExpanded, uiImage: nil)
+    FilmDetailView(film: film, namespace: namespace) {}
 }
 
 // MARK: FilmDetailView
 
 public struct FilmDetailView: View {
     @StateObject var viewModel: FilmDetailView.ViewModel
-
-    let uiImage: UIImage?
     let namespace: Namespace.ID
-    @Binding var isExpanded: Bool
 
     @State private var scrollViewContentOffset = CGFloat(0)
     @State private var presentationDidFinish: Bool = false
     @State private var actionTapped: QuickAction?
     @State private var watchCount = 0
 
+    var onDismiss: () -> Void
+
     public init(
         film: some DetailViewRepresentable,
         namespace: Namespace.ID,
-        isExpanded: Binding<Bool>,
-        uiImage: UIImage?
+        onDismiss: @escaping () -> Void
     ) {
-        _viewModel = StateObject(wrappedValue: FilmDetailView.ViewModel(posterImage: uiImage, film: film))
-        _isExpanded = isExpanded
-
+        _viewModel = StateObject(wrappedValue: FilmDetailView.ViewModel(film: film))
         self.namespace = namespace
-        self.uiImage = uiImage
+        self.onDismiss = onDismiss
     }
 
     var averageColor: Color {
@@ -73,7 +68,6 @@ public struct FilmDetailView: View {
                     film: viewModel.filmDisplay,
                     averageColor: viewModel.averageColor,
                     namespace: namespace,
-                    uiImage: uiImage,
                     trailer: $viewModel.trailer
                 )
 
@@ -201,19 +195,19 @@ public struct FilmDetailView: View {
             }
             .padding(.vertical, 80)
             .padding(.horizontal, 20)
-            .background {
-                Rectangle()
-                    .matchedGeometryEffect(id: "background" + String(viewModel.filmDisplay.id), in: namespace, isSource: false)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [viewModel.averageColor, .black],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
+        }
+        .background {
+            Rectangle()
+                .matchedGeometryEffect(id: "background" + String(viewModel.filmDisplay.id), in: namespace)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [viewModel.averageColor, .black],
+                        startPoint: .top,
+                        endPoint: .bottom
                     )
-                    .ignoresSafeArea()
-            }
+                )
+                .ignoresSafeArea()
         }
         .onChange(of: scrollViewContentOffset) { _ in
             //TO KNOW THE VALUE OF OFFSET THAT YOU NEED TO DISMISS YOUR VIEW
@@ -222,7 +216,7 @@ public struct FilmDetailView: View {
             //THIS IS WHERE THE DISMISS HAPPENS
             if scrollViewContentOffset < -80 {
                 withAnimation(.interpolatingSpring(duration: 0.4, bounce: 0.2)) {
-                    isExpanded = false
+                    onDismiss()
                 }
             }
         }
@@ -232,7 +226,7 @@ public struct FilmDetailView: View {
                 presentationDidFinish.toggle()
             }
         }
-        .task {
+        .task(id: "loadData") {
             await viewModel.loadInitialData()
             if viewModel.filmDisplay.mediaType == .movie {
                 await viewModel.getAdditionalDetailsMovie()
@@ -256,7 +250,7 @@ public struct FilmDetailView: View {
                 }
                 .onTapGesture {
                     withAnimation(.interpolatingSpring(duration: 0.4, bounce: 0.2)) {
-                        isExpanded = false
+                        onDismiss()
                     }
                 }
 
@@ -322,29 +316,19 @@ extension FilmDetailView {
         @Published var trailer: AdditionalDetailsMovie.VideoResponse.Video?
         @Published var genres: String?
 
-        private let posterImage: UIImage?
-
         @Dependency(\.date.now) var now
         @Dependency(\.movieProvider) var movieProvider
         @Dependency(\.networkClient) var networkClient
 
-        init(posterImage: UIImage?, film: some DetailViewRepresentable) {
-            self.posterImage = posterImage
-            self.averageColor = Color(uiColor: UIColor(resource: .brightRed))
+        init(film: some DetailViewRepresentable) {
+            @Dependency(\.imageLoader.cachedImage) var cachedImage
+            self.averageColor = Color(cachedImage(film.posterPath)?.averageColor ?? UIColor(resource: .brightRed))
             self.filmDisplay = FilmDisplay(from: film)
         }
 
         @MainActor
         func loadInitialData() async {
-            if let image = posterImage {
-                let color = await Task.detached(priority: .userInitiated) {
-                    image.averageColor
-                }.value
-
-                self.averageColor = Color(uiColor: color)
-            }
-
-            if let existingFilm = movieProvider.fetchFilm(filmDisplay.id) {
+           if let existingFilm = movieProvider.fetchFilm(filmDisplay.id) {
                 isLiked = existingFilm.isLiked
                 isLoved = existingFilm.isLoved
                 isDisliked = existingFilm.isDisliked

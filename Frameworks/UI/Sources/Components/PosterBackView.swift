@@ -8,7 +8,6 @@
 import Models
 import Networking
 import SwiftUI
-import UI
 
 struct PosterBackView: View {
     let film: DetailViewRepresentable

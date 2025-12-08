@@ -15,7 +15,6 @@ struct FlippablePosterView: View {
     private let posterWidth: CGFloat
     private let posterHeight: CGFloat
     private let averageColor: Color
-    private let uiImage: UIImage?
     private let namespace: Namespace.ID
     private let film: FilmDisplay
     @Binding var trailer: AdditionalDetailsMovie.VideoResponse.Video?
@@ -24,12 +23,10 @@ struct FlippablePosterView: View {
         film: FilmDisplay,
         averageColor: Color,
         namespace: Namespace.ID,
-        uiImage: UIImage?,
         trailer: Binding<AdditionalDetailsMovie.VideoResponse.Video?>
     ) {
         self.film = film
         self.averageColor = averageColor
-        self.uiImage = uiImage
         self.namespace = namespace
         self._trailer = trailer
 
@@ -52,12 +49,11 @@ struct FlippablePosterView: View {
         ZStack {
             // Front
             PosterView(
+                imagePath: film.posterPath,
                 width: posterWidth,
                 height: posterHeight,
-                uiImage: uiImage,
                 filmID: film.id,
-                namespace: namespace,
-                isAnimationSource: false
+                namespace: namespace
             )
             .shadow(radius: 6, y: 3)
             .overlay(alignment: .bottomTrailing) {

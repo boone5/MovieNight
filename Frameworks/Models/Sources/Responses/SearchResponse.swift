@@ -7,7 +7,7 @@
 
 import UIKit
 
-public struct SearchResponse: Decodable {
+public struct SearchResponse: Equatable, Decodable {
     public let page: Int
     public let results: [ResponseType]
     public let totalPages, totalResults: Int

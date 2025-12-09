@@ -23,6 +23,8 @@ public struct SearchScreen: View {
     @Bindable private var store: StoreOf<SearchFeature>
     @Namespace var highlightNamespace
 
+    @Environment(\.colorScheme) var colorScheme
+
     public var body: some View {
         NavigationStack {
             BackgroundColorView {
@@ -30,7 +32,7 @@ public struct SearchScreen: View {
                 case .idle:
                     NoSearchContentView()
                 case .loading:
-                     LoadingIndicator(color: .white, speed: 0.4)
+                    LoadingIndicator(color: colorScheme == .dark ? .white : .black, speed: 0.4)
                 case .paginated:
                     SearchContentResultView(store: store, highlightNamespace: highlightNamespace)
                 default:
@@ -78,8 +80,6 @@ private struct SearchContentResultView: View {
     let store: StoreOf<SearchFeature>
     let highlightNamespace: Namespace.ID
 
-    @Dependency(\.imageLoader) var imageLoader
-
     var body: some View {
         List {
             PaginatedContent(items: store.queryResults) { item in
@@ -88,7 +88,7 @@ private struct SearchContentResultView: View {
                     namespace: highlightNamespace,
                     isHighlighted: store.highlightedFilm?.id == item.id
                 ) {
-                    store.send(.view(.rowTapped(item, imageLoader.cachedImage(item.posterPath))))
+                    store.send(.view(.rowTapped(item)))
                 }
                 .listRowBackground(Color.clear)
                 .buttonStyle(PlainButtonStyle())

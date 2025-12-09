@@ -44,7 +44,7 @@ public struct SearchFeature {
     @CasePathable
     public enum View: BindableAction, Equatable {
         case binding(BindingAction<State>)
-        case rowTapped(ResponseType, UIImage?)
+        case rowTapped(ResponseType)
         case overlayDismissed
     }
 
@@ -104,8 +104,8 @@ public struct SearchFeature {
             case .view(.binding):
                 return .none
 
-            case let .view(.rowTapped(item, image)):
-                state.highlightedFilm = SelectedFilm(film: item, posterImage: image)
+            case let .view(.rowTapped(item)):
+                state.highlightedFilm = SelectedFilm(film: item)
                 return .none
 
             case .view(.overlayDismissed):

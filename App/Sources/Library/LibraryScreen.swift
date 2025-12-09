@@ -47,21 +47,11 @@ struct LibraryScreen: View {
                     ScrollView(showsIndicators: false) {
                         VStack(alignment: .leading, spacing: 15) {
                             // Custom header
-                            HStack {
+                            HStack(spacing: 0) {
                                 Text("Library")
                                     .font(.largeTitle.bold())
 
                                 Spacer()
-
-                                // Collection Button
-                                Button {
-                                    print("")
-                                } label: {
-                                    Image(systemName: "list.bullet")
-                                        .padding(5)
-                                }
-                                .buttonStyle(.glass)
-                                .clipShape(Circle())
                             }
                             .opacity(headerOpacity)
                             .onGeometryChange(for: CGFloat.self) { proxy in

@@ -38,7 +38,7 @@ public struct FilmRow: View {
     }
 
     public var body: some View {
-        ScrollView(.horizontal) {
+        ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: 15) {
                 ForEach(items, id: \.id) { film in
                     if selectedFilm?.id == film.id, isExpanded {

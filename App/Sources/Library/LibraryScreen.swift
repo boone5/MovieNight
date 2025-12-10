@@ -85,9 +85,11 @@ struct LibraryScreen: View {
                                 Text("Recently watched")
                                     .font(.system(size: 18, weight: .bold))
 
-                                Image(systemName: "chevron.right")
+                                Spacer()
+
+                                Text("\(recentlyWatchedFilms.count) this week")
                                     .foregroundStyle(.gray)
-                                    .font(.system(size: 14, weight: .bold))
+                                    .font(.system(size: 16, weight: .medium))
                             }
                             .padding(.top, sectionSpacing)
 
@@ -103,9 +105,11 @@ struct LibraryScreen: View {
                                 Text("In Progress")
                                     .font(.system(size: 18, weight: .bold))
 
-                                Image(systemName: "chevron.right")
+                                Spacer()
+
+                                Text("\(recentlyWatchedFilms.count) shows")
                                     .foregroundStyle(.gray)
-                                    .font(.system(size: 14, weight: .bold))
+                                    .font(.system(size: 16, weight: .medium))
                             }
                             .padding(.top, sectionSpacing)
 

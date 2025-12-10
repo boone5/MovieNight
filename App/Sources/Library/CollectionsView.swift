@@ -25,33 +25,38 @@ struct CollectionsView: View {
             Text("Collections")
                 .font(.system(size: 18, weight: .bold))
 
-            ForEach(visibleCollections, id: \.self) { collection in
+            ForEach(visibleCollections.enumerated(), id: \.element.id) { idx, collection in
                 VStack {
                     NavigationLink(value: collection) {
                         HStack(spacing: 15) {
-                            Label {
+                            // TODO: Pass in poster paths of collection
+                            CollectionThumbnailsFan(items: ["1", "2", "3"])
+
+                            VStack(alignment: .leading, spacing: 5) {
                                 Text(collection.title ?? "-")
-                                    .font(.system(size: 18, weight: .regular))
-                            } icon: {
-                                Image(systemName: collection.imageName ?? "smiley")
-                                    .font(.system(size: 18, weight: .regular))
+                                    .font(.system(size: 16, weight: .medium))
+                                    .foregroundStyle(.black)
+
+                                Text(String(collection.films?.count ?? 0) + " films")
+                                    .font(.system(size: 14, weight: .regular))
+                                    .foregroundStyle(.gray)
                             }
+                            .padding(.leading, 20)
 
                             Spacer()
-
-                            Text(String(collection.films?.count ?? 0))
-                                .font(.system(size: 18, weight: .regular))
 
                             Image(systemName: "chevron.right")
                                 .foregroundStyle(.gray)
                                 .font(.system(size: 14, weight: .regular))
                         }
-                        .padding(.vertical, 20)
+                        .padding(.vertical, 15)
                     }
 
-                    Rectangle()
-                        .foregroundStyle(.gray.opacity(0.3))
-                        .frame(height: 1)
+                    if idx != visibleCollections.endIndex-1 {
+                        Rectangle()
+                            .foregroundStyle(.gray.opacity(0.3))
+                            .frame(height: 1)
+                    }
                 }
             }
         }

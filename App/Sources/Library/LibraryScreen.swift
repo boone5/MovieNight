@@ -28,11 +28,12 @@ struct LibraryScreen: View {
     @State private var headerOpacity: Double = 1.0
     @Namespace private var namespace
 
+    private let sectionSpacing: CGFloat = 10
+
     var body: some View {
         NavigationStack(path: $navigationPath) {
             BackgroundColorView {
-                if false {
-//                if recentlyWatchedFilms.isEmpty {
+                if recentlyWatchedFilms.isEmpty {
                     VStack {
                         Spacer()
                         Text("Start watching films to build your library.")
@@ -52,6 +53,24 @@ struct LibraryScreen: View {
                                     .font(.largeTitle.bold())
 
                                 Spacer()
+
+                                Button {
+                                    // TODO: Search Library
+                                } label: {
+                                    Image(systemName: "magnifyingglass")
+                                        .padding(5)
+                                }
+                                .buttonStyle(.glass)
+                                .clipShape(Circle())
+
+                                Button {
+                                    // TODO: Add a collection
+                                } label: {
+                                    Image(systemName: "plus")
+                                        .padding(5)
+                                }
+                                .buttonStyle(.glass)
+                                .clipShape(Circle())
                             }
                             .opacity(headerOpacity)
                             .onGeometryChange(for: CGFloat.self) { proxy in
@@ -61,10 +80,16 @@ struct LibraryScreen: View {
                                 let fadeThreshold = 50.0
                                 headerOpacity = max(0, min(1, (minY + fadeThreshold) / fadeThreshold))
                             }
-                            .padding(.bottom, 5)
 
-                            Text("Recently watched")
-                                .font(.system(size: 18, weight: .bold))
+                            HStack {
+                                Text("Recently watched")
+                                    .font(.system(size: 18, weight: .bold))
+
+                                Image(systemName: "chevron.right")
+                                    .foregroundStyle(.gray)
+                                    .font(.system(size: 14, weight: .bold))
+                            }
+                            .padding(.top, sectionSpacing)
 
                             FilmRow(
                                 items: Array(recentlyWatchedFilms),
@@ -73,8 +98,16 @@ struct LibraryScreen: View {
                                 namespace: namespace
                             )
 
-                            Text("In Progress")
-                                .font(.system(size: 18, weight: .bold))
+                            // TODO: Support In Progress TV Shows
+                            HStack {
+                                Text("In Progress")
+                                    .font(.system(size: 18, weight: .bold))
+
+                                Image(systemName: "chevron.right")
+                                    .foregroundStyle(.gray)
+                                    .font(.system(size: 14, weight: .bold))
+                            }
+                            .padding(.top, sectionSpacing)
 
                             ScrollView(.horizontal) {
                                 HStack {
@@ -88,7 +121,7 @@ struct LibraryScreen: View {
                             .padding(.horizontal, -15)
 
                             CollectionsView()
-                                .padding(.top, 10)
+                                .padding(.top, sectionSpacing)
                         }
                         .padding(.horizontal, 15)
                         .padding(.bottom, 30)

@@ -49,7 +49,7 @@ struct CollectionsView: View {
                                 .foregroundStyle(.gray)
                                 .font(.system(size: 14, weight: .regular))
                         }
-                        .padding(.vertical, 15)
+                        .padding(.vertical, 10)
                     }
 
                     if idx != visibleCollections.endIndex-1 {

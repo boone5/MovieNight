@@ -143,6 +143,23 @@ public class MovieProvider: MovieProviderClient {
         save()
     }
 
+    @discardableResult
+    public func createCollection(name: String) throws(MovieError) -> FilmCollection {
+        let collection = FilmCollection(context: container.viewContext)
+        collection.id = UUID()
+        collection.title = name
+        collection.dateCreated = Date()
+
+        do {
+            try container.viewContext.save()
+            log(.movieProvider, .info, "✅ Successfully created collection: \(name)")
+            return collection
+        } catch {
+            log(.movieProvider, .error, "⛔️ Failed to create collection: \(error)")
+            throw MovieError.unableToSaveCollection
+        }
+    }
+
     /// Loads default Collections into Core Data
     public func prepareDefaultCollections() throws(MovieError) {
         // Get the managed object context from your Core Data stack
@@ -221,5 +238,6 @@ extension NSPersistentContainer {
 
 public enum MovieError: Error {
     case unableToSaveFilm
+    case unableToSaveCollection
     case filmNotFound
 }

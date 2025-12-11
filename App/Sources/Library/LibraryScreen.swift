@@ -5,11 +5,44 @@
 //  Created by Boone on 6/30/24.
 //
 
+import ComposableArchitecture
 import Models
+import Networking
 import SwiftUI
 import UI
 
+@Reducer
+struct LibraryFeature {
+    @ObservableState
+    struct State {
+        @Presents var addCollection: AddCollectionFeature.State?
+    }
+
+    enum Action {
+        case addCollection(PresentationAction<AddCollectionFeature.Action>)
+        case tappedAddCollectionButton
+    }
+
+    var body: some ReducerOf<Self> {
+        Reduce { state, action in
+            switch action {
+            case .addCollection:
+                return .none
+
+            case .tappedAddCollectionButton:
+                state.addCollection = AddCollectionFeature.State()
+                return .none
+            }
+        }
+        .ifLet(\.$addCollection, action: \.addCollection) {
+            AddCollectionFeature()
+        }
+    }
+}
+
 struct LibraryScreen: View {
+    @Bindable var store: StoreOf<LibraryFeature>
+
     @StateObject private var thumbnailViewModel = ThumbnailView.ViewModel()
 
     @FetchRequest(fetchRequest: Film.recentlyWatched())
@@ -64,7 +97,7 @@ struct LibraryScreen: View {
                                 .clipShape(Circle())
 
                                 Button {
-                                    // TODO: Add a collection
+                                    store.send(.tappedAddCollectionButton)
                                 } label: {
                                     Image(systemName: "plus")
                                         .padding(5)
@@ -148,10 +181,16 @@ struct LibraryScreen: View {
                     .transition(.asymmetric(insertion: .identity, removal: .opacity))
                 }
             }
+            .sheet(item: $store.scope(state: \.addCollection, action: \.addCollection)) { store in
+                AddCollectionSheet(store: store)
+                    .presentationDetents([.medium])
+            }
         }
     }
 }
 
 #Preview {
-    LibraryScreen()
+    LibraryScreen(store: Store(initialState: LibraryFeature.State()) {
+        LibraryFeature()
+    })
 }

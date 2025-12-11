@@ -19,6 +19,7 @@ public protocol MovieProviderClient {
     func saveFilmToWatchLater(_ film: DetailViewRepresentable) throws(MovieError) -> Film
     func deleteFilm(_ id: Film.ID) throws(MovieError)
     func prepareDefaultCollections() throws(MovieError)
+    func createCollection(name: String) throws(MovieError) -> FilmCollection
 
     var container: NSPersistentContainer { get }
 }

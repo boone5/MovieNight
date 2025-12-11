@@ -30,5 +30,14 @@ struct CollectionDetailView: View {
             }
             .navigationTitle(title ?? "-")
         }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    // todo
+                } label: {
+                    Image(systemName: "ellipsis")
+                }
+            }
+        }
     }
 }

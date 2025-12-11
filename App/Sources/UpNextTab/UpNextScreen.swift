@@ -91,19 +91,12 @@ struct UpNextScreen: View {
             .navigationDestination(isPresented: $navigateToWatchWheel) {
                 WheelView(films: Array(watchList))
             }
-            .opacity(selectedFilm != nil ? 0 : 1)
-            .overlay {
-                if let selectedFilm {
-                    FilmDetailView(
-                        film: selectedFilm.film,
-                        namespace: namespace
-                    ) {
-                        self.selectedFilm = nil
-                    }
-                    .transition(.asymmetric(insertion: .identity, removal: .opacity))
-                }
+            .fullScreenCover(item: $selectedFilm) { selectedFilm in
+                FilmDetailView(
+                    film: selectedFilm.film,
+                    navigationTransitionConfig: .init(namespace: namespace, source: selectedFilm.film)
+                )
             }
-            .toolbar(selectedFilm != nil ? .hidden : .visible, for: .tabBar)
         }
     }
 }

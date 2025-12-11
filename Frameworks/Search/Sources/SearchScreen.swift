@@ -21,7 +21,7 @@ public struct SearchScreen: View {
     }
 
     @Bindable private var store: StoreOf<SearchFeature>
-    @Namespace var highlightNamespace
+    @Namespace var transitionNamespace
 
     @Environment(\.colorScheme) var colorScheme
 
@@ -34,7 +34,7 @@ public struct SearchScreen: View {
                 case .loading:
                     LoadingIndicator(color: colorScheme == .dark ? .white : .black, speed: 0.4)
                 case .paginated:
-                    SearchContentResultView(store: store, highlightNamespace: highlightNamespace)
+                    SearchContentResultView(store: store, transitionNamespace: transitionNamespace)
                 default:
                     EmptyView()
                 }
@@ -43,20 +43,11 @@ public struct SearchScreen: View {
             .searchable(text: $store.searchText)
             .scrollDismissesKeyboard(.immediately)
             .toolbar(store.isHighlightingResult ? .hidden : .visible, for: .tabBar)
-            .opacity(store.isHighlightingResult ? 0 : 1)
-            .overlay {
-                if let selectedFilm = store.highlightedFilm {
-                    FilmDetailView(
-                        film: selectedFilm.film,
-                        namespace: highlightNamespace
-                    ) {
-                        store.send(.view(.overlayDismissed))
-                    }
-                    .transition(.asymmetric(insertion: .identity, removal: .opacity))
-                }
-            }
-            .onChange(of: store.loadingState) {
-                print(store.loadingState)
+            .fullScreenCover(item: $store.highlightedFilm) { film in
+                FilmDetailView(
+                    film: film.film,
+                    navigationTransitionConfig: .init(namespace: transitionNamespace, source: film.film),
+                )
             }
         }
     }
@@ -78,14 +69,14 @@ private struct NoSearchContentView: View {
 
 private struct SearchContentResultView: View {
     let store: StoreOf<SearchFeature>
-    let highlightNamespace: Namespace.ID
+    let transitionNamespace: Namespace.ID
 
     var body: some View {
         List {
             PaginatedContent(items: store.queryResults) { item in
                 ResultRow(
                     film: item,
-                    namespace: highlightNamespace,
+                    namespace: transitionNamespace,
                     isHighlighted: store.highlightedFilm?.id == item.id
                 ) {
                     store.send(.view(.rowTapped(item)))
@@ -116,7 +107,7 @@ private struct SearchContentResultView: View {
 }
 
 private struct ResultRow: View {
-    let film: DetailViewRepresentable
+    let film: any DetailViewRepresentable
     let namespace: Namespace.ID
     let isHighlighted: Bool
 
@@ -127,9 +118,8 @@ private struct ResultRow: View {
             ThumbnailView(
                 filmID: film.id,
                 posterPath: film.posterPath,
-                width: 80,
-                height: 120,
-                namespace: namespace,
+                size: .init(width: 80, height: 120),
+                transitionConfig: .init(namespace: namespace, source: film),
                 isHighlighted: isHighlighted
             )
 

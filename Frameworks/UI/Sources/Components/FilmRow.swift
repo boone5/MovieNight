@@ -7,29 +7,25 @@
 
 import Models
 import SwiftUI
-import SwiftUITrackableScrollView
 
 public struct FilmRow: View {
-    public var items: [DetailViewRepresentable]
+    public var items: [any DetailViewRepresentable]
 
     @Binding public var selectedFilm: SelectedFilm?
 
     private let namespace: Namespace.ID
-    private let thumbnailWidth: CGFloat
-    private let thumbnailHeight: CGFloat
+    private let thumbnailSize: CGSize
 
     public init(
-        items: [DetailViewRepresentable],
+        items: [any DetailViewRepresentable],
         selectedFilm: Binding<SelectedFilm?>,
         namespace: Namespace.ID,
-        thumbnailWidth: CGFloat = 175,
-        thumbnailHeight: CGFloat = 250
+        thumbnailSize: CGSize = CGSize(width: 175, height: 250)
     ) {
         self.items = items
         self._selectedFilm = selectedFilm
         self.namespace = namespace
-        self.thumbnailWidth = thumbnailWidth
-        self.thumbnailHeight = thumbnailHeight
+        self.thumbnailSize = thumbnailSize
     }
 
     public var body: some View {
@@ -39,15 +35,12 @@ public struct FilmRow: View {
                     ThumbnailView(
                         filmID: film.id,
                         posterPath: film.posterPath,
-                        width: thumbnailWidth,
-                        height: thumbnailHeight,
-                        namespace: namespace,
+                        size: thumbnailSize,
+                        transitionConfig: .init(namespace: namespace, source: film),
                         isHighlighted: selectedFilm?.id == film.id
                     )
                     .onTapGesture {
-                        withAnimation(.spring()) {
-                            selectedFilm = SelectedFilm(film: film)
-                        }
+                        selectedFilm = SelectedFilm(film: film)
                     }
                 }
             }

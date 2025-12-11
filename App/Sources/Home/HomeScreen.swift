@@ -12,8 +12,8 @@ import SwiftUI
 import UI
 
 struct HomeScreen: View {
-//    @FetchRequest(fetchRequest: Film.recentlyWatched())
-//    private var recentlyWatchedFilms: FetchedResults<Film>
+    //    @FetchRequest(fetchRequest: Film.recentlyWatched())
+    //    private var recentlyWatchedFilms: FetchedResults<Film>
 
     @State private var trendingMovies: [MovieResponse] = []
     @State private var trendingTVShows: [TVShowResponse] = []
@@ -22,6 +22,7 @@ struct HomeScreen: View {
 
     // Film Detail View Properties
     @State private var selectedFilm: SelectedFilm?
+
     @Namespace private var namespace
 
     @Dependency(\.networkClient) var networkClient
@@ -96,17 +97,11 @@ struct HomeScreen: View {
 
             shouldLoad = false
         }
-        .opacity(selectedFilm != nil ? 0 : 1)
-        .overlay {
-            if let selectedFilm {
-                FilmDetailView(
-                    film: selectedFilm.film,
-                    namespace: namespace,
-                ) {
-                    self.selectedFilm = nil
-                }
-                .transition(.asymmetric(insertion: .identity, removal: .opacity))
-            }
+        .fullScreenCover(item: $selectedFilm) { selectedFilm in
+            FilmDetailView(
+                film: selectedFilm.film,
+                navigationTransitionConfig: .init(namespace: namespace, source: selectedFilm.film)
+            )
         }
     }
 }

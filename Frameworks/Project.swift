@@ -51,7 +51,6 @@ let project = Project(
                 .target(.models),
                 .target(.networking),
                 .external(.composableArchitecture),
-                .external(name: "SwiftUITrackableScrollView"),
                 .external(name: "YouTubePlayerKit")
             ]
         ),

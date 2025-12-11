@@ -37,9 +37,8 @@ struct WatchList: View {
                 ThumbnailView(
                     filmID: film.id,
                     posterPath: film.posterPath,
-                    width: 175,
-                    height: 225,
-                    namespace: namespace,
+                    size: CGSize(width: 175, height: 225),
+                    transitionConfig: .init(namespace: namespace, source: film),
                     isHighlighted: selectedFilm?.id == film.id
                 )
                 .onTapGesture {

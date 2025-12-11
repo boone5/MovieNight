@@ -6,77 +6,54 @@
 //
 
 import Dependencies
+import Models
 import Networking
 import SwiftUI
 
 public struct ThumbnailView: View {
-    @Environment(\.imageLoader) private var imageLoader
-    @ObservedObject var viewModel: ThumbnailView.ViewModel
     @Dependency(\.movieProvider) var movieProvider
 
-    @State private var uiImage: UIImage?
-
-    let filmID: Int64
+    let filmID: Film.ID
     let posterPath: String?
-    let width: CGFloat
-    let height: CGFloat
-    let namespace: Namespace.ID
+    let size: CGSize
+    let transitionConfig: NavigationTransitionConfiguration<Film.ID>
 
     @State private var feedback: Feedback? = nil
 
     public init(
-        viewModel: ThumbnailView.ViewModel,
-        uiImage: UIImage? = nil,
-        filmID: Int64,
+        filmID: Film.ID,
         posterPath: String?,
-        width: CGFloat,
-        height: CGFloat,
-        namespace: Namespace.ID
+        size: CGSize,
+        transitionConfig: NavigationTransitionConfiguration<Film.ID>
     ) {
-        self.viewModel = viewModel
-        self.uiImage = uiImage
         self.filmID = filmID
         self.posterPath = posterPath
-        self.width = width
-        self.height = height
-        self.namespace = namespace
+        self.size = size
+        self.transitionConfig = transitionConfig
     }
 
     public var body: some View {
-        ZStack(alignment: .bottomTrailing) {
-            RoundedRectangle(cornerRadius: 8)
-                .matchedGeometryEffect(id: "background" + String(filmID), in: namespace)
-                .foregroundStyle(.clear)
-                .frame(width: width, height: height)
-
-            PosterView(
-                width: width,
-                height: height,
-                uiImage: uiImage,
-                filmID: filmID,
-                namespace: namespace,
-                isAnimationSource: true
-            )
-            .overlay(alignment: .bottomLeading) {
-                if let feedback {
-                    FeedbackOverlayView(feedback: feedback)
-                        .padding([.leading, .bottom], 10)
-                }
+        PosterView(
+            imagePath: posterPath,
+            size: size,
+            filmID: filmID
+        )
+        .overlay(alignment: .bottomLeading) {
+            if let feedback {
+                FeedbackOverlayView(feedback: feedback)
+                    .padding([.leading, .bottom], 10)
             }
-            .shadow(radius: 3, y: 4)
-
-            // Uncomment if using button
-//            Circle()
-//                .matchedGeometryEffect(id: "info" + String(filmID), in: namespace)
-//                .frame(width: 50, height: 20)
-//                .foregroundStyle(.clear)
-//                .padding([.bottom, .trailing], 15)
         }
-        .task {
-            if let posterPath {
-                await loadImage(url: posterPath)
-            }
+        .zoomSource(configuration: transitionConfig)
+        .shadow(radius: 3, y: 4)
 
+        // Uncomment if using button
+        //            Circle()
+        //                .matchedGeometryEffect(id: "info" + String(filmID), in: namespace)
+        //                .frame(width: 50, height: 20)
+        //                .foregroundStyle(.clear)
+        //                .padding([.bottom, .trailing], 15)
+        .task(id: "loadFeedback") {
             if let film = movieProvider.fetchFilm(filmID) {
                 if film.isLiked {
                     feedback = .like(enabled: true)
@@ -88,18 +65,6 @@ public struct ThumbnailView: View {
             } else {
                 feedback = nil
             }
-        }
-    }
-
-    private func loadImage(url: String?) async {
-        guard let url else { return }
-
-        do {
-            guard let data = try await imageLoader.load(url) else { return }
-            viewModel.imageMap[url] = data
-            uiImage = UIImage(data: data)
-        } catch {
-            print("⛔️ Error loading image: \(error)")
         }
     }
 }
@@ -115,44 +80,36 @@ struct FeedbackOverlayView: View {
 }
 
 struct PosterView: View {
-    let width: CGFloat
-    let height: CGFloat
-    let uiImage: UIImage?
-    let filmID: Int64
-    let namespace: Namespace.ID
-    let isAnimationSource: Bool
+    let imagePath: String?
+    let size: CGSize
+    let filmID: Film.ID
+
+    var imageShape: RoundedRectangle {
+        RoundedRectangle(cornerRadius: 8)
+    }
+
+    @Dependency(\.imageLoader.cachedImage) var cachedImage
 
     var body: some View {
-        if let uiImage {
-            Image(uiImage: uiImage)
-                .resizable()
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .matchedGeometryEffect(id: "thumbnail" + String(filmID), in: namespace, isSource: isAnimationSource)
-                .frame(width: width, height: height)
-                .scaledToFit()
-        } else {
-            RoundedRectangle(cornerRadius: 8)
-                .matchedGeometryEffect(id: "thumbnail" + String(filmID), in: namespace)
-                .frame(width: width, height: height)
-                .foregroundStyle(.gray)
-        }
-    }
-}
-
-public extension ThumbnailView {
-    class ViewModel: ObservableObject {
-        public init() {}
-
-        public var imageMap: [String: Data] = [:]
-
-        public func posterImage(for posterPath: String?) -> UIImage? {
-            guard let posterPath else { return nil}
-
-            if let data = imageMap[posterPath] {
-                return UIImage(data: data)
+        Group {
+            if let cachedImage = cachedImage(imagePath) {
+                Image(uiImage: cachedImage)
+                    .resizable()
+                    .scaledToFit()
+                    .clipShape(imageShape)
             } else {
-                return nil
+                CachedAsyncImage(imagePath) { image in
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
+                        .clipShape(imageShape)
+                } placeholder: {
+                    imageShape
+                        .foregroundStyle(.gray)
+                        .frame(width: size.width, height: size.height)
+                }
             }
         }
+        .frame(width: size.width)
     }
 }

@@ -12,31 +12,22 @@ struct FlippablePosterView: View {
     @State private var flipDegrees: Double = 0
     @State private var shimmyRotation: Double = 0
 
-    private let posterWidth: CGFloat
-    private let posterHeight: CGFloat
+    private let posterSize: CGSize
     private let averageColor: Color
-    private let uiImage: UIImage?
-    private let namespace: Namespace.ID
     private let film: FilmDisplay
     @Binding var trailer: AdditionalDetailsMovie.VideoResponse.Video?
 
     init(
         film: FilmDisplay,
         averageColor: Color,
-        namespace: Namespace.ID,
-        uiImage: UIImage?,
         trailer: Binding<AdditionalDetailsMovie.VideoResponse.Video?>
     ) {
         self.film = film
         self.averageColor = averageColor
-        self.uiImage = uiImage
-        self.namespace = namespace
         self._trailer = trailer
 
         let size = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.screen.bounds.size ?? .zero
-
-        self.posterWidth = size.width / 1.5
-        self.posterHeight = size.height / 2.4
+        self.posterSize = CGSize(width: size.width / 1.5, height: size.height / 2.4)
     }
 
     // Normalize the degrees into [0, 360) for determining which side is visible.
@@ -52,12 +43,9 @@ struct FlippablePosterView: View {
         ZStack {
             // Front
             PosterView(
-                width: posterWidth,
-                height: posterHeight,
-                uiImage: uiImage,
-                filmID: film.id,
-                namespace: namespace,
-                isAnimationSource: false
+                imagePath: film.posterPath,
+                size: posterSize,
+                filmID: film.id
             )
             .shadow(radius: 6, y: 3)
             .overlay(alignment: .bottomTrailing) {
@@ -88,7 +76,7 @@ struct FlippablePosterView: View {
                 backgroundColor: averageColor,
                 trailer: $trailer
             )
-            .frame(width: posterWidth, height: posterHeight)
+            .frame(width: posterSize.width, height: posterSize.height)
             .cornerRadius(8)
             .shadow(radius: 6, y: 3)
             .opacity(frontVisible ? 0 : 1)

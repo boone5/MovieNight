@@ -7,65 +7,45 @@
 
 import Models
 import SwiftUI
-import SwiftUITrackableScrollView
 
 public struct FilmRow: View {
-    @StateObject private var viewModel = ThumbnailView.ViewModel()
+    public var items: [any DetailViewRepresentable]
 
-    public var items: [DetailViewRepresentable]
-
-    @Binding public var isExpanded: Bool
     @Binding public var selectedFilm: SelectedFilm?
 
     private let namespace: Namespace.ID
-    private let thumbnailWidth: CGFloat
-    private let thumbnailHeight: CGFloat
+    private let thumbnailSize: CGSize
 
     public init(
-        items: [DetailViewRepresentable],
-        isExpanded: Binding<Bool>,
+        items: [any DetailViewRepresentable],
         selectedFilm: Binding<SelectedFilm?>,
         namespace: Namespace.ID,
-        thumbnailWidth: CGFloat = 175,
-        thumbnailHeight: CGFloat = 250
+        thumbnailSize: CGSize = CGSize(width: 175, height: 250)
     ) {
         self.items = items
-        self._isExpanded = isExpanded
         self._selectedFilm = selectedFilm
         self.namespace = namespace
-        self.thumbnailWidth = thumbnailWidth
-        self.thumbnailHeight = thumbnailHeight
+        self.thumbnailSize = thumbnailSize
     }
 
     public var body: some View {
         ScrollView(.horizontal) {
             LazyHStack(spacing: 15) {
                 ForEach(items, id: \.id) { film in
-                    if selectedFilm?.id == film.id, isExpanded {
-                        RoundedRectangle(cornerRadius: 15)
-                            .foregroundStyle(.clear)
-                            .frame(width: thumbnailWidth, height: thumbnailHeight)
-                    } else {
-                        ThumbnailView(
-                            viewModel: viewModel,
-                            filmID: film.id,
-                            posterPath: film.posterPath,
-                            width: thumbnailWidth,
-                            height: thumbnailHeight,
-                            namespace: namespace
-                        )
-                        .onTapGesture {
-                            withAnimation(.spring()) {
-                                isExpanded = true
-                                selectedFilm = SelectedFilm(id: film.id, film: film, posterImage: viewModel.posterImage(for: film.posterPath))
-                            }
-                        }
+                    ThumbnailView(
+                        filmID: film.id,
+                        posterPath: film.posterPath,
+                        size: thumbnailSize,
+                        transitionConfig: .init(namespace: namespace, source: film)
+                    )
+                    .onTapGesture {
+                        selectedFilm = SelectedFilm(film: film)
                     }
                 }
             }
             .padding(.horizontal, 15)
         }
         .padding(.horizontal, -15)
-        .toolbar(isExpanded ? .hidden : .visible, for: .tabBar)
+        .toolbar(selectedFilm != nil ? .hidden : .visible, for: .tabBar)
     }
 }

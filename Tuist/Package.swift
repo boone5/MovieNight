@@ -30,7 +30,6 @@ import PackageDescription
             "SwiftUINavigationCore": .framework,
             "UIKitNavigation": .framework,
             "DequeModule": .framework,
-            "SwiftUITrackableScrollView": .framework,
             "YouTubePlayerKit": .framework
         ],
         targetSettings: [
@@ -49,7 +48,6 @@ let package = Package(
     name: "MovieNight",
     dependencies: [
         .package(url: "https://github.com/pointfreeco/swift-composable-architecture.git", from: "1.20.2"),
-        .package(url: "https://github.com/maxnatchanon/trackable-scroll-view.git", branch: "master"),
         .package(url: "https://github.com/SvenTiigi/YouTubePlayerKit.git", from: "2.0.0")
     ],
 )

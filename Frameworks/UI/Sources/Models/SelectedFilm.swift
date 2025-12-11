@@ -8,14 +8,16 @@
 import Models
 import UIKit
 
-public struct SelectedFilm {
+public struct SelectedFilm: Identifiable, Equatable {
     public var id: Int64
-    public var film: DetailViewRepresentable
-    public var posterImage: UIImage?
+    public var film: any DetailViewRepresentable
 
-    public init(id: Int64, film: DetailViewRepresentable, posterImage: UIImage? = nil) {
-        self.id = id
+    public init(film: any DetailViewRepresentable) {
+        self.id = film.id
         self.film = film
-        self.posterImage = posterImage
+    }
+
+    public static func ==(lhs: SelectedFilm, rhs: SelectedFilm) -> Bool {
+        lhs.id == rhs.id
     }
 }

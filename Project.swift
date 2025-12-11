@@ -27,7 +27,6 @@ let project = Project(
                 .project(.search, from: .frameworks),
                 .project(.ui, from: .frameworks),
                 .external(.composableArchitecture),
-                .external(name: "SwiftUITrackableScrollView"),
                 .external(name: "YouTubePlayerKit")
             ],
             settings: .settings(

@@ -10,70 +10,57 @@ import Dependencies
 import Models
 import Networking
 import SwiftUI
-// Taken from https://stackoverflow.com/questions/72941738/closing-a-view-when-it-reaches-the-top-that-has-a-scrollview-in-swiftui
-import SwiftUITrackableScrollView
 import YouTubePlayerKit
 
 // MARK: Preview
 
 #Preview {
-    @Previewable @State var isExpanded: Bool = true
     @Previewable @Namespace var namespace
 
     let film: ResponseType = ResponseType.movie(MovieResponse())
 //    let film: ResponseType = ResponseType.tvShow(TVShowResponse())
 
-    FilmDetailView(film: film, namespace: namespace, isExpanded: $isExpanded, uiImage: nil)
+    FilmDetailView(film: film, navigationTransitionConfig: .init(namespace: namespace, source: film))
 }
 
 // MARK: FilmDetailView
 
 public struct FilmDetailView: View {
+    @Environment(\.dismiss) var dismiss
+
     @StateObject var viewModel: FilmDetailView.ViewModel
+    let navigationTransitionConfig: NavigationTransitionConfiguration<Film.ID>
 
-    let uiImage: UIImage?
-    let namespace: Namespace.ID
-    @Binding var isExpanded: Bool
-
-    @State private var scrollViewContentOffset = CGFloat(0)
-    @State private var presentationDidFinish: Bool = false
     @State private var actionTapped: QuickAction?
     @State private var watchCount = 0
 
     public init(
         film: some DetailViewRepresentable,
-        namespace: Namespace.ID,
-        isExpanded: Binding<Bool>,
-        uiImage: UIImage?
+        navigationTransitionConfig: NavigationTransitionConfiguration<Film.ID>,
     ) {
-        _viewModel = StateObject(wrappedValue: FilmDetailView.ViewModel(posterImage: uiImage, film: film))
-        _isExpanded = isExpanded
-
-        self.namespace = namespace
-        self.uiImage = uiImage
+        _viewModel = StateObject(wrappedValue: FilmDetailView.ViewModel(film: film))
+        self.navigationTransitionConfig = navigationTransitionConfig
     }
 
     var averageColor: Color {
         viewModel.averageColor
     }
 
+    @State var postion: ScrollPosition = .init()
+
     public var body: some View {
-        TrackableScrollView(
+        ScrollView(
             .vertical,
-            showIndicators: true,
-            contentOffset: $scrollViewContentOffset
+            showsIndicators: true
         ) {
             VStack(alignment: .center, spacing: 30) {
                 headerView
-                    .opacity(presentationDidFinish ? 1 : 0)
 
                 // MARK: TODO
                 // - Add gloss finish
                 FlippablePosterView(
                     film: viewModel.filmDisplay,
                     averageColor: viewModel.averageColor,
-                    namespace: namespace,
-                    uiImage: uiImage,
                     trailer: $viewModel.trailer
                 )
 
@@ -195,44 +182,26 @@ public struct FilmDetailView: View {
                         CastScrollView(averageColor: viewModel.averageColor, cast: cast)
                     }
                 }
-                .opacity(presentationDidFinish ? 1 : 0)
 
                 Spacer()
             }
             .padding(.vertical, 80)
             .padding(.horizontal, 20)
-            .background {
-                Rectangle()
-                    .matchedGeometryEffect(id: "background" + String(viewModel.filmDisplay.id), in: namespace, isSource: false)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [viewModel.averageColor, .black],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-                    .ignoresSafeArea()
-            }
         }
-        .onChange(of: scrollViewContentOffset) { _ in
-            //TO KNOW THE VALUE OF OFFSET THAT YOU NEED TO DISMISS YOUR VIEW
-            //                    print(scrollViewContentOffset)
-
-            //THIS IS WHERE THE DISMISS HAPPENS
-            if scrollViewContentOffset < -80 {
-                withAnimation(.interpolatingSpring(duration: 0.4, bounce: 0.2)) {
-                    isExpanded = false
-                }
-            }
+        .background {
+            Rectangle()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [viewModel.averageColor, .black],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .ignoresSafeArea()
         }
         .ignoresSafeArea()
-        .onAppear {
-            withAnimation(.easeInOut(duration: 0.4)) {
-                presentationDidFinish.toggle()
-            }
-        }
-        .task {
+        .task(id: "loadData") {
             await viewModel.loadInitialData()
             if viewModel.filmDisplay.mediaType == .movie {
                 await viewModel.getAdditionalDetailsMovie()
@@ -240,6 +209,7 @@ public struct FilmDetailView: View {
                 await viewModel.getAdditionalDetailsTVShow()
             }
         }
+        .zoomTransition(configuration: navigationTransitionConfig)
     }
 
     @MainActor
@@ -254,10 +224,9 @@ public struct FilmDetailView: View {
                     Circle()
                         .foregroundStyle(Color(uiColor: .white).opacity(0.2))
                 }
+                .contentShape(.circle)
                 .onTapGesture {
-                    withAnimation(.interpolatingSpring(duration: 0.4, bounce: 0.2)) {
-                        isExpanded = false
-                    }
+                    dismiss()
                 }
 
             Spacer()
@@ -322,29 +291,19 @@ extension FilmDetailView {
         @Published var trailer: AdditionalDetailsMovie.VideoResponse.Video?
         @Published var genres: String?
 
-        private let posterImage: UIImage?
-
         @Dependency(\.date.now) var now
         @Dependency(\.movieProvider) var movieProvider
         @Dependency(\.networkClient) var networkClient
 
-        init(posterImage: UIImage?, film: some DetailViewRepresentable) {
-            self.posterImage = posterImage
-            self.averageColor = Color(uiColor: UIColor(resource: .brightRed))
+        init(film: some DetailViewRepresentable) {
+            @Dependency(\.imageLoader.cachedImage) var cachedImage
+            self.averageColor = Color(cachedImage(film.posterPath)?.averageColor ?? UIColor(resource: .brightRed))
             self.filmDisplay = FilmDisplay(from: film)
         }
 
         @MainActor
         func loadInitialData() async {
-            if let image = posterImage {
-                let color = await Task.detached(priority: .userInitiated) {
-                    image.averageColor
-                }.value
-
-                self.averageColor = Color(uiColor: color)
-            }
-
-            if let existingFilm = movieProvider.fetchFilm(filmDisplay.id) {
+           if let existingFilm = movieProvider.fetchFilm(filmDisplay.id) {
                 isLiked = existingFilm.isLiked
                 isLoved = existingFilm.isLoved
                 isDisliked = existingFilm.isDisliked

@@ -10,8 +10,6 @@ import SwiftUI
 import UI
 
 struct LibraryScreen: View {
-    @StateObject private var thumbnailViewModel = ThumbnailView.ViewModel()
-
     @FetchRequest(fetchRequest: Film.recentlyWatched())
     private var recentlyWatchedFilms: FetchedResults<Film>
 
@@ -23,7 +21,6 @@ struct LibraryScreen: View {
     private var watchList: FetchedResults<Film>
 
     @State private var navigationPath = NavigationPath()
-    @State var isExpanded: Bool = false
     @State var selectedFilm: SelectedFilm?
     @State private var headerOpacity: Double = 1.0
     @Namespace private var namespace
@@ -95,7 +92,6 @@ struct LibraryScreen: View {
 
                             FilmRow(
                                 items: Array(recentlyWatchedFilms),
-                                isExpanded: $isExpanded,
                                 selectedFilm: $selectedFilm,
                                 namespace: namespace
                             )
@@ -136,17 +132,11 @@ struct LibraryScreen: View {
                 let films = collection.films?.array as? [Film] ?? []
                 CollectionDetailView(title: collection.title, films: films)
             }
-            .opacity(isExpanded ? 0 : 1)
-            .overlay {
-                if let selectedFilm, isExpanded {
-                    FilmDetailView(
-                        film: selectedFilm.film,
-                        namespace: namespace,
-                        isExpanded: $isExpanded,
-                        uiImage: selectedFilm.posterImage
-                    )
-                    .transition(.asymmetric(insertion: .identity, removal: .opacity))
-                }
+            .fullScreenCover(item: $selectedFilm) { selectedFilm in
+                FilmDetailView(
+                    film: selectedFilm.film,
+                    navigationTransitionConfig: .init(namespace: namespace, source: selectedFilm.film)
+                )
             }
         }
     }

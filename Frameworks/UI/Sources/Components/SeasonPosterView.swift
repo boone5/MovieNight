@@ -5,6 +5,8 @@
 //  Created by Boone on 2/25/25.
 //
 
+import Dependencies
+import Networking
 import SwiftUI
 
 #Preview {
@@ -12,8 +14,7 @@ import SwiftUI
 }
 
 struct SeasonPosterView: View {
-    @Environment(\.imageLoader) private var imageLoader
-    @StateObject private var viewModel = ThumbnailView.ViewModel()
+    @Dependency(\.imageLoader) private var imageLoader
     
     @State private var uiImage: UIImage?
     @State private var isWatched: Bool = false
@@ -71,9 +72,8 @@ struct SeasonPosterView: View {
         guard let url else { return }
 
         do {
-            guard let data = try await imageLoader.load(url) else { return }
-            viewModel.imageMap[url] = data
-            uiImage = UIImage(data: data)
+            guard let image = try await imageLoader.loadImage(url) else { return }
+            uiImage = image
         } catch {
             print("⛔️ Error loading image: \(error)")
         }

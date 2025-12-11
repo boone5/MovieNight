@@ -5,6 +5,7 @@
 //  Created by Boone on 5/14/25.
 //
 
+import Dependencies
 import Models
 import Networking
 import SwiftUI
@@ -39,7 +40,7 @@ struct CastScrollView: View {
     }
 
     struct ActorProfileView: View {
-        @Environment(\.imageLoader) private var imageLoader
+        @Dependency(\.imageLoader) private var imageLoader
         @State private var uiImage: UIImage? = nil
 
         let actor: ActorResponse.Actor
@@ -76,8 +77,8 @@ struct CastScrollView: View {
             guard let url else { return }
 
             do {
-                guard let data = try await imageLoader.load(url) else { return }
-                uiImage = UIImage(data: data)
+                guard let image = try await imageLoader.loadImage(url) else { return }
+                uiImage = image
             } catch {
                 print("⛔️ Error loading image: \(error)")
             }

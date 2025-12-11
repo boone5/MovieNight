@@ -10,12 +10,9 @@ import SwiftUI
 import UI
 
 struct ExploreView: View {
-    @EnvironmentObject var searchViewModel: SearchViewModel
-
     var trendingMovies: [MovieResponse] = []
     var trendingTVShows: [TVShowResponse] = []
     var namespace: Namespace.ID
-    var isExpanded: Binding<Bool>
     var selectedFilm: Binding<SelectedFilm?>
 
     var body: some View {
@@ -26,7 +23,6 @@ struct ExploreView: View {
 
             FilmRow(
                 items: trendingMovies,
-                isExpanded: isExpanded,
                 selectedFilm: selectedFilm,
                 namespace: namespace
             )
@@ -38,7 +34,6 @@ struct ExploreView: View {
 
             FilmRow(
                 items: trendingTVShows,
-                isExpanded: isExpanded,
                 selectedFilm: selectedFilm,
                 namespace: namespace
             )

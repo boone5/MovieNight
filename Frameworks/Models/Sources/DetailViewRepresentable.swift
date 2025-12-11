@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol DetailViewRepresentable {
+public protocol DetailViewRepresentable: Identifiable {
     var id: Int64 { get }
     var overview: String? { get }
     var posterPath: String? { get }

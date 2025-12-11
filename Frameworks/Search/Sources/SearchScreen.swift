@@ -42,8 +42,7 @@ public struct SearchScreen: View {
             .toolbar(.hidden, for: .navigationBar)
             .searchable(text: $store.searchText)
             .scrollDismissesKeyboard(.immediately)
-            .toolbar(store.isHighlightingResult ? .hidden : .visible, for: .tabBar)
-            .fullScreenCover(item: $store.highlightedFilm) { film in
+            .fullScreenCover(item: $store.selectedFilm) { film in
                 FilmDetailView(
                     film: film.film,
                     navigationTransitionConfig: .init(namespace: transitionNamespace, source: film.film),
@@ -76,20 +75,22 @@ private struct SearchContentResultView: View {
             PaginatedContent(items: store.queryResults) { item in
                 ResultRow(
                     film: item,
-                    namespace: transitionNamespace,
-                    isHighlighted: store.highlightedFilm?.id == item.id
+                    namespace: transitionNamespace
                 ) {
                     store.send(.view(.rowTapped(item)))
                 }
                 .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
                 .buttonStyle(PlainButtonStyle())
+
             } onLoadMore: {
                 store.send(.api(.fetchResults))
             }
 
-            if store.loadingState.completedPagination {
+            if store.loadingState.completedPagination, !store.queryResults.isEmpty {
                 NoMoreResultsView()
                     .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
             }
         }
         .listStyle(.plain)
@@ -109,7 +110,6 @@ private struct SearchContentResultView: View {
 private struct ResultRow: View {
     let film: any DetailViewRepresentable
     let namespace: Namespace.ID
-    let isHighlighted: Bool
 
     let action: () -> Void
 
@@ -119,8 +119,7 @@ private struct ResultRow: View {
                 filmID: film.id,
                 posterPath: film.posterPath,
                 size: .init(width: 80, height: 120),
-                transitionConfig: .init(namespace: namespace, source: film),
-                isHighlighted: isHighlighted
+                transitionConfig: .init(namespace: namespace, source: film)
             )
 
             VStack(alignment: .leading, spacing: 5) {

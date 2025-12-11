@@ -14,7 +14,7 @@ import UI
 @Reducer
 public struct SearchFeature {
     public init() {}
-    
+
     @ObservableState
     public struct State: Equatable {
         public init() {}
@@ -24,11 +24,7 @@ public struct SearchFeature {
 
         var queryResults: [ResponseType] = []
 
-        var highlightedFilm: SelectedFilm?
-
-        var isHighlightingResult: Bool {
-            highlightedFilm != nil
-        }
+        @Presents var selectedFilm: SelectedFilm?
     }
 
     public enum Action: ViewAction, Equatable {
@@ -45,7 +41,6 @@ public struct SearchFeature {
     public enum View: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case rowTapped(ResponseType)
-        case overlayDismissed
     }
 
     public enum CancelID: Hashable {
@@ -97,6 +92,9 @@ public struct SearchFeature {
 
             case let .api(.fetchResponse(response)):
                 state.loadingState = .paginated(currentPage: response.page, totalPages: response.totalPages)
+                // NOTE: This sorta breaks pagination since a page of results could contain only empty items.
+                // NOTE: Nothing new would be added to the UI, so another `onAppear` wouldn't trigger.
+                // NOTE: This should be handled when we parse people results properly.
                 let cleanResults = response.results.filter { $0 != .empty }
                 state.queryResults.append(contentsOf: cleanResults)
                 return .none
@@ -105,11 +103,7 @@ public struct SearchFeature {
                 return .none
 
             case let .view(.rowTapped(item)):
-                state.highlightedFilm = SelectedFilm(film: item)
-                return .none
-
-            case .view(.overlayDismissed):
-                state.highlightedFilm = nil
+                state.selectedFilm = SelectedFilm(film: item)
                 return .none
             }
         }

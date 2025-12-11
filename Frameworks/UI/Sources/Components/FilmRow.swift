@@ -36,8 +36,7 @@ public struct FilmRow: View {
                         filmID: film.id,
                         posterPath: film.posterPath,
                         size: thumbnailSize,
-                        transitionConfig: .init(namespace: namespace, source: film),
-                        isHighlighted: selectedFilm?.id == film.id
+                        transitionConfig: .init(namespace: namespace, source: film)
                     )
                     .onTapGesture {
                         selectedFilm = SelectedFilm(film: film)

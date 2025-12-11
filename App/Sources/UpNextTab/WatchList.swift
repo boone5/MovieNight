@@ -38,8 +38,7 @@ struct WatchList: View {
                     filmID: film.id,
                     posterPath: film.posterPath,
                     size: CGSize(width: 175, height: 225),
-                    transitionConfig: .init(namespace: namespace, source: film),
-                    isHighlighted: selectedFilm?.id == film.id
+                    transitionConfig: .init(namespace: namespace, source: film)
                 )
                 .onTapGesture {
                     withAnimation(.spring()) {

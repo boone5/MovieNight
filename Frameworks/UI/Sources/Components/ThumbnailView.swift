@@ -18,22 +18,18 @@ public struct ThumbnailView: View {
     let size: CGSize
     let transitionConfig: NavigationTransitionConfiguration<Film.ID>
 
-    let isHighlighted: Bool
-
     @State private var feedback: Feedback? = nil
 
     public init(
         filmID: Film.ID,
         posterPath: String?,
         size: CGSize,
-        transitionConfig: NavigationTransitionConfiguration<Film.ID>,
-        isHighlighted: Bool
+        transitionConfig: NavigationTransitionConfiguration<Film.ID>
     ) {
         self.filmID = filmID
         self.posterPath = posterPath
         self.size = size
         self.transitionConfig = transitionConfig
-        self.isHighlighted = isHighlighted
     }
 
     public var body: some View {

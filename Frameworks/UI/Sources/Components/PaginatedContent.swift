@@ -78,29 +78,3 @@ public struct PaginatedContent<Content: View, Item: Identifiable>: View {
     }
 }
 
-public extension PaginatedContent {
-    /// Sets the action to perform when the final item in the list comes into view.
-    ///
-    /// Use this modifier when you want to attach the load-more logic at the call site
-    /// rather than during initialization.
-    ///
-    /// ```swift
-    /// PaginatedContent(items: viewStore.items) { item in
-    ///     Row(item)
-    /// }
-    /// .onLoadMore {
-    ///     store.send(.loadMore)
-    /// }
-    /// ```
-    ///
-    /// - Parameter handler: A closure executed when the last item becomes visible.
-    /// - Returns: A new `PaginatedContent` instance with the updated load-more behavior.
-    func onLoadMore(_ handler: @escaping () -> Void) -> Self {
-        .init(
-            items: items,
-            content: content,
-            onLoadMore: handler
-        )
-    }
-}
-

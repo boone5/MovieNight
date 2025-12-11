@@ -16,9 +16,7 @@ struct WheelView: View {
     @State private var isSpinning = false
     @State private var winningName: String = ""
     @State private var names: [String] = [""]
-    @State private var winningColor: [String] = []
 
-    private let colors: [Color] = [.red, .yellow]
     private let totalSpinDuration: Double = 5.0
     private let totalRotations: Double = 3500
 
@@ -46,88 +44,101 @@ struct WheelView: View {
                 .padding(.top, 5)
 
             Spacer()
-            GeometryReader { geometry in
-                ZStack {
-                    ForEach(0..<segmentCount, id: \.self) { idx in
-                        let startAngle = self.angleForSegment(idx)
-                        let endAngle = self.angleForSegment(idx + 1)
-                        let mean: Angle = (startAngle + endAngle) / 2
-                        // Calculate the chord's angle using arctan2.
-                        let chordAngleRadians = atan2(
-                            sin(endAngle.radians) - sin(startAngle.radians),
-                            cos(endAngle.radians) - cos(startAngle.radians)
-                        )
-                        let chordAngle = Angle(radians: chordAngleRadians)
 
-                        ZStack {
-                            Segment(startAngle: startAngle, endAngle: endAngle)
-                                .fill(colors[idx % colors.count])
-                                .onAppear {
-                                    let midX = geometry.frame(in: .local).midX
-                                    radius = midX
-                                }
+            ZStack {
+                        ForEach(0..<segmentCount, id: \.self) { index in
+                            let startAngle = Angle(degrees: Double(index) / Double(segmentCount) * 360)
+                            let endAngle = Angle(degrees: Double(index + 1) / Double(segmentCount) * 360)
+                            let textAngle = (startAngle + endAngle) / 2
+                            let textXOffset = 100 * cos(CGFloat(textAngle.radians - .pi / 2))
+                            let textYOffset = 100 * sin(CGFloat(textAngle.radians - .pi / 2))
 
-                            if let title = films[safe: idx]?.title {
-                                Text(title)
-                                    .foregroundColor(.white)
-                                    .font(.system(size: 14, weight: .bold))
-                                    .frame(maxWidth: 100)
-                                    .lineLimit(1)
-                                    .truncationMode(.tail)
-                                    .rotationEffect(chordAngle + Angle(degrees: 90))
-                                    .offset(
-                                        CGSize(
-                                            width: radius * 0.5 * cos(mean.radians),
-                                            height: radius * 0.5 * sin(mean.radians)
+
+                            // wheel segment with film title
+                            WheelSegment(startAngle: startAngle, endAngle: endAngle)
+                                .stroke(.black)
+                                .overlay(
+                                    Text(films[safe: index]?.title ?? "No Films")
+                                        .font(.system(size: 12, weight: .bold))
+                                        .foregroundColor(.black)
+                                        .rotationEffect(.degrees((Double(index) + 0.5) / Double(segmentCount) * 360))
+                                        .offset(
+                                            x: textXOffset,
+                                            y: textYOffset
+                                            
                                         )
-                                    )
-                            }
+//                                        .rotationEffect(-.degrees(rotation))
+                                )
                         }
-                        .rotationEffect(.degrees(rotation))
+
+                        // Example 2: Optional, a central circle overlay
+                        Circle()
+                            .stroke(.black, lineWidth: 2)
+                            .frame(width: 50, height: 50)
+                            .background(.white)
+                            .clipShape(Circle())
+                    }
+                    .frame(width: 350, height: 350)
+                    .rotationEffect(.degrees(rotation))
+                    .overlay(alignment: .top) {
+                        Arrow()
+                            .fill(Color.gray)
+                            .frame(width: 30, height: 30)
+                            .rotationEffect(Angle(degrees: 90))
+                            .offset(y: -10)
                     }
 
-                    Circle()
-                        .fill(Color.white)
-                        .frame(width: 50, height: 50)
 
-                    Arrow()
-                        .fill(Color.gray)
-                        .frame(width: 30, height: 30)
-                        .rotationEffect(.degrees(180))
-                        .offset(x: 150, y: 0)
-                        .shadow(color: .gray, radius: 4, x: 2, y: 2)
-                }
-                .onTapGesture {
-                    spinRoulette()
-                }
-                .scaleEffect(1.2)
-                .offset(y: 100)
+
+            Spacer()
+            Button(action: spinRoulette) {
+                Text(isSpinning ? "Spinning..." : "Spin")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundColor(.white)
+                    .padding()
+                    .frame(width: 200)
+                    .background(isSpinning ? Color.gray : Color.blue)
+                    .cornerRadius(10)
             }
-            .frame(maxWidth: .infinity)
-            .frame(height: 400)
+            .disabled(isSpinning)
+            Spacer()
+
+        }
+        .alert(winningName, isPresented: .constant(!winningName.isEmpty)) {
+            Button("Spin Again") {
+                self.winningName = ""
+                self.rotation = 0
+                self.isSpinning = false
+                spinRoulette()
+            }
+
+            Button("Close") {
+                self.winningName = ""
+            }
+        } message: {
+
         }
 
-    }
-
-    func angleForSegment(_ index: Int) -> Angle {
-        Angle(degrees: Double(index) / Double(segmentCount) * 360)
-    }
-
-    func textAngleForSegment(_ index: Int) -> Angle {
-        let segmentAngle = 360.0 / Double(segmentCount)
-        return Angle(degrees: -Double(index) * segmentAngle - segmentAngle / 2)
     }
 
     func spinRoulette() {
         guard !isSpinning else { return }
         isSpinning = true
 
+        // Randomize the final rotation angle to land on a random segment
+        let randomOffset = Double.random(in: 0..<(360.0))
+        let finalRotation = totalRotations + randomOffset
         withAnimation(Animation.timingCurve(0.1, 0.8, 0.3, 1.0, duration: totalSpinDuration)) {
-            rotation += totalRotations
+            rotation += finalRotation
         }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + totalSpinDuration) {
             isSpinning = false
+            // which segment contains the 90 degree mark
+            let normalizedRotation = rotation.truncatingRemainder(dividingBy: 360)
+            let degreesPerSegment = 360.0 / Double(segmentCount)
+            let winningIndex = Int(((360 - normalizedRotation + (degreesPerSegment / 2)) .truncatingRemainder(dividingBy: 360)) / degreesPerSegment)
+            winningName = films[safe: winningIndex]?.title ?? "No Films"
         }
     }
 }
@@ -137,14 +148,19 @@ struct Segment: Shape {
     var endAngle: Angle
 
     func path(in rect: CGRect) -> Path {
-        let center = CGPoint(x: rect.midX, y: rect.midY)
-        let radius = min(rect.width, rect.height) / 2
         var path = Path()
-
+        let center = CGPoint(x: rect.midX, y: rect.midY)
         path.move(to: center)
-        path.addArc(center: center, radius: radius, startAngle: startAngle, endAngle: endAngle, clockwise: false)
-        path.closeSubpath()
 
+        path.addArc(
+            center: center,
+            radius: rect.width / 2,
+            startAngle: startAngle - Angle(degrees: 90),
+            endAngle: endAngle - Angle(degrees: 90),
+            clockwise: false
+        )
+
+        path.closeSubpath()
         return path
     }
 }
@@ -197,4 +213,51 @@ import CoreData
     }
 
     return WheelViewPreview()
+}
+
+struct WheelSegment: Shape {
+    var startAngle: Angle
+    var endAngle: Angle
+    var innerRadius: CGFloat = 0 // Allows for a hollow center (a ring segment)
+
+    func path(in rect: CGRect) -> Path {
+        let center = CGPoint(x: rect.midX, y: rect.midY)
+        let outerRadius = min(rect.width, rect.height) / 2
+
+        var path = Path()
+
+        // Move to the inner start point if it's a ring segment, otherwise the center
+        if innerRadius > 0 {
+            let innerStartPoint = CGPoint(
+                x: center.x + innerRadius * cos(CGFloat(startAngle.radians)),
+                y: center.y + innerRadius * sin(startAngle.radians)
+            )
+            path.move(to: innerStartPoint)
+
+            // Draw the inner arc
+            path.addArc(
+                center: center,
+                radius: innerRadius,
+                startAngle: startAngle,
+                endAngle: endAngle,
+                clockwise: false
+            )
+        } else {
+            path.move(to: center)
+        }
+
+        // Draw the outer arc
+        path.addArc(
+            center: center,
+            radius: outerRadius,
+            startAngle: startAngle,
+            endAngle: endAngle,
+            clockwise: false // or true, depending on desired direction
+        )
+
+        // Close the path back to the center (if full wedge) or inner radius start
+        path.closeSubpath()
+
+        return path
+    }
 }

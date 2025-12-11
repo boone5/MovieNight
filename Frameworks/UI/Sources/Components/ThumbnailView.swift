@@ -95,20 +95,21 @@ struct PosterView: View {
             if let cachedImage = cachedImage(imagePath) {
                 Image(uiImage: cachedImage)
                     .resizable()
-                    .clipShape(imageShape)
                     .scaledToFit()
+                    .clipShape(imageShape)
             } else {
                 CachedAsyncImage(imagePath) { image in
                     Image(uiImage: image)
                         .resizable()
-                        .clipShape(imageShape)
                         .scaledToFit()
+                        .clipShape(imageShape)
                 } placeholder: {
                     imageShape
                         .foregroundStyle(.gray)
+                        .frame(width: size.width, height: size.height)
                 }
             }
         }
-        .frame(width: size.width, height: size.height)
+        .frame(width: size.width)
     }
 }

@@ -23,7 +23,7 @@ struct AppView: View {
             }
 
             Tab(AppTab.library.label, systemImage: AppTab.library.icon, value: .library) {
-                LibraryScreen()
+                LibraryScreen(store: store.scope(state: \.library, action: \.library))
                     .environment(\.managedObjectContext, context)
             }
 

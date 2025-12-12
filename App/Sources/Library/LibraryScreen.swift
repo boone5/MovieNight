@@ -1,15 +1,18 @@
 //
-//  MockLibraryScreen.swift
+//  LibraryScreen.swift
 //  MovieNight
 //
 //  Created by Boone on 6/30/24.
 //
 
+import ComposableArchitecture
 import Models
 import SwiftUI
 import UI
 
 struct LibraryScreen: View {
+    @Bindable var store: StoreOf<LibraryFeature>
+
     @FetchRequest(fetchRequest: Film.recentlyWatched())
     private var recentlyWatchedFilms: FetchedResults<Film>
 
@@ -17,8 +20,6 @@ struct LibraryScreen: View {
     private var collections: FetchedResults<FilmCollection>
 
     @State private var navigationPath = NavigationPath()
-    @State var selectedFilm: SelectedFilm?
-    @State private var headerOpacity: Double = 1.0
     @Namespace private var namespace
 
     static let stackSpacing: CGFloat = 25
@@ -45,25 +46,23 @@ struct LibraryScreen: View {
                                 title: "Library",
                                 trailingButtons: [
                                     NavigationHeaderButton(systemImage: "magnifyingglass") {
-                                        // TODO: Search Library
+                                        store.send(.view(.searchButtonTapped))
                                     },
                                     NavigationHeaderButton(systemImage: "plus") {
-                                        // TODO: Add a collection
+                                        store.send(.view(.addCollectionButtonTapped))
                                     }
                                 ]
                             )
-                            .opacity(headerOpacity)
+                            .opacity(store.headerOpacity)
                             .onGeometryChange(for: CGFloat.self) { proxy in
                                 proxy.frame(in: .scrollView).minY
                             } action: { minY in
-                                // how many points until fully invisible
-                                let fadeThreshold = 50.0
-                                headerOpacity = max(0, min(1, (minY + fadeThreshold) / fadeThreshold))
+                                store.send(.view(.headerScrolled(minY: minY)))
                             }
 
                             RecentlyWatchedView(
                                 films: Array(recentlyWatchedFilms),
-                                selectedFilm: $selectedFilm,
+                                selectedFilm: $store.selectedFilm,
                                 namespace: namespace
                             )
 
@@ -81,7 +80,7 @@ struct LibraryScreen: View {
                 let films = collection.films?.array as? [Film] ?? []
                 CollectionDetailView(title: collection.title, films: films)
             }
-            .fullScreenCover(item: $selectedFilm) { selectedFilm in
+            .fullScreenCover(item: $store.selectedFilm) { selectedFilm in
                 FilmDetailView(
                     film: selectedFilm.film,
                     navigationTransitionConfig: .init(namespace: namespace, source: selectedFilm.film)
@@ -192,5 +191,9 @@ struct LibraryScreen: View {
 }
 
 #Preview {
-    LibraryScreen()
+    LibraryScreen(
+        store: Store(initialState: LibraryFeature.State()) {
+            LibraryFeature()
+        }
+    )
 }

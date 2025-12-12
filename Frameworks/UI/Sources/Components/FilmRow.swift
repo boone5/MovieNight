@@ -43,7 +43,7 @@ public struct FilmRow: View {
                     }
                 }
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, PLayout.horizontalMarginPadding)
         }
         .padding(.horizontal, -20)
         .toolbar(selectedFilm != nil ? .hidden : .visible, for: .tabBar)

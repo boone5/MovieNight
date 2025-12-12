@@ -14,9 +14,9 @@ import UI
 struct LibraryFeature {
     @ObservableState
     struct State: Equatable {
-        var headerOpacity: Double = 1.0
-
         @Presents var selectedFilm: SelectedFilm?
+
+        public var navigationPath = NavigationPath()
     }
 
     enum Action: ViewAction, Equatable {
@@ -26,7 +26,6 @@ struct LibraryFeature {
     @CasePathable
     enum View: BindableAction, Equatable {
         case binding(BindingAction<State>)
-        case headerScrolled(minY: CGFloat)
         case addCollectionButtonTapped
     }
 
@@ -36,11 +35,6 @@ struct LibraryFeature {
         Reduce { state, action in
             switch action {
             case .view(.binding):
-                return .none
-
-            case let .view(.headerScrolled(minY)):
-                let fadeThreshold = 50.0
-                state.headerOpacity = max(0, min(1, (minY + fadeThreshold) / fadeThreshold))
                 return .none
 
             case .view(.addCollectionButtonTapped):

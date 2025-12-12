@@ -10,8 +10,9 @@ import Models
 import SwiftUI
 import UI
 
+@ViewAction(for: LibraryFeature.self)
 struct LibraryScreen: View {
-    @Bindable var store: StoreOf<LibraryFeature>
+    @Bindable public var store: StoreOf<LibraryFeature>
 
     @FetchRequest(fetchRequest: Film.recentlyWatched())
     private var recentlyWatchedFilms: FetchedResults<Film>
@@ -19,14 +20,13 @@ struct LibraryScreen: View {
     @FetchRequest(sortDescriptors: [SortDescriptor(\.dateCreated, order: .forward)])
     private var collections: FetchedResults<FilmCollection>
 
-    @State private var navigationPath = NavigationPath()
     @Namespace private var namespace
 
     static let stackSpacing: CGFloat = 25
     static let sectionSpacing: CGFloat = 15
 
     var body: some View {
-        NavigationStack(path: $navigationPath) {
+        NavigationStack(path: $store.navigationPath) {
             BackgroundColorView {
                 if recentlyWatchedFilms.isEmpty {
                     VStack {
@@ -35,7 +35,7 @@ struct LibraryScreen: View {
                             .font(.system(size: 14, weight: .semibold))
                             .multilineTextAlignment(.center)
                             .frame(maxWidth: .infinity, alignment: .center)
-                            .padding(.horizontal, 15)
+                            .padding(.horizontal, PLayout.horizontalMarginPadding)
                         Spacer()
                     }
 
@@ -46,16 +46,10 @@ struct LibraryScreen: View {
                                 title: "Library",
                                 trailingButtons: [
                                     NavigationHeaderButton(systemImage: "plus") {
-                                        store.send(.view(.addCollectionButtonTapped))
+                                        send(.addCollectionButtonTapped)
                                     }
                                 ]
                             )
-                            .opacity(store.headerOpacity)
-                            .onGeometryChange(for: CGFloat.self) { proxy in
-                                proxy.frame(in: .scrollView).minY
-                            } action: { minY in
-                                store.send(.view(.headerScrolled(minY: minY)))
-                            }
 
                             RecentlyWatchedView(
                                 films: Array(recentlyWatchedFilms),
@@ -98,7 +92,7 @@ struct LibraryScreen: View {
                         .font(.system(size: 18, weight: .bold))
 
                     Text("\(films.count) this week")
-                        .foregroundStyle(.gray)
+                        .foregroundStyle(.secondary)
                         .font(.system(size: 16, weight: .medium))
                 }
 
@@ -119,7 +113,7 @@ struct LibraryScreen: View {
                         .font(.system(size: 18, weight: .bold))
 
                     Text("__ shows")
-                        .foregroundStyle(.gray)
+                        .foregroundStyle(.secondary)
                         .font(.system(size: 16, weight: .medium))
                 }
 
@@ -159,7 +153,6 @@ struct LibraryScreen: View {
                                 VStack(alignment: .leading, spacing: 5) {
                                     Text(collection.title ?? "-")
                                         .font(.system(size: 16, weight: .medium))
-                                        .foregroundStyle(.black)
 
                                     Text(String(collection.films?.count ?? 0) + " films")
                                         .font(.system(size: 14, weight: .regular))
@@ -174,6 +167,7 @@ struct LibraryScreen: View {
                                     .font(.system(size: 14, weight: .regular))
                             }
                         }
+                        .buttonStyle(.plain)
 
                         if idx != visibleCollections.endIndex-1 {
                             Rectangle()

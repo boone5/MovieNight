@@ -26,6 +26,8 @@ public struct NavigationHeader: View {
         self.trailingButtons = trailingButtons
     }
 
+    @State private var headerOpacity: Double = 1.0
+
     public var body: some View {
         HStack(spacing: 0) {
             Text(title)
@@ -38,9 +40,16 @@ public struct NavigationHeader: View {
                     Image(systemName: trailingButtons[index].systemImage)
                         .padding(5)
                 }
+                .buttonBorderShape(.circle)
                 .buttonStyle(.glass)
-                .clipShape(Circle())
             }
+        }
+        .opacity(headerOpacity)
+        .onGeometryChange(for: CGFloat.self) { proxy in
+            proxy.frame(in: .scrollView).minY
+        } action: { minY in
+            let fadeThreshold = 50.0
+            headerOpacity = max(0, min(1, (minY + fadeThreshold) / fadeThreshold))
         }
     }
 }

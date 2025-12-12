@@ -29,7 +29,7 @@ public struct FilmRow: View {
     }
 
     public var body: some View {
-        ScrollView(.horizontal) {
+        ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: 15) {
                 ForEach(items, id: \.id) { film in
                     ThumbnailView(
@@ -43,9 +43,9 @@ public struct FilmRow: View {
                     }
                 }
             }
-            .padding(.horizontal, 15)
+            .padding(.horizontal, PLayout.horizontalMarginPadding)
         }
-        .padding(.horizontal, -15)
+        .padding(.horizontal, -20)
         .toolbar(selectedFilm != nil ? .hidden : .visible, for: .tabBar)
     }
 }

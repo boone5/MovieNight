@@ -43,9 +43,9 @@ public struct FilmRow: View {
                     }
                 }
             }
-            .padding(.horizontal, 15)
+            .padding(.horizontal, 20)
         }
-        .padding(.horizontal, -15)
+        .padding(.horizontal, -20)
         .toolbar(selectedFilm != nil ? .hidden : .visible, for: .tabBar)
     }
 }

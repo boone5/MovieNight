@@ -27,7 +27,6 @@ struct LibraryFeature {
     enum View: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case headerScrolled(minY: CGFloat)
-        case searchButtonTapped
         case addCollectionButtonTapped
     }
 
@@ -42,10 +41,6 @@ struct LibraryFeature {
             case let .view(.headerScrolled(minY)):
                 let fadeThreshold = 50.0
                 state.headerOpacity = max(0, min(1, (minY + fadeThreshold) / fadeThreshold))
-                return .none
-
-            case .view(.searchButtonTapped):
-                // TODO: Search Library
                 return .none
 
             case .view(.addCollectionButtonTapped):

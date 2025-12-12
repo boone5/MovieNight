@@ -45,9 +45,6 @@ struct LibraryScreen: View {
                             NavigationHeader(
                                 title: "Library",
                                 trailingButtons: [
-                                    NavigationHeaderButton(systemImage: "magnifyingglass") {
-                                        store.send(.view(.searchButtonTapped))
-                                    },
                                     NavigationHeaderButton(systemImage: "plus") {
                                         store.send(.view(.addCollectionButtonTapped))
                                     }

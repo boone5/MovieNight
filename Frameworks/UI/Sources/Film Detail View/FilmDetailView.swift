@@ -95,8 +95,7 @@ public struct FilmDetailView: View {
                         .font(.system(size: 12, weight: .regular))
                         .foregroundStyle(Color(uiColor: .systemGray2))
 
-                    // TODO: Get Duration and Release Date
-                    Text("2h 15m · 2017")
+                    Text([viewModel.releaseYear, viewModel.duration].compactMap { $0 }.joined(separator: " · "))
                         .font(.system(size: 12, weight: .regular))
                         .foregroundStyle(Color(uiColor: .systemGray2))
                 }
@@ -347,6 +346,8 @@ extension FilmDetailView {
         @Published var seasonsWatched = [AdditionalDetailsTVShow.SeasonResponse]()
         @Published var trailer: AdditionalDetailsMovie.VideoResponse.Video?
         @Published var genres: String?
+        @Published var releaseYear: String?
+        @Published var duration: String?
 
         @Dependency(\.date.now) var now
         @Dependency(\.movieProvider) var movieProvider
@@ -485,6 +486,8 @@ extension FilmDetailView {
                         self.trailer = try movieDetails.videos.trailer()
                         self.genres = genres
                         self.cast = Array(movieDetails.actorsOrderedByPopularity().prefix(10))
+                        self.releaseYear = movieDetails.releaseYear
+                        self.duration = movieDetails.formattedDuration
                     }
 
                 } catch {

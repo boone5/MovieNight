@@ -1,5 +1,5 @@
 //
-//  UpNextScreen.swift
+//  WatchLaterScreen.swift
 //  MovieNight
 //
 //  Created by Boone on 3/29/25.
@@ -11,7 +11,7 @@ import Networking
 import SwiftUI
 import UI
 
-struct UpNextScreen: View {
+public struct WatchLaterScreen: View {
     @State private var navigationPath = NavigationPath()
     @State private var navigateToWatchWheel = false
     @State var selectedFilm: SelectedFilm?
@@ -27,7 +27,9 @@ struct UpNextScreen: View {
     )
     private var watchList: FetchedResults<Film>
 
-    var body: some View {
+    public init() {}
+
+    public var body: some View {
         NavigationStack(path: $navigationPath) {
             BackgroundColorView {
                 ScrollView {
@@ -36,10 +38,19 @@ struct UpNextScreen: View {
                         NavigationHeader(title: "Watch Later")
 
                         if !watchList.isEmpty {
-                            wheelSpinCTA
-                                .onTapGesture {
-                                    navigateToWatchWheel = true
-                                }
+                            if watchList.count == 1 {
+                                singleItemCTA
+                                    .onTapGesture {
+                                        if let film = watchList.first {
+                                            selectedFilm = SelectedFilm(film: film)
+                                        }
+                                    }
+                            } else {
+                                wheelSpinCTA
+                                    .onTapGesture {
+                                        navigateToWatchWheel = true
+                                    }
+                            }
 
                             WatchList(
                                 watchList: Array(watchList),
@@ -125,12 +136,39 @@ struct UpNextScreen: View {
         .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 12))
         .contentShape(Rectangle())
     }
+
+    private var singleItemCTA: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 6) {
+                    Image(systemName: "play.fill")
+                        .resizable()
+                        .frame(width: 16, height: 16)
+                        .padding(6)
+
+                    Text("Ready to Watch")
+                        .font(.system(size: 16, weight: .bold))
+                }
+
+                Text("You’ve only got one pick — let’s go.")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
+            Spacer()
+        }
+        .padding(.vertical, 10)
+        .padding(.horizontal, 12)
+        .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 12))
+        .contentShape(Rectangle())
+    }
 }
 
 import CoreData
 
 #Preview {
-    struct UpNextScreenPreviews: View {
+    struct WatchLaterScreenPreviews: View {
         let context: NSManagedObjectContext = {
             @Dependency(\.movieProvider) var movieProvider
             let context = movieProvider.container.viewContext
@@ -148,10 +186,10 @@ import CoreData
         }()
 
         var body: some View {
-            UpNextScreen()
+            WatchLaterScreen()
                 .environment(\.managedObjectContext, context)
         }
     }
 
-    return UpNextScreenPreviews()
+    return WatchLaterScreenPreviews()
 }

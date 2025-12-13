@@ -9,6 +9,7 @@ import ComposableArchitecture
 import Networking
 import Search
 import SwiftUI
+import WatchLater
 
 struct AppView: View {
     @Bindable var store: StoreOf<AppFeature>
@@ -28,7 +29,7 @@ struct AppView: View {
             }
 
             Tab(AppTab.watchLater.label, systemImage: AppTab.watchLater.icon, value: .watchLater) {
-                UpNextScreen()
+                WatchLaterScreen()
                     .environment(\.managedObjectContext, context)
             }
 

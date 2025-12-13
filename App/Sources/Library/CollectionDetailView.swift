@@ -8,6 +8,7 @@
 import Models
 import SwiftUI
 import UI
+import WatchLater
 
 struct CollectionDetailView: View {
     let title: String?

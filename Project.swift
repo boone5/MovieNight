@@ -26,9 +26,9 @@ let project = Project(
                 .project(.networking, from: .frameworks),
                 .project(.search, from: .frameworks),
                 .project(.ui, from: .frameworks),
+                .project(.watchLater, from: .frameworks),
                 .external(.composableArchitecture),
                 .external(name: "YouTubePlayerKit"),
-                .external(.fortuneWheel),
             ],
             settings: .settings(
                 base: [

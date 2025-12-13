@@ -138,4 +138,21 @@ extension AdditionalDetailsMovie {
         guard let actors = credits?.cast else { return [] }
         return actors.sorted(by: { $0.popularity ?? 0 > $1.popularity ?? 0 })
     }
+
+    public var releaseYear: String? {
+        let inputFormatter = DateFormatter()
+        inputFormatter.dateFormat = "yyyy-MM-dd"
+
+        guard let date = inputFormatter.date(from: releaseDate) else { return nil }
+
+        let outputFormatter = DateFormatter()
+        outputFormatter.dateFormat = "yyyy"
+        return outputFormatter.string(from: date)
+    }
+
+    public var formattedDuration: String {
+        let hours = runtime / 60
+        let minutes = runtime % 60
+        return "\(hours)h \(minutes)m"
+    }
 }

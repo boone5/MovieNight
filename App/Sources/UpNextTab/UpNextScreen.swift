@@ -127,24 +127,6 @@ struct UpNextScreen: View {
     }
 }
 
-struct NavigationHeader: View {
-    let title: String
-    @State private var headerOpacity: Double = 1.0
-
-    var body: some View {
-        Text(title)
-            .font(.largeTitle.bold())
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .opacity(headerOpacity)
-            .onGeometryChange(for: CGFloat.self) { proxy in
-                proxy.frame(in: .scrollView).minY
-            } action: { minY in
-                let fadeThreshold = 50.0
-                headerOpacity = max(0, min(1, (minY + fadeThreshold) / fadeThreshold))
-            }
-    }
-}
-
 import CoreData
 
 #Preview {

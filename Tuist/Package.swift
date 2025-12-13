@@ -50,6 +50,6 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/pointfreeco/swift-composable-architecture.git", from: "1.20.2"),
         .package(url: "https://github.com/SvenTiigi/YouTubePlayerKit.git", from: "2.0.0"),
-        .package(path: "../../Documents/FortuneWheel"),
+        .package(url: "https://github.com/aking618/FortuneWheel.git", branch: "master"),
     ],
 )

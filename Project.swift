@@ -28,7 +28,7 @@ let project = Project(
                 .project(.ui, from: .frameworks),
                 .external(.composableArchitecture),
                 .external(name: "YouTubePlayerKit"),
-                .external(name: "FortuneWheel")
+                .external(.fortuneWheel),
             ],
             settings: .settings(
                 base: [

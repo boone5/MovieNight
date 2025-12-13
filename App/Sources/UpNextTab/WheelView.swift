@@ -5,6 +5,7 @@
 //  Created by Boone on 7/12/25.
 //
 
+import CoreData
 import Dependencies
 import Models
 import Networking
@@ -14,28 +15,16 @@ import UI
 import FortuneWheel
 
 struct WheelView: View {
-    @State private var radius: CGFloat = 0
-    @State private var rotation: Double = 0
-    @State private var isSpinning = false
-    @State private var winningName: String = ""
-    @State private var names: [String] = [""]
-
-    @State private var winningRotation: Double = 0
+    @State private var chosenIndex: [Film].Index? = nil
 
     private let totalSpinDuration: Double = 5.0
-    private let totalRotations: Double = 3500
 
     private let films: [Film]
-    private let segmentCount: Int
+
+    @Namespace var transition
 
     init(films: [Film]) {
         self.films = films
-
-        if films.isEmpty {
-            segmentCount = 1
-        } else {
-            segmentCount = films.count
-        }
     }
 
     private var wheelModel: FortuneWheelModel {
@@ -52,10 +41,13 @@ struct WheelView: View {
                 case .idle:
                     print("IDLE")
                 case .spinning:
-                    print("Spinning...")
+                    withAnimation {
+                        chosenIndex = nil
+                    }
                 case .finished(let index):
-                    print("Finished!")
-                    winningName = films[safe: index]?.title ?? ""
+                    withAnimation {
+                        chosenIndex = index
+                    }
                 }
             }
         )
@@ -64,107 +56,164 @@ struct WheelView: View {
     var body: some View {
         BackgroundColorView {
             VStack(spacing: 0) {
-                Spacer()
                 Text("Spin the wheel!")
                     .font(.system(size: 30, weight: .bold))
 
-                Text("What will you watch next?")
+                Text("Swipe to spin the wheel and let fate decide your next movie night pick.")
                     .font(.system(size: 16, weight: .medium))
+                    .multilineTextAlignment(.center)
                     .padding(.top, 5)
 
                 Spacer()
 
-
-                FortuneWheel(
-                    model: wheelModel
-                )
-
-
+                FortuneWheel(model: wheelModel)
 
                 Spacer()
-                Button(action: {}) {
-                    Text(isSpinning ? "Spinning..." : "Spin")
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(.primary)
-
-                }
-                .padding()
-                .frame(width: 200)
-                .glassEffect(.regular.interactive(!isSpinning), in: .rect(cornerRadius: 10))
-                .disabled(isSpinning)
-                Spacer()
-
             }
-            .alert(winningName, isPresented: .constant(!winningName.isEmpty)) {
-                Button("Spin Again") {
-                    self.winningName = ""
-                    self.rotation = 0
-                    self.isSpinning = false
-                }
-
-                Button("Close") {
-                    self.winningName = ""
-                }
-            } message: {
-
+            .padding(.horizontal, PLayout.horizontalMarginPadding)
+        }
+        .safeAreaPadding(.bottom)
+        .overlay {
+            if let chosenIndex, let film = films[safe: chosenIndex] {
+                MediaModal(film: film, chosenIndex: $chosenIndex)
             }
         }
+        .toolbarVisibility(.hidden, for: .tabBar)
+        .animation(.default, value: chosenIndex)
+    }
+}
+
+private struct MediaModal: View {
+    let film: Film
+    @Binding var chosenIndex: [Film].Index?
+
+    // Needed if we want to transition to the media detail view
+    @Namespace var transition
+
+    @State private var isVisible: Bool = false
+    let posterSize: CGSize
+
+    init(film: Film, chosenIndex: Binding<[Film].Index?>) {
+        self.film = film
+        self._chosenIndex = chosenIndex
+
+        let size = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.screen.bounds.size ?? .zero
+        self.posterSize = CGSize(width: size.width / 1.5, height: size.height / 2.4)
+    }
+
+    var body: some View {
+        ZStack {
+            Color.black
+                .opacity(0.5)
+                .ignoresSafeArea()
+                .onTapGesture {
+                    withAnimation {
+                        isVisible = false
+                        chosenIndex = nil
+                    }
+                }
+                .onAppear {
+                    isVisible = true
+                }
+
+            VStack {
+                if isVisible {
+                    ThumbnailView(
+                        filmID: film.id,
+                        posterPath: film.posterPath,
+                        size: posterSize,
+                        transitionConfig: .init(namespace: transition, source: film)
+                    )
+                    .shadow(radius: 6, y: 3)
+                    .shimmyingEffect()
+                    .transition(.scale.combined(with: .opacity) )
+                    .padding(.bottom, 16)
+
+                    Text(film.title ?? "")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundStyle(.primary)
+                        .transition(.scale.combined(with: .opacity) )
+
+                    HStack {
+                        Button("Watch", role: .confirm) {
+                            // TODO: Definitely remove from watch later list, and update watch history
+                            // TODO: Possibly display a detail view here?
+                            // or just a small rating modal?
+                            // Then dismiss
+                        }
+                        .buttonBorderShape(.roundedRectangle(radius: 8))
+                        .buttonStyle(.glass)
+
+                        Button("Skip", role: .cancel) {
+                            withAnimation(.interactiveSpring) {
+                                isVisible = false
+                                chosenIndex = nil
+                            }
+                        }
+                        .buttonBorderShape(.roundedRectangle(radius: 8))
+                        .buttonStyle(.glass)
+                    }
+                    .transition(.scale.combined(with: .opacity) )
+                }
+            }
+            .padding(.vertical, 24)
+            .padding(.horizontal, 32)
+            .background {
+                if isVisible {
+                    RoundedRectangle(cornerRadius: 15)
+                        .foregroundStyle(.ultraThinMaterial)
+                        .shadow(radius: 10)
+                        .transition(.scale.combined(with: .opacity).animation(.bouncy) )
+                }
+            }
+        }
+        .animation(.default, value: isVisible)
     }
 }
 
 extension Collection {
     /// Returns the element at `index` if it is within bounds, otherwise nil.
-    subscript(safe index: Index) -> Element? {
+    subscript(safe index: Index?) -> Element? {
+        guard let index else { return nil }
         return indices.contains(index) ? self[index] : nil
     }
 }
 
-import CoreData
-
 #Preview {
-    struct WheelViewPreview: View {
-        let films: [Film] = {
-            @Dependency(\.movieProvider) var movieProvider
-            let context = movieProvider.container.viewContext
-            let watchList = FilmCollection(context: context)
-            watchList.id = FilmCollection.watchLaterID
+    @Previewable @State var path: NavigationPath = NavigationPath()
 
-            var films: [Film] = []
-
-            for i in 0..<3 {
-                let film = Film(context: context)
-                film.title = "Mock Film \(i)"
-                films.append(film)
-            }
-            return films
-        }()
-
-        var body: some View {
-            WheelView(films: films)
+    TabView {
+        NavigationStack(path: $path) {
+            WheelViewPreview()
+                .onAppear { path.append(1) }
+                .navigationDestination(for: Int.self ) { _ in
+                    WheelViewPreview()
+                }
+        }
+        .tabItem {
+            Label("Wheel", systemImage: "circle.grid.3x3.fill")
         }
     }
-
-    return NavigationStack { WheelViewPreview() }
 }
 
-struct WheelSegment: Shape {
-    var startAngle: Angle
-    var endAngle: Angle
+struct WheelViewPreview: View {
+    let films: [Film] = {
+        @Dependency(\.movieProvider) var movieProvider
+        let context = movieProvider.container.viewContext
+        let watchList = FilmCollection(context: context)
+        watchList.id = FilmCollection.watchLaterID
 
-    func path(in rect: CGRect) -> Path {
-        let center = CGPoint(x: rect.midX, y: rect.midY)
-        let outerRadius = min(rect.width, rect.height) / 2
+        var films: [Film] = []
 
-        var path = Path()
-        path.move(to: center)
-        path.addArc(
-            center: center,
-            radius: outerRadius,
-            startAngle: startAngle,
-            endAngle: endAngle,
-            clockwise: false
-        )
-        path.closeSubpath()
-        return path
+        for i in 0..<3 {
+            let film = Film(context: context)
+            film.title = "Mock Film \(i)"
+            films.append(film)
+        }
+        return films
+    }()
+
+    var body: some View {
+        WheelView(films: films)
     }
 }

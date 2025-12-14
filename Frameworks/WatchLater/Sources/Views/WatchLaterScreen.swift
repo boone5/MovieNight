@@ -23,6 +23,16 @@ public struct WatchLaterScreen: View {
         predicate: NSPredicate(format: "collection.id == %@", FilmCollection.watchLaterID as CVarArg)
     )
     private var watchList: FetchedResults<Film>
+    private var filteredWatchList: [Film] {
+        guard store.searchText.isEmpty == false else {
+            return Array(watchList)
+        }
+        return watchList.filter { film in
+            film.title?.localizedCaseInsensitiveContains(store.searchText) == true
+        }
+    }
+
+    @FocusState private var isSearchFieldFocused: Bool
 
     public init(store: StoreOf<WatchLaterFeature>) {
         self.store = store
@@ -32,7 +42,7 @@ public struct WatchLaterScreen: View {
         NavigationStack(path: $store.navigationPath) {
             BackgroundColorView {
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 10) {
+                    VStack(alignment: .leading, spacing: 12) {
                         // Custom header
                         NavigationHeader(title: "Watch Later")
 
@@ -49,19 +59,24 @@ public struct WatchLaterScreen: View {
                                     }
                             }
 
+                            searchBar
+
                             WatchList(
-                                watchList: Array(watchList),
+                                watchList: filteredWatchList,
                                 namespace: namespace,
                                 selectedFilm: $store.selectedFilm
                             )
+                            .animation(.default, value: filteredWatchList.count)
                         } else {
                             noContentView
                         }
                     }
                     .padding(.horizontal, 15)
                 }
-                .scrollBounceBehavior(.basedOnSize)
+                .scrollBounceBehavior(watchList.isEmpty ? .basedOnSize : .automatic)
+                .scrollDismissesKeyboard(.interactively)
             }
+            .bind($isSearchFieldFocused, to: $store.isSearchFieldFocused)
             .navigationDestination(for: WatchLaterPath.self) { path in
                 switch path {
                 case .wheel:
@@ -163,11 +178,44 @@ public struct WatchLaterScreen: View {
         .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 12))
         .contentShape(Rectangle())
     }
+
+    private var searchBar: some View {
+        GlassEffectContainer {
+            HStack {
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundStyle(.secondary )
+                    TextField("Search watch list", text: $store.searchText)
+                        .textInputAutocapitalization(.never)
+                        .disableAutocorrection(true)
+                        .focused($isSearchFieldFocused)
+                }
+                .padding(10)
+                .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 12))
+                
+                if isSearchFieldFocused || !store.searchText.isEmpty {
+                    Button {
+                        send(.clearSearchFieldButtonTapped)
+                    } label: {
+                        Image(systemName: "xmark")
+                            .foregroundStyle(.secondary)
+                            .padding(8)
+                    }
+                    .buttonBorderShape(.circle)
+                    .buttonStyle(.glass)
+                }
+            }
+        }
+        .animation(.default, value: isSearchFieldFocused)
+    }
 }
 
 import CoreData
 
 #Preview {
+    prepareDependencies {
+        $0.imageLoader = ImageLoaderClient.liveValue
+    }
     struct WatchLaterScreenPreviews: View {
         let context: NSManagedObjectContext = {
             @Dependency(\.movieProvider) var movieProvider
@@ -191,5 +239,13 @@ import CoreData
         }
     }
 
-    return WatchLaterScreenPreviews()
+    return TabView {
+        Tab("Watch Later", systemImage: "clock") {
+            WatchLaterScreenPreviews()
+        }
+
+        Tab("test", systemImage:"magnifyingglass", role: .search) {
+            Text("Test")
+        }
+    }
 }

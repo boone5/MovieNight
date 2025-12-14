@@ -20,6 +20,7 @@ public struct WatchLaterFeature {
 
         var navigationPath = NavigationPath()
         var searchText: String = ""
+        var isSearchFieldFocused: Bool = false
 
         @Presents var selectedFilm: SelectedFilm?
     }
@@ -31,6 +32,7 @@ public struct WatchLaterFeature {
     @CasePathable
     public enum View: BindableAction, Equatable {
         case binding(BindingAction<State>)
+        case clearSearchFieldButtonTapped
         case readyToWatchFilmButtonTapped(Film?)
         case spinWheelButtonTapped
     }
@@ -40,6 +42,11 @@ public struct WatchLaterFeature {
         Reduce { state, action in
             switch action {
             case .view(.binding):
+                return .none
+
+            case .view(.clearSearchFieldButtonTapped):
+                state.searchText = ""
+                state.isSearchFieldFocused = false
                 return .none
 
             case .view(.readyToWatchFilmButtonTapped(let film)):

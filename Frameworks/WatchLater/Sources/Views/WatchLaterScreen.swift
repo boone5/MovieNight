@@ -5,20 +5,17 @@
 //  Created by Boone on 3/29/25.
 //
 
-import Dependencies
+import ComposableArchitecture
 import Models
 import Networking
 import SwiftUI
 import UI
 
+@ViewAction(for: WatchLaterFeature.self)
 public struct WatchLaterScreen: View {
-    @State private var navigationPath = NavigationPath()
-    @State private var navigateToWatchWheel = false
-    @State var selectedFilm: SelectedFilm?
-    @State private var headerOpacity: Double = 1.0
-    @Namespace private var namespace
+    @Bindable public var store: StoreOf<WatchLaterFeature>
 
-    @State private var searchText: String = ""
+    @Namespace private var namespace
 
     @FetchRequest(
         entity: Film.entity(),
@@ -27,10 +24,12 @@ public struct WatchLaterScreen: View {
     )
     private var watchList: FetchedResults<Film>
 
-    public init() {}
+    public init(store: StoreOf<WatchLaterFeature>) {
+        self.store = store
+    }
 
     public var body: some View {
-        NavigationStack(path: $navigationPath) {
+        NavigationStack(path: $store.navigationPath) {
             BackgroundColorView {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 10) {
@@ -41,21 +40,19 @@ public struct WatchLaterScreen: View {
                             if watchList.count == 1 {
                                 singleItemCTA
                                     .onTapGesture {
-                                        if let film = watchList.first {
-                                            selectedFilm = SelectedFilm(film: film)
-                                        }
+                                        send(.readyToWatchFilmButtonTapped(watchList.first))
                                     }
                             } else {
                                 wheelSpinCTA
                                     .onTapGesture {
-                                        navigateToWatchWheel = true
+                                        send(.spinWheelButtonTapped)
                                     }
                             }
 
                             WatchList(
                                 watchList: Array(watchList),
                                 namespace: namespace,
-                                selectedFilm: $selectedFilm
+                                selectedFilm: $store.selectedFilm
                             )
                         } else {
                             noContentView
@@ -65,10 +62,13 @@ public struct WatchLaterScreen: View {
                 }
                 .scrollBounceBehavior(.basedOnSize)
             }
-            .navigationDestination(isPresented: $navigateToWatchWheel) {
-                WheelView(films: Array(watchList))
+            .navigationDestination(for: WatchLaterPath.self) { path in
+                switch path {
+                case .wheel:
+                    WheelView(films: Array(watchList))
+                }
             }
-            .fullScreenCover(item: $selectedFilm) { selectedFilm in
+            .fullScreenCover(item: $store.selectedFilm) { selectedFilm in
                 FilmDetailView(
                     film: selectedFilm.film,
                     navigationTransitionConfig: .init(namespace: namespace, source: selectedFilm.film)
@@ -186,7 +186,7 @@ import CoreData
         }()
 
         var body: some View {
-            WatchLaterScreen()
+            WatchLaterScreen(store: .init(initialState: WatchLaterFeature.State(), reducer: WatchLaterFeature.init))
                 .environment(\.managedObjectContext, context)
         }
     }

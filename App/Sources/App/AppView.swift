@@ -29,7 +29,7 @@ struct AppView: View {
             }
 
             Tab(AppTab.watchLater.label, systemImage: AppTab.watchLater.icon, value: .watchLater) {
-                WatchLaterScreen()
+                WatchLaterScreen(store: store.scope(state: \.watchLater, action: \.watchLater))
                     .environment(\.managedObjectContext, context)
             }
 

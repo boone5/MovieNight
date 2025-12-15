@@ -16,6 +16,7 @@ let project = Project(
                         "UIColorName": "",
                         "UIImageName": "",
                     ],
+                    "CFBundleDisplayName": "Pop'n",
                 ]
             ),
             sources: ["App/Sources/**"],
@@ -27,7 +28,6 @@ let project = Project(
                 .project(.search, from: .frameworks),
                 .project(.ui, from: .frameworks),
                 .external(.composableArchitecture),
-                .external(name: "SwiftUITrackableScrollView"),
                 .external(name: "YouTubePlayerKit")
             ],
             settings: .settings(

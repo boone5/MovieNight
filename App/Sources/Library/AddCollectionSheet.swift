@@ -15,7 +15,7 @@ struct AddCollectionFeature {
         var collectionName: String = ""
     }
 
-    enum Action: BindableAction {
+    enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case tappedCreateButton
     }

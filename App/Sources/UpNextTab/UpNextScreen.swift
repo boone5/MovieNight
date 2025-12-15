@@ -14,7 +14,6 @@ import UI
 struct UpNextScreen: View {
     @State private var navigationPath = NavigationPath()
     @State private var navigateToWatchWheel = false
-    @State var isExpanded: Bool = false
     @State var selectedFilm: SelectedFilm?
     @State private var headerOpacity: Double = 1.0
     @Namespace private var namespace
@@ -78,7 +77,6 @@ struct UpNextScreen: View {
                                 WatchList(
                                     watchList: Array(watchList),
                                     namespace: namespace,
-                                    isExpanded: $isExpanded,
                                     selectedFilm: $selectedFilm
                                 )
                             }
@@ -93,19 +91,12 @@ struct UpNextScreen: View {
             .navigationDestination(isPresented: $navigateToWatchWheel) {
                 WheelView(films: Array(watchList))
             }
-            .opacity(isExpanded ? 0 : 1)
-            .overlay {
-                if let selectedFilm, isExpanded {
-                    FilmDetailView(
-                        film: selectedFilm.film,
-                        namespace: namespace,
-                        isExpanded: $isExpanded,
-                        uiImage: selectedFilm.posterImage
-                    )
-                    .transition(.asymmetric(insertion: .identity, removal: .opacity))
-                }
+            .fullScreenCover(item: $selectedFilm) { selectedFilm in
+                FilmDetailView(
+                    film: selectedFilm.film,
+                    navigationTransitionConfig: .init(namespace: namespace, source: selectedFilm.film)
+                )
             }
-            .toolbar(isExpanded ? .hidden : .visible, for: .tabBar)
         }
     }
 }

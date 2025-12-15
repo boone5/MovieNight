@@ -13,7 +13,6 @@ struct CollectionDetailView: View {
     let title: String?
     let films: [Film]
 
-    @State var isExpanded: Bool = false
     @State var selectedFilm: SelectedFilm?
     @Namespace private var namespace
 
@@ -23,7 +22,6 @@ struct CollectionDetailView: View {
                 WatchList(
                     watchList: films,
                     namespace: namespace,
-                    isExpanded: $isExpanded,
                     selectedFilm: $selectedFilm
                 )
                 .padding(.horizontal, 15)

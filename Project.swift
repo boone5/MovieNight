@@ -16,6 +16,7 @@ let project = Project(
                         "UIColorName": "",
                         "UIImageName": "",
                     ],
+                    "CFBundleDisplayName": "Pop'n",
                 ]
             ),
             sources: ["App/Sources/**"],

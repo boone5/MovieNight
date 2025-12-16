@@ -10,7 +10,7 @@ import Networking
 import SwiftUI
 import UI
 
-struct WatchList: View {
+public struct WatchList: View {
     let watchList: [Film]
     let namespace: Namespace.ID
 
@@ -21,7 +21,7 @@ struct WatchList: View {
         GridItem(.flexible(), spacing: 20, alignment: .center)
     ]
 
-    init(
+    public init(
         watchList: [Film],
         namespace: Namespace.ID,
         selectedFilm: Binding<SelectedFilm?>
@@ -31,7 +31,7 @@ struct WatchList: View {
         _selectedFilm = selectedFilm
     }
 
-    var body: some View {
+    public var body: some View {
         LazyVGrid(columns: gridItems, spacing: 20) {
             ForEach(Array(watchList.enumerated()), id: \.element.id) { index, film in
                 ThumbnailView(

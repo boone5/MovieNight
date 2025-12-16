@@ -54,5 +54,16 @@ let project = Project(
                 .external(name: "YouTubePlayerKit")
             ]
         ),
+        .target(
+            framework: .watchLater,
+            dependencies: [
+                .target(.logger),
+                .target(.models),
+                .target(.networking),
+                .target(.ui),
+                .external(.composableArchitecture),
+                .external(.fortuneWheel)
+            ]
+        ),
     ]
 )

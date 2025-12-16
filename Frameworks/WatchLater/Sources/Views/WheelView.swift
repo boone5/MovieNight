@@ -35,6 +35,8 @@ struct WheelView: View {
             sliceConfig: .init(strokeWidth: 10),
             pointerConfig: .init(pointerColor: .green),
             middleBoltConfig: .init(outerSize: 25, innerSize: 16),
+            spinButtonPlacement: .bottom,
+            spinButtonSpacing: 48,
             animationConfig: .init(duration: totalSpinDuration),
             onSpinStateChange: {
                 switch $0 {

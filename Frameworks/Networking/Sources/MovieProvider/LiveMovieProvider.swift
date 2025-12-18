@@ -136,10 +136,18 @@ public class MovieProvider: MovieProviderClient {
     }
 
     public func deleteFilm(_ id: Film.ID) throws(MovieError) {
-        guard  let movieToDelete = fetchFilm(id) else {
+        guard let movieToDelete = fetchFilm(id) else {
             throw MovieError.filmNotFound
         }
         container.viewContext.delete(movieToDelete)
+        save()
+    }
+
+    public func deleteCollection(_ id: UUID) throws(MovieError) {
+        guard let collectionToDelete = fetchCollection(id) else {
+            throw MovieError.collectionNotFound
+        }
+        container.viewContext.delete(collectionToDelete)
         save()
     }
 
@@ -240,4 +248,5 @@ public enum MovieError: Error {
     case unableToSaveFilm
     case unableToSaveCollection
     case filmNotFound
+    case collectionNotFound
 }

@@ -27,7 +27,7 @@ struct LibraryScreen: View {
     static let sectionSpacing: CGFloat = 15
 
     var body: some View {
-        NavigationStack(path: $store.navigationPath) {
+        NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
             BackgroundColorView {
                 if recentlyWatchedFilms.isEmpty {
                     VStack {
@@ -61,19 +61,17 @@ struct LibraryScreen: View {
                             // TODO: In Progress TV Shows
                             InProgressView()
 
-                            CollectionsView(collections: Array(collections))
+                            CollectionsView(
+                                collections: Array(collections),
+                                onTapCollection: { collection in
+                                    send(.tappedCollection(collection))
+                                }
+                            )
                         }
                         .padding(.horizontal, PLayout.horizontalMarginPadding)
                         .padding(.bottom, PLayout.bottomMarginPadding)
                     }
                 }
-            }
-            .navigationDestination(for: FilmCollection.self) { collection in
-                let films = collection.films?.array as? [Film] ?? []
-                CollectionDetailView(
-                    title: collection.title ?? "",
-                    films: films
-                )
             }
             .fullScreenCover(item: $store.selectedFilm) { selectedFilm in
                 FilmDetailView(
@@ -83,6 +81,11 @@ struct LibraryScreen: View {
             }
             .sheet(item: $store.scope(state: \.addCollection, action: \.addCollection)) { store in
                 AddCollectionSheet(store: store)
+            }
+        } destination: { store in
+            switch store.case {
+            case .collectionDetail(let store):
+                CollectionDetailView(store: store)
             }
         }
     }
@@ -140,6 +143,7 @@ struct LibraryScreen: View {
 
     struct CollectionsView: View {
         let collections: [FilmCollection]
+        let onTapCollection: (FilmCollection) -> Void
 
         private var visibleCollections: [FilmCollection] {
             collections.filter { $0.id != FilmCollection.watchLaterID }
@@ -152,7 +156,9 @@ struct LibraryScreen: View {
 
                 ForEach(visibleCollections.enumerated(), id: \.element.id) { idx, collection in
                     VStack(spacing: 10) {
-                        NavigationLink(value: collection) {
+                        Button {
+                            onTapCollection(collection)
+                        } label: {
                             HStack(spacing: 15) {
                                 // TODO: Pass in poster paths of collection
                                 PosterFanView(items: ["1", "2", "3"])

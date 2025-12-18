@@ -5,16 +5,16 @@
 //  Created by Boone on 2/18/25.
 //
 
+import ComposableArchitecture
 import Models
 import SwiftUI
 import UI
 import WatchLater
 
+@ViewAction(for: CollectionDetailFeature.self)
 struct CollectionDetailView: View {
-    let title: String
-    let films: [Film]
+    @Bindable var store: StoreOf<CollectionDetailFeature>
 
-    @State var selectedFilm: SelectedFilm? = nil
     @Namespace private var namespace
 
     var body: some View {
@@ -22,26 +22,36 @@ struct CollectionDetailView: View {
             ScrollView {
                 VStack {
                     WatchList(
-                        watchList: films,
+                        watchList: store.films,
                         namespace: namespace,
-                        selectedFilm: $selectedFilm
+                        selectedFilm: $store.selectedFilm
                     )
                 }
                 .padding(.horizontal, PLayout.horizontalMarginPadding)
                 .padding(.bottom, PLayout.bottomMarginPadding)
             }
         }
-        .navigationTitle(title)
+        .navigationTitle(store.title)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    // todo
+                Menu {
+                    Button {
+                        send(.tappedRenameCollection)
+                    } label: {
+                        Label("Rename Collection", systemImage: "pencil")
+                    }
+
+                    Button(role: .destructive) {
+                        send(.tappedDeleteCollection)
+                    } label: {
+                        Label("Delete Collection", systemImage: "trash")
+                    }
                 } label: {
                     Image(systemName: "ellipsis")
                 }
             }
         }
-        .fullScreenCover(item: $selectedFilm) { selectedFilm in
+        .fullScreenCover(item: $store.selectedFilm) { selectedFilm in
             FilmDetailView(
                 film: selectedFilm.film,
                 navigationTransitionConfig: .init(namespace: namespace, source: selectedFilm.film)
@@ -51,6 +61,15 @@ struct CollectionDetailView: View {
 }
 
 #Preview {
-    @Previewable @State var selectedFilm: SelectedFilm? = nil
-    CollectionDetailView(title: "Some Title", films: [])
+    CollectionDetailView(
+        store: Store(
+            initialState: CollectionDetailFeature.State(
+                collectionID: UUID(),
+                title: "Some Title",
+                films: []
+            )
+        ) {
+            CollectionDetailFeature()
+        }
+    )
 }

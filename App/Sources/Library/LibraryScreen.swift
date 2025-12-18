@@ -72,8 +72,7 @@ struct LibraryScreen: View {
                 let films = collection.films?.array as? [Film] ?? []
                 CollectionDetailView(
                     title: collection.title ?? "",
-                    films: films,
-                    selectedFilm: $store.selectedFilm
+                    films: films
                 )
             }
             .fullScreenCover(item: $store.selectedFilm) { selectedFilm in

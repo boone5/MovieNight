@@ -8,12 +8,13 @@
 import Models
 import SwiftUI
 import UI
+import WatchLater
 
 struct CollectionDetailView: View {
     let title: String
     let films: [Film]
-    @Binding var selectedFilm: SelectedFilm?
 
+    @State var selectedFilm: SelectedFilm? = nil
     @Namespace private var namespace
 
     var body: some View {
@@ -40,10 +41,16 @@ struct CollectionDetailView: View {
                 }
             }
         }
+        .fullScreenCover(item: $selectedFilm) { selectedFilm in
+            FilmDetailView(
+                film: selectedFilm.film,
+                navigationTransitionConfig: .init(namespace: namespace, source: selectedFilm.film)
+            )
+        }
     }
 }
 
 #Preview {
     @Previewable @State var selectedFilm: SelectedFilm? = nil
-    CollectionDetailView(title: "Some Title", films: [], selectedFilm: $selectedFilm)
+    CollectionDetailView(title: "Some Title", films: [])
 }

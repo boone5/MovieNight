@@ -10,6 +10,15 @@
       }
     },
     {
+      "identity" : "fortunewheel",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/aking618/FortuneWheel.git",
+      "state" : {
+        "branch" : "master",
+        "revision" : "d9af8f010ad0b0a4b6ab364ca8c550faa8e767c3"
+      }
+    },
+    {
       "identity" : "swift-case-paths",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-case-paths",

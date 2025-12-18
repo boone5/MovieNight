@@ -30,7 +30,8 @@ import PackageDescription
             "SwiftUINavigationCore": .framework,
             "UIKitNavigation": .framework,
             "DequeModule": .framework,
-            "YouTubePlayerKit": .framework
+            "YouTubePlayerKit": .framework,
+            "FortuneWheel": .framework
         ],
         targetSettings: [
             "ComposableArchitecture": .settings(base: [
@@ -48,6 +49,7 @@ let package = Package(
     name: "MovieNight",
     dependencies: [
         .package(url: "https://github.com/pointfreeco/swift-composable-architecture.git", from: "1.20.2"),
-        .package(url: "https://github.com/SvenTiigi/YouTubePlayerKit.git", from: "2.0.0")
+        .package(url: "https://github.com/SvenTiigi/YouTubePlayerKit.git", from: "2.0.0"),
+        .package(url: "https://github.com/aking618/FortuneWheel.git", branch: "master"),
     ],
 )

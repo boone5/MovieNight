@@ -34,7 +34,6 @@ public struct FilmDetailView: View {
 
     @State private var actionTapped: QuickAction?
     @State private var watchCount = 0
-    @State private var shimmyRotation: Double = 0
 
     public init(
         film: some DetailViewRepresentable,
@@ -69,22 +68,7 @@ public struct FilmDetailView: View {
                     filmID: viewModel.filmDisplay.id
                 )
                 .shadow(radius: 6, y: 3)
-                .rotation3DEffect(.degrees(shimmyRotation), axis: (x: 0, y: 1, z: 0))
-                .onAppear {
-                    let shimmyAnimation = Animation
-                        .bouncy(duration: 1.2, extraBounce: 0.4)
-                        .repeatCount(2)
-
-                    withAnimation(shimmyAnimation) {
-                        shimmyRotation = 7
-
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            withAnimation(shimmyAnimation) {
-                                shimmyRotation = 0
-                            }
-                        }
-                    }
-                }
+                .shimmyingEffect()
 
                 VStack(alignment: .center, spacing: 5) {
                     Text(viewModel.filmDisplay.title ?? "")

@@ -13,6 +13,7 @@ public enum Framework: String {
     case networking = "Networking"
     case search = "Search"
     case ui = "UI"
+    case watchLater = "WatchLater"
 
     public var name: String {
         rawValue

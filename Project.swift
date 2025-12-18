@@ -27,8 +27,9 @@ let project = Project(
                 .project(.networking, from: .frameworks),
                 .project(.search, from: .frameworks),
                 .project(.ui, from: .frameworks),
+                .project(.watchLater, from: .frameworks),
                 .external(.composableArchitecture),
-                .external(name: "YouTubePlayerKit")
+                .external(name: "YouTubePlayerKit"),
             ],
             settings: .settings(
                 base: [

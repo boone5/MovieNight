@@ -80,7 +80,6 @@ struct LibraryScreen: View {
             }
             .sheet(item: $store.scope(state: \.addCollection, action: \.addCollection)) { store in
                 AddCollectionSheet(store: store)
-                    .presentationDetents([.medium])
             }
         }
     }

@@ -70,7 +70,11 @@ struct LibraryScreen: View {
             }
             .navigationDestination(for: FilmCollection.self) { collection in
                 let films = collection.films?.array as? [Film] ?? []
-                CollectionDetailView(title: collection.title, films: films)
+                CollectionDetailView(
+                    title: collection.title ?? "",
+                    films: films,
+                    selectedFilm: $store.selectedFilm
+                )
             }
             .fullScreenCover(item: $store.selectedFilm) { selectedFilm in
                 FilmDetailView(

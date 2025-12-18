@@ -13,7 +13,6 @@ import UI
 struct WatchList: View {
     let watchList: [Film]
     let namespace: Namespace.ID
-
     @Binding var selectedFilm: SelectedFilm?
 
     let gridItems: [GridItem] = [
@@ -28,7 +27,7 @@ struct WatchList: View {
     ) {
         self.watchList = watchList
         self.namespace = namespace
-        _selectedFilm = selectedFilm
+        self._selectedFilm = selectedFilm
     }
 
     var body: some View {

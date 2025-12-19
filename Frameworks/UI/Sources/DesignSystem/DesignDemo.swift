@@ -20,7 +20,6 @@ struct ColorPreview: View {
                 .font(.caption)
         }
     }
-
 }
 
 struct BackgroundPreview: View {
@@ -41,7 +40,6 @@ struct BackgroundPreview: View {
                     .foregroundColor(.secondary)
             )
     }
-
 }
 
 struct TypographyPreview: View {
@@ -105,7 +103,6 @@ struct DesignSystemPreview: View {
             .background(Color.background)
         }
     }
-
 }
 
 #Preview {

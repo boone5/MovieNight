@@ -46,7 +46,7 @@ Dark mode is a first-class experience — like watching a movie in a theatre.
 
 #### Text
 
-Use sytem font colors where possible.
+Use system font colors where possible.
 
 `Color.primary` and `Color.secondary` automatically adapt to light/dark mode.
 
@@ -56,12 +56,12 @@ Use sytem font colors where possible.
 
 Pop'n uses **two complementary typefaces**:
 
-1. **Monserrat** - Modern, cinematic display
+1. **Montserrat** - Modern, cinematic display
 2. **Open Sans** - Clean, legible UI text
 
 ### Font Pairing
 
-#### 🎥 Display Font — *Monserrat*
+#### 🎥 Display Font — *Montserrat*
 
 A bold, elegant serif for headlines and titles, evoking classic cinema posters.
 

@@ -28,7 +28,6 @@ public enum CustomFonts {
 
         let registeredFonts = UIFont.familyNames.flatMap { UIFont.fontNames(forFamilyName: $0) }
             .filter { $0.contains("Montserrat") || $0.contains("Open Sans") }
-        print("Registered custom fonts: \(registeredFonts)")
     }
 }
 

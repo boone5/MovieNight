@@ -97,7 +97,7 @@ struct QuickActionsView: View {
 
                 Text(action.shortTitle)
                     .foregroundStyle(.white)
-                    .font(.system(size: 12))
+                    .font(.openSans(size: 12))
             }
             .onTapGesture {
                 withAnimation(.easeInOut) {

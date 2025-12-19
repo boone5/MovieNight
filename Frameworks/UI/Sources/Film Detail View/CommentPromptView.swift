@@ -18,12 +18,13 @@ struct CommentPromptView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text("Comments")
-                .font(.system(size: 16, weight: .semibold))
+                .font(.montserrat(size: 16, weight: .semibold))
                 .foregroundStyle(.white)
 
             HStack(alignment: .bottom, spacing: 15) {
                 ZStack(alignment: .leading) {
                     TextEditor(text: $text)
+                        .font(.openSans(size: 14))
                         .frame(minHeight: 40)
                         .fixedSize(horizontal: false, vertical: true)
                         .scrollContentBackground(.hidden)
@@ -35,7 +36,7 @@ struct CommentPromptView: View {
 
                     if text.isEmpty {
                         Text("What'd you think?")
-                            .font(.system(size: 14))
+                            .font(.openSans(size: 14))
                             .foregroundStyle(.black.opacity(0.5))
                             .padding(.horizontal, 10)
                     }
@@ -67,7 +68,7 @@ struct CommentPromptView: View {
                                 .font(.system(size: 12))
 
                             Text(comment.text ?? "")
-                                .font(.system(size: 14))
+                                .font(.openSans(size: 14))
                                 .foregroundStyle(.white)
                                 .frame(maxWidth: .infinity, minHeight: 40, alignment: .leading)
                                 .fixedSize(horizontal: false, vertical: true)
@@ -89,4 +90,5 @@ struct CommentPromptView: View {
 
 #Preview {
     CommentPromptView(averageColor: .red, comments: [])
+        .loadCustomFonts()
 }

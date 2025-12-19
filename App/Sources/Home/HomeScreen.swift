@@ -17,7 +17,6 @@ struct HomeScreen: View {
 
     @State private var trendingMovies: [MovieResponse] = []
     @State private var trendingTVShows: [TVShowResponse] = []
-    @State private var headerOpacity: Double = 1.0
     @State private var shouldLoad = true
 
     // Film Detail View Properties
@@ -30,28 +29,18 @@ struct HomeScreen: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 15) {
-                HStack {
-                    Text("Home")
-                        .font(.largeTitle.bold())
+                NavigationHeader(
+                    title: "Home",
+                    trailingButtons: [
+                        NavigationHeaderButton(systemImage: "person") {
 
-                    Spacer()
-
-                    Image(systemName: "person.circle")
-                        .resizable()
-                        .frame(width: 25, height: 25)
-                }
-                .opacity(headerOpacity)
-                .onGeometryChange(for: CGFloat.self) { proxy in
-                    proxy.frame(in: .scrollView).minY
-                } action: { minY in
-                    // how many points until fully invisible
-                    let fadeThreshold = 50.0
-                    headerOpacity = max(0, min(1, (minY + fadeThreshold) / fadeThreshold))
-                }
+                        }
+                    ]
+                )
                 .padding(.bottom, 5)
 
                 Text("Friends watched")
-                    .font(.system(size: 18, weight: .bold))
+                    .font(.montserrat(size: 18, weight: .semibold))
 
                 ScrollView(.horizontal) {
                     HStack {
@@ -65,7 +54,7 @@ struct HomeScreen: View {
                 .padding(.horizontal, -15)
 
                 Text("Trending Movies")
-                    .font(.system(size: 18, weight: .bold))
+                    .font(.montserrat(size: 18, weight: .semibold))
 
                 FilmRow(
                     items: trendingMovies,
@@ -74,7 +63,7 @@ struct HomeScreen: View {
                 )
 
                 Text("Trending TV Shows")
-                    .font(.system(size: 18, weight: .bold))
+                    .font(.montserrat(size: 18, weight: .semibold))
 
                 FilmRow(
                     items: trendingTVShows,
@@ -84,6 +73,7 @@ struct HomeScreen: View {
             }
             .padding(.horizontal, 15)
         }
+        .background(Color.background)
         .task {
             guard shouldLoad else { return }
 
@@ -132,4 +122,5 @@ extension HomeScreen {
 
 #Preview {
     HomeScreen()
+        .loadCustomFonts()
 }

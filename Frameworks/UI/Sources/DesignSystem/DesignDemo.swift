@@ -48,15 +48,15 @@ struct TypographyPreview: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Large Title")
-                .font(.montserrat(34))
+                .font(.montserrat(size: 34))
             Text("Section Title")
-                .font(.montserrat(28, weight: .semibold))
+                .font(.montserrat(size: 28, weight: .semibold))
             Text("Headline – Open Sans Semibold")
-                .font(.openSans(17, weight: .semibold))
+                .font(.openSans(size: 17, weight: .semibold))
             Text("Body – Open Sans Regular. This is what longer descriptions and reviews will look like in Pop'n.")
-                .font(.openSans(17))
+                .font(.openSans(size: 17))
             Text("Caption / Metadata")
-                .font(.openSans(13))
+                .font(.openSans(size: 13))
                 .foregroundColor(.secondary)
         }
     }
@@ -73,7 +73,7 @@ struct DesignSystemPreview: View {
                 // MARK: Colors
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Brand Colors")
-                        .font(.montserrat(28))
+                        .font(.montserrat(size: 28))
 
                     LazyVGrid(columns: Array(repeating: .init(.flexible()), count: 3)) {
                         ColorPreview(name: "Pop Red", color: .popRed)
@@ -88,7 +88,7 @@ struct DesignSystemPreview: View {
                 // MARK: Backgrounds
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Backgrounds")
-                        .font(.montserrat(28))
+                        .font(.montserrat(size: 28))
 
                     BackgroundPreview(name: "Primary", background: .background)
                     BackgroundPreview(name: "Card", background: .card)
@@ -97,7 +97,7 @@ struct DesignSystemPreview: View {
                 // MARK: Typography
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Typography")
-                        .font(.montserrat(28))
+                        .font(.montserrat(size: 28))
                     TypographyPreview()
                 }
             }

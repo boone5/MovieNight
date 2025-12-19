@@ -8,11 +8,11 @@
 import SwiftUI
 
 extension Font {
-    public static func montserrat(_ size: CGFloat, weight: Font.Weight = .bold) -> Font {
+    public static func montserrat(size: CGFloat, weight: Font.Weight = .bold) -> Font {
         .custom("Montserrat", size: size).weight(weight)
     }
 
-    public static func openSans(_ size: CGFloat, weight: Font.Weight = .regular) -> Font {
+    public static func openSans(size: CGFloat, weight: Font.Weight = .regular) -> Font {
         .custom("Open Sans", size: size).weight(weight)
     }
 }

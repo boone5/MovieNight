@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import Models
 import SwiftUI
 import UI
 
@@ -41,8 +42,9 @@ struct AddCollectionFeature {
 
             case .tappedCreateButton:
                 let name = state.collectionName
+                let type = state.selectedCollectionType
                 return .run { _ in
-                    try movieProvider.createCollection(name: name)
+                    try movieProvider.createCollection(name: name, type: type)
                     await dismiss()
                 }
 
@@ -78,14 +80,17 @@ struct AddCollectionSheet: View {
 
                 VStack(spacing: 15) {
                     ForEach(CollectionType.allCases, id: \.self) { type in
-                        CollectionTypeRow(
-                            icon: type.icon,
-                            title: type.title,
-                            isSelected: store.selectedCollectionType == type
-                        )
-                        .onTapGesture {
+                        Button {
                             store.send(.tappedCollectionType(type))
+                        } label: {
+                            CollectionTypeButton(
+                                icon: type.icon,
+                                title: type.title,
+                                subtitle: type.subtitle,
+                                isSelected: store.selectedCollectionType == type
+                            )
                         }
+                        .buttonStyle(.plain)
                     }
                 }
 

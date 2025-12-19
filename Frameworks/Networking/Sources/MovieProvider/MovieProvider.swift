@@ -20,7 +20,7 @@ public protocol MovieProviderClient {
     func deleteFilm(_ id: Film.ID) throws(MovieError)
     func deleteCollection(_ id: UUID) throws(MovieError)
     func prepareDefaultCollections() throws(MovieError)
-    func createCollection(name: String) throws(MovieError) -> FilmCollection
+    func createCollection(name: String, type: CollectionType) throws(MovieError) -> FilmCollection
 
     var container: NSPersistentContainer { get }
 }

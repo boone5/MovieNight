@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-extension LibraryScreen.CollectionsView {
+extension CollectionsView {
     struct PosterFanView: View {
         let items: [String] // Array of image names or identifiers
         @State private var currentIndex: Int

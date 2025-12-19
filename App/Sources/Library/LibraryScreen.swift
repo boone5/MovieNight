@@ -140,58 +140,6 @@ struct LibraryScreen: View {
             }
         }
     }
-
-    struct CollectionsView: View {
-        let collections: [FilmCollection]
-        let onTapCollection: (FilmCollection) -> Void
-
-        private var visibleCollections: [FilmCollection] {
-            collections.filter { $0.id != FilmCollection.watchLaterID }
-        }
-
-        var body: some View {
-            VStack(alignment: .leading, spacing: LibraryScreen.sectionSpacing) {
-                Text("Collections")
-                    .font(.system(size: 18, weight: .bold))
-
-                ForEach(visibleCollections.enumerated(), id: \.element.id) { idx, collection in
-                    VStack(spacing: 10) {
-                        Button {
-                            onTapCollection(collection)
-                        } label: {
-                            HStack(spacing: 15) {
-                                // TODO: Pass in poster paths of collection
-                                PosterFanView(items: ["1", "2", "3"])
-
-                                VStack(alignment: .leading, spacing: 5) {
-                                    Text(collection.title ?? "-")
-                                        .font(.system(size: 16, weight: .medium))
-
-                                    Text(String(collection.films?.count ?? 0) + " films")
-                                        .font(.system(size: 14, weight: .regular))
-                                        .foregroundStyle(.gray)
-                                }
-                                .padding(.leading, 20)
-
-                                Spacer()
-
-                                Image(systemName: "chevron.right")
-                                    .foregroundStyle(.gray)
-                                    .font(.system(size: 14, weight: .regular))
-                            }
-                        }
-                        .buttonStyle(.plain)
-
-                        if idx != visibleCollections.endIndex-1 {
-                            Rectangle()
-                                .foregroundStyle(.gray.opacity(0.3))
-                                .frame(height: 1)
-                        }
-                    }
-                }
-            }
-        }
-    }
 }
 
 #Preview {

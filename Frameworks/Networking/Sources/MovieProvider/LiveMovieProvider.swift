@@ -152,11 +152,12 @@ public class MovieProvider: MovieProviderClient {
     }
 
     @discardableResult
-    public func createCollection(name: String) throws(MovieError) -> FilmCollection {
+    public func createCollection(name: String, type: CollectionType) throws(MovieError) -> FilmCollection {
         let collection = FilmCollection(context: container.viewContext)
         collection.id = UUID()
         collection.title = name
         collection.dateCreated = Date()
+        collection.type = type
 
         do {
             try container.viewContext.save()
@@ -167,6 +168,8 @@ public class MovieProvider: MovieProviderClient {
             throw MovieError.unableToSaveCollection
         }
     }
+
+    // TODO: Change to Liked, Disliked, Loved as smart collections
 
     /// Loads default Collections into Core Data
     public func prepareDefaultCollections() throws(MovieError) {

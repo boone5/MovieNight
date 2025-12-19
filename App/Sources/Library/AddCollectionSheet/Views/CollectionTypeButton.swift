@@ -7,18 +7,25 @@
 
 import SwiftUI
 
-struct CollectionTypeRow: View {
+struct CollectionTypeButton: View {
     let icon: String
     let title: String
+    let subtitle: String
     var isSelected: Bool
 
     var body: some View {
-        ThreeColumnLayout(leadingWidth: 50, trailingWidth: 30, spacing: 20) {
+        ThreeColumnLayout(leadingWidth: 30, trailingWidth: 30, spacing: 25) {
             Image(systemName: icon)
                 .font(.largeTitle)
 
-            Text(title)
-                .font(.system(size: 18, weight: .medium))
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.system(size: 18, weight: .medium))
+
+                Text(subtitle)
+                    .font(.system(size: 14, weight: .regular))
+                    .foregroundStyle(.secondary)
+            }
 
             Image(systemName: "checkmark")
                 .font(.title2)

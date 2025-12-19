@@ -31,7 +31,7 @@ public extension Target {
     static func target(
         framework: Framework,
         resources: ResourceFileElements? = nil,
-        headers: Headers? = nil,
+        infoPlist: InfoPlist = .default,
         entitlements: Entitlements? = nil,
         scripts: [TargetScript] = [],
         dependencies: [TargetDependency] = [],
@@ -51,7 +51,7 @@ public extension Target {
             product: .framework,
             bundleId: .bundleId(for: framework.name),
             deploymentTargets: .minimumDeploymentTarget,
-            infoPlist: .default,
+            infoPlist: infoPlist,
             sources: framework.sources,
             resources: resources,
             entitlements: entitlements,

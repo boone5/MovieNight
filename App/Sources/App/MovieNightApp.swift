@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import Networking
 import SwiftUI
+import UI
 
 @main
 struct MovieNightApp: App {
@@ -19,6 +20,10 @@ struct MovieNightApp: App {
         try? movieProvider.prepareDefaultCollections()
         return store
     }()
+
+    init() {
+        CustomFonts.register()
+    }
 
     var body: some Scene {
         WindowGroup {

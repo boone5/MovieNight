@@ -46,6 +46,16 @@ let project = Project(
         .target(
             framework: .ui,
             resources: .resources(.ui),
+            infoPlist: .extendingDefault(
+                with: [
+                    "UIAppFonts": [
+                        "Montserrat-Italic-VariableFont_wght.ttf",
+                        "Montserrat-VariableFont_wght.ttf",
+                        "OpenSans-Italic-VariableFont_wdth,wght.ttf",
+                        "OpenSans-VariableFont_wdth,wght.ttf",
+                    ]
+                ]
+            ),
             dependencies: [
                 .target(.logger),
                 .target(.models),
@@ -65,5 +75,6 @@ let project = Project(
                 .external(.fortuneWheel)
             ]
         ),
-    ]
+    ],
+    resourceSynthesizers: .default.filter { $0 != .fonts() }
 )

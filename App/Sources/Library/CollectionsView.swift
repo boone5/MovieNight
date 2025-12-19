@@ -55,28 +55,13 @@ struct CollectionsView: View {
                     Text(collection.title ?? "-")
                         .font(.system(size: 16, weight: .medium))
 
-                    HStack(spacing: 5) {
-                        Image(systemName: collection.type.icon)
-                            .font(.system(size: 12, weight: .regular))
-
-                        Text(collection.type.title)
-                            .font(.system(size: 12, weight: .regular))
-                    }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 4)
-                    .background {
-                        // FIXME: Use collection type specific color
-                        Color.secondary
-                    }
-                    .clipShape(Capsule())
+                    Text(String(collection.films?.count ?? 0) + " films")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundStyle(.gray)
                 }
                 .padding(.leading, 20)
 
                 Spacer()
-
-                Text(String(collection.films?.count ?? 0))
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundStyle(.gray)
 
                 Image(systemName: "chevron.right")
                     .foregroundStyle(.gray)

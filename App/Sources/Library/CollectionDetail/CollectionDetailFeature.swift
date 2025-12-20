@@ -57,6 +57,10 @@ struct CollectionDetailFeature {
                     print("addFilm tapped")
                 case .reorder:
                     state.isEditing.toggle()
+
+                case .rename:
+                    // TODO: Rename Collection
+                    print("rename tapped")
                 }
                 return .none
 

@@ -87,12 +87,6 @@ struct CollectionDetailView: View {
 
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
-                    Button {
-                        send(.tappedRenameCollection)
-                    } label: {
-                        Label("Rename Collection", systemImage: "pencil")
-                    }
-
                     Button(role: .destructive) {
                         send(.tappedDeleteCollection)
                     } label: {
@@ -173,11 +167,13 @@ extension CollectionType {
     enum Action {
         case addFilm
         case reorder
+        case rename
 
         var title: String {
             switch self {
             case .addFilm: "Add"
             case .reorder: "Reorder"
+            case .rename:  "Rename"
             }
         }
 
@@ -185,6 +181,7 @@ extension CollectionType {
             switch self {
             case .addFilm: "plus"
             case .reorder: "arrow.trianglehead.swap"
+            case .rename:  "pencil"
             }
         }
     }
@@ -192,11 +189,11 @@ extension CollectionType {
     var actions: [Action] {
         switch self {
         case .custom:
-            [.addFilm]
+            [.addFilm, .rename]
         case .ranked:
-            [.addFilm, .reorder,]
+            [.addFilm, .reorder, .rename]
         case .smart:
-            [.addFilm]
+            [.addFilm, .rename]
         }
     }
 }

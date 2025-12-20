@@ -68,6 +68,7 @@ struct CollectionDetailView: View {
                                 namespace: namespace,
                                 selectedFilm: $store.selectedFilm
                             )
+                            .padding(.top, 15)
                         }
                         .padding(.horizontal, PLayout.horizontalMarginPadding)
                     }
@@ -283,7 +284,7 @@ struct RankedList: View {
     collection.id = UUID()
     collection.title = "Top 10 Films"
     collection.dateCreated = Date()
-    collection.type = .ranked
+    collection.type = .custom
 
     var films = [Film]()
     let titles = ["The Shawshank Redemption", "The Godfather", "The Dark Knight", "Pulp Fiction", "Fight Club", "Inception", "The Matrix", "Goodfellas", "Se7en", "The Silence of the Lambs"]

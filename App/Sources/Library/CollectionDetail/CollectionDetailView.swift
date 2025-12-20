@@ -116,6 +116,8 @@ struct CollectionDetailViewHeader: View {
     @Binding public var headerOpacity: CGFloat
     public var didTapAction: ((CollectionType.Action) -> Void)? = nil
 
+    @State private var initialMinY: CGFloat?
+
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
             Text(collection.safeTitle)
@@ -153,9 +155,15 @@ struct CollectionDetailViewHeader: View {
         .onGeometryChange(for: CGFloat.self) { proxy in
             proxy.frame(in: .scrollView).minY
         } action: { minY in
-            let fadeThreshold = 50.0
-            print(minY)
-            headerOpacity = max(0, min(1, minY / fadeThreshold))
+            if initialMinY == nil {
+                initialMinY = minY
+            }
+            let normalizedMinY = minY - (initialMinY ?? 0)
+            let fadeThreshold = 100.0
+            print("Raw minY: \(minY), Initial: \(initialMinY ?? 0), Normalized: \(normalizedMinY)")
+            // When scrolling up, normalizedMinY goes negative
+            // opacity should fade from 1 to 0 as we scroll from 0 to -50
+            headerOpacity = max(0, min(1, (fadeThreshold + normalizedMinY) / fadeThreshold))
         }
     }
 }

@@ -15,9 +15,9 @@ import UI
 struct CollectionDetailFeature {
     @ObservableState
     struct State: Equatable {
-        let collectionID: UUID
-        let title: String
-        let films: [Film]
+        let collection: FilmCollection
+        var films: [Film]
+        var isEditing: Bool = false
 
         @Presents var selectedFilm: SelectedFilm?
     }
@@ -31,6 +31,8 @@ struct CollectionDetailFeature {
         case binding(BindingAction<State>)
         case tappedRenameCollection
         case tappedDeleteCollection
+        case rowTapped(Film)
+        case actionTapped(CollectionType.Action)
     }
 
     @Dependency(\.dismiss) var dismiss
@@ -44,12 +46,26 @@ struct CollectionDetailFeature {
             case .view(.binding):
                 return .none
 
+            case .view(.rowTapped(let film)):
+                state.selectedFilm = SelectedFilm(film: film)
+                return .none
+
+            case .view(.actionTapped(let action)):
+                switch action {
+                case .addFilm:
+                    // TODO: Open Search Sheet
+                    print("addFilm tapped")
+                case .reorder:
+                    state.isEditing.toggle()
+                }
+                return .none
+
             case .view(.tappedRenameCollection):
                 // TODO: Implement rename
                 return .none
 
             case .view(.tappedDeleteCollection):
-                let collectionID = state.collectionID
+                guard let collectionID = state.collection.id else { return .none }
                 return .run { _ in
                     try movieProvider.deleteCollection(collectionID)
                     await dismiss()

@@ -11,7 +11,9 @@ extension FilmCollection {
     public static let movieID = UUID(uuidString: "00000000-0000-0000-0000-000000000001")!
     public static let tvShowID = UUID(uuidString: "00000000-0000-0000-0000-000000000002")!
     public static let watchLaterID = UUID(uuidString: "00000000-0000-0000-0000-000000000003")!
+}
 
+extension FilmCollection {
     public var type: CollectionType {
         get {
             CollectionType(rawValue: typeRawValue ?? "custom") ?? .custom
@@ -19,5 +21,9 @@ extension FilmCollection {
         set {
             typeRawValue = newValue.rawValue
         }
+    }
+
+    public var safeTitle: String {
+        self.title ?? ""
     }
 }

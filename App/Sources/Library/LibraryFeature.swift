@@ -57,8 +57,7 @@ struct LibraryFeature {
             case let .view(.tappedCollection(collection)):
                 let films = collection.films?.array as? [Film] ?? []
                 state.path.append(.collectionDetail(CollectionDetailFeature.State(
-                    collectionID: collection.id ?? UUID(),
-                    title: collection.title ?? "",
+                    collection: collection,
                     films: films
                 )))
                 return .none

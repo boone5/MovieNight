@@ -71,7 +71,7 @@ public struct FilmDetailView: View {
                 )
                 .shadow(radius: 6, y: 3)
                 .shimmyingEffect()
-                .safeAreaPadding(.top, 24)
+                .safeAreaPadding(.top, 50)
 
                 VStack(alignment: .center, spacing: 5) {
                     Text(viewModel.filmDisplay.title ?? "")
@@ -623,30 +623,4 @@ extension FilmDetailView {
         let handler: () -> Void
     }
 
-}
-
-// MARK: - UIViewRepresentable Button
-
-// More options: Share, Add to collection, change poster? (premium),
-struct ButtonWithSourceView: UIViewRepresentable {
-    @Binding var menu: [UIMenu]
-
-    func makeUIView(context: Context) -> UIButton {
-        let uiButton = UIButton()
-        uiButton.translatesAutoresizingMaskIntoConstraints = false
-        let uiImage = UIImage(systemName: "ellipsis")?.withTintColor(.white, renderingMode: .alwaysOriginal)
-        uiButton.setImage(uiImage, for: .normal)
-        uiButton.menu = UIMenu(title: "", options: .displayInline, children: menu)
-        uiButton.showsMenuAsPrimaryAction = true
-
-        // Prevent it from expanding
-        uiButton.setContentHuggingPriority(.required, for: .horizontal)
-        uiButton.setContentCompressionResistancePriority(.required, for: .horizontal)
-
-        return uiButton
-    }
-
-    func updateUIView(_ uiView: UIButton, context: Context) {
-        uiView.menu = UIMenu(title: "", options: .displayInline, children: menu)
-    }
 }

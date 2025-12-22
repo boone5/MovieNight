@@ -45,14 +45,5 @@ public struct ActorResponse: Codable {
             case profilePath = "profile_path"
             case character
         }
-
-        public var nameAdjusted: String {
-            if let name {
-                let split = name.split(separator: " ")
-                return split.joined(separator: "\n")
-            } else {
-                return "-"
-            }
-        }
     }
 }

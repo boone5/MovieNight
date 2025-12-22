@@ -20,7 +20,11 @@ import YouTubePlayerKit
     let film: ResponseType = ResponseType.movie(MovieResponse())
 //    let film: ResponseType = ResponseType.tvShow(TVShowResponse())
 
-    FilmDetailView(film: film, navigationTransitionConfig: .init(namespace: namespace, source: film))
+    Text("FilmDetailView Preview")
+        .fullScreenCover(isPresented: .constant(true)) {
+            FilmDetailView(film: film, navigationTransitionConfig: .init(namespace: namespace, source: film))
+                .loadCustomFonts()
+        }
 }
 
 // MARK: FilmDetailView
@@ -58,8 +62,6 @@ public struct FilmDetailView: View {
             showsIndicators: true
         ) {
             VStack(alignment: .center, spacing: 30) {
-                headerView
-
                 // MARK: TODO
                 // - Add gloss finish
                 PosterView(
@@ -69,18 +71,19 @@ public struct FilmDetailView: View {
                 )
                 .shadow(radius: 6, y: 3)
                 .shimmyingEffect()
+                .safeAreaPadding(.top, 50)
 
                 VStack(alignment: .center, spacing: 5) {
                     Text(viewModel.filmDisplay.title ?? "")
-                        .font(.system(size: 18, weight: .bold))
+                        .font(.montserrat(size: 18, weight: .bold))
                         .foregroundStyle(.white)
 
                     Text(viewModel.genres ?? "-")
-                        .font(.system(size: 12, weight: .regular))
+                        .font(.openSans(size: 12, weight: .regular))
                         .foregroundStyle(Color(uiColor: .systemGray2))
 
                     Text([viewModel.releaseYear, viewModel.duration].compactMap { $0 }.joined(separator: " · "))
-                        .font(.system(size: 12, weight: .regular))
+                        .font(.openSans(size: 12, weight: .regular))
                         .foregroundStyle(Color(uiColor: .systemGray2))
                 }
 
@@ -99,11 +102,11 @@ public struct FilmDetailView: View {
                 if let summary = viewModel.filmDisplay.overview {
                     VStack(alignment: .leading, spacing: 15) {
                         Text("Summary")
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(.montserrat(size: 16, weight: .semibold))
                             .foregroundStyle(.white)
 
                         Text(summary)
-                            .font(.system(size: 14))
+                            .font(.openSans(size: 14))
                             .foregroundStyle(.white)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -132,17 +135,17 @@ public struct FilmDetailView: View {
                         ActionView(averageColor: averageColor) {
                             HStack {
                                 Text(actionTapped.longTitle)
-                                    .font(.system(size: 16, weight: .semibold))
+                                    .font(.openSans(size: 16, weight: .semibold))
                                     .foregroundStyle(.white)
 
                                 Spacer()
 
                                 Label {
                                     Text("Add a collection")
-                                        .font(.system(size: 14))
+                                        .font(.openSans(size: 14))
                                 } icon: {
                                     Image(systemName: "plus")
-                                        .font(.system(size: 14))
+                                        .font(.openSans(size: 14))
                                 }
                                 .padding(.vertical, 10)
                                 .padding(.horizontal, 8)
@@ -156,7 +159,7 @@ public struct FilmDetailView: View {
                         ActionView(averageColor: averageColor) {
                             HStack(spacing: 0) {
                                 Text(actionTapped.longTitle + " \(watchCount) times")
-                                    .font(.system(size: 16, weight: .semibold))
+                                    .font(.openSans(size: 16, weight: .semibold))
                                     .foregroundStyle(.white)
 
                                 Spacer()
@@ -168,31 +171,31 @@ public struct FilmDetailView: View {
                     case .watchedWith:
                         ActionView(averageColor: averageColor) {
                             Text(actionTapped.longTitle)
-                                .font(.system(size: 16, weight: .semibold))
+                                .font(.openSans(size: 16, weight: .semibold))
                                 .foregroundStyle(.white)
                         }
                     case .occasion:
                         ActionView(averageColor: averageColor) {
                             Text(actionTapped.longTitle)
-                                .font(.system(size: 16, weight: .semibold))
+                                .font(.openSans(size: 16, weight: .semibold))
                                 .foregroundStyle(.white)
                         }
                     case .seasonsWatched:
                         ActionView(averageColor: averageColor) {
                             Text(actionTapped.longTitle)
-                                .font(.system(size: 16, weight: .semibold))
+                                .font(.openSans(size: 16, weight: .semibold))
                                 .foregroundStyle(.white)
                         }
                     case .favoriteSeason:
                         ActionView(averageColor: averageColor) {
                             Text(actionTapped.longTitle)
-                                .font(.system(size: 16, weight: .semibold))
+                                .font(.openSans(size: 16, weight: .semibold))
                                 .foregroundStyle(.white)
                         }
                     case .favoriteEpisode:
                         ActionView(averageColor: averageColor) {
                             Text(actionTapped.longTitle)
-                                .font(.system(size: 16, weight: .semibold))
+                                .font(.openSans(size: 16, weight: .semibold))
                                 .foregroundStyle(.white)
                         }
                     }
@@ -213,7 +216,7 @@ public struct FilmDetailView: View {
                 if let trailer = viewModel.trailer, let key = trailer.key {
                     VStack(alignment: .leading, spacing: 20) {
                         Text("Trailer")
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(.montserrat(size: 16, weight: .semibold))
                             .foregroundStyle(.white)
 
                         TrailerView(videoID: key)
@@ -241,6 +244,41 @@ public struct FilmDetailView: View {
                 .ignoresSafeArea()
         }
         .ignoresSafeArea()
+        .safeAreaInset(edge: .top) {
+            HStack {
+                Button {
+                    dismiss()
+                } label: {
+                    Label("Close", systemImage: "xmark")
+                        .foregroundStyle(Color.ivoryWhite.opacity(0.8))
+                        .labelStyle(.iconOnly)
+                        .frame(width: 50, height: 50)
+                }
+                .glassEffect(.regular.tint(averageColor.opacity(0.8)).interactive(), in: .circle)
+
+                Spacer()
+
+                Menu {
+                    ForEach(viewModel.menuSections) { section in
+                        ForEach(section.actions) { action in
+                            Button(role: action.role == .destructive ? .destructive : nil) {
+                                action.handler()
+                            } label: {
+                                Label(action.title, systemImage: action.systemImage)
+                            }
+                        }
+                    }
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .foregroundStyle(Color.ivoryWhite.opacity(0.8))
+                        .labelStyle(.iconOnly)
+                        .frame(width: 50, height: 50)
+                        .glassEffect(.regular.tint(averageColor.opacity(0.8)).interactive(), in: .circle)
+                        .clipShape(.circle)
+                }
+            }
+            .safeAreaPadding(.horizontal)
+        }
         .task(id: "loadData") {
             await viewModel.loadInitialData()
             if viewModel.filmDisplay.mediaType == .movie {
@@ -252,34 +290,6 @@ public struct FilmDetailView: View {
         .zoomTransition(configuration: navigationTransitionConfig)
     }
 
-    @MainActor
-    var headerView: some View {
-        HStack {
-            Image(systemName: "xmark")
-                .resizable()
-                .frame(width: 10, height: 10)
-                .foregroundStyle(.white)
-                .padding(10)
-                .background {
-                    Circle()
-                        .foregroundStyle(Color(uiColor: .white).opacity(0.2))
-                }
-                .contentShape(.circle)
-                .onTapGesture {
-                    dismiss()
-                }
-
-            Spacer()
-
-            ButtonWithSourceView(menu: $viewModel.menuActions)
-                .padding(6)
-                .background {
-                    Circle()
-                        .foregroundStyle(Color(uiColor: .white).opacity(0.2))
-                }
-        }
-    }
-
     // MARK: SeasonsScrollView
 
     struct SeasonsScrollView: View {
@@ -288,7 +298,7 @@ public struct FilmDetailView: View {
         var body: some View {
             VStack(alignment: .leading, spacing: 20) {
                 Text("Seasons Watched")
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.montserrat(size: 16, weight: .semibold))
                     .foregroundStyle(.white)
 
                 ScrollView(.horizontal) {
@@ -324,7 +334,7 @@ extension FilmDetailView {
         @Published var isLoved: Bool = false
         @Published var isDisliked: Bool = false
 
-        @Published var menuActions: [UIMenu] = []
+        @Published var menuSections: [MenuSection] = []
         @Published var cast: [ActorResponse.Actor]?
         @Published var seasons: [AdditionalDetailsTVShow.SeasonResponse] = []
         @Published var seasonsWatched = [AdditionalDetailsTVShow.SeasonResponse]()
@@ -520,80 +530,97 @@ extension FilmDetailView {
             setMenuActions()
         }
 
-        private func setMenuActions() {
-            var destructiveAction: UIAction?
-            var menu = [UIMenu]()
-            var actions = [UIAction]()
+        public func setMenuActions() {
+            var sections: [MenuSection] = []
 
-            outer: if let existingFilm = movieProvider.fetchFilm(filmDisplay.id) {
-                guard existingFilm.isOnWatchList else {
-                    destructiveAction = UIAction(title: "Remove from Library", image: UIImage(systemName: "trash"), attributes: .destructive) { (action) in
-                        self.removeFromLibrary()
-                    }
-                    break outer
+            var primaryActions: [MenuAction] = []
+            var destructiveActions: [MenuAction] = []
+
+            if let existingFilm = movieProvider.fetchFilm(filmDisplay.id) {
+                if existingFilm.isOnWatchList {
+                    primaryActions.append(
+                        MenuAction(
+                            title: "Remove from Watch List",
+                            systemImage: "rectangle.stack.badge.minus",
+                            role: .normal,
+                            handler: { [weak self] in self?.removeFromLibrary() }
+                        )
+                    )
+                } else {
+                    destructiveActions.append(
+                        MenuAction(
+                            title: "Remove from Library",
+                            systemImage: "trash",
+                            role: .destructive,
+                            handler: { [weak self] in self?.removeFromLibrary() }
+                        )
+                    )
                 }
-
-                let watchListAction = UIAction(title: "Remove from Watch List", image: UIImage(systemName: "rectangle.stack.badge.minus")) { (action) in
-                    self.removeFromLibrary()
-                }
-                actions.append(watchListAction)
-
             } else {
-                let watchedAction = UIAction(title: "Mark as Watched", image: UIImage(systemName: "checkmark.circle")) { (action) in
-                    self.markAsWatched()
-                }
-                actions.append(watchedAction)
+                primaryActions.append(
+                    MenuAction(
+                        title: "Mark as Watched",
+                        systemImage: "checkmark.circle",
+                        role: .normal,
+                        handler: { [weak self] in self?.markAsWatched() }
+                    )
+                )
 
-                let watchListAction = UIAction(title: "Add to Watch List", image: UIImage(systemName: "rectangle.stack.badge.plus")) { (action) in
-                    self.addToWatchList()
-                }
-                actions.append(watchListAction)
+                primaryActions.append(
+                    MenuAction(
+                        title: "Add to Watch List",
+                        systemImage: "rectangle.stack.badge.plus",
+                        role: .normal,
+                        handler: { [weak self] in self?.addToWatchList() }
+                    )
+                )
             }
 
-            // Share Menu
-            let shareAction = UIAction(title: "Share", image: UIImage(systemName: "square.and.arrow.up")) { (action) in
-                print("Users action was tapped")
+            // Share section
+            sections.append(
+                MenuSection(
+                    actions: [
+                        MenuAction(
+                            title: "Share",
+                            systemImage: "square.and.arrow.up",
+                            role: .normal,
+                            handler: { print("User action was tapped") }
+                        )
+                    ]
+                )
+            )
+
+            // Primary actions
+            if !primaryActions.isEmpty {
+                sections.append(MenuSection(actions: primaryActions))
             }
-            let shareMenu = UIMenu(title: "", options: .displayInline, children: [shareAction])
-            menu.append(shareMenu)
 
-            // Actions Menu
-            let actionMenu = UIMenu(title: "", options: .displayInline, children: actions)
-            menu.append(actionMenu)
-
-            // Destructive menu
-            if let destructiveAction {
-                let destructiveMenu = UIMenu(title: "", options: .displayInline, children: [destructiveAction])
-                menu.append(destructiveMenu)
+            // Destructive actions
+            if !destructiveActions.isEmpty {
+                sections.append(MenuSection(actions: destructiveActions))
             }
 
-            menuActions = menu
+            menuSections = sections
         }
-    }
-}
 
-// MARK: - UIViewRepresentable Button
-
-// More options: Share, Add to collection, change poster? (premium),
-struct ButtonWithSourceView: UIViewRepresentable {
-    @Binding var menu: [UIMenu]
-
-    func makeUIView(context: Context) -> UIButton {
-        let uiButton = UIButton()
-        uiButton.translatesAutoresizingMaskIntoConstraints = false
-        let uiImage = UIImage(systemName: "ellipsis")?.withTintColor(.white, renderingMode: .alwaysOriginal)
-        uiButton.setImage(uiImage, for: .normal)
-        uiButton.menu = UIMenu(title: "", options: .displayInline, children: menu)
-        uiButton.showsMenuAsPrimaryAction = true
-
-        // Prevent it from expanding
-        uiButton.setContentHuggingPriority(.required, for: .horizontal)
-        uiButton.setContentCompressionResistancePriority(.required, for: .horizontal)
-
-        return uiButton
     }
 
-    func updateUIView(_ uiView: UIButton, context: Context) {
-        uiView.menu = UIMenu(title: "", options: .displayInline, children: menu)
+    struct MenuSection: Identifiable {
+        let id = UUID()
+        let actions: [MenuAction]
     }
+
+    struct MenuAction: Identifiable {
+        enum Role {
+            case normal
+            case destructive
+        }
+
+        let id = UUID()
+        let title: String
+        let systemImage: String
+        let role: Role
+        let handler: () -> Void
+    }
+
 }

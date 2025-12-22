@@ -51,7 +51,7 @@ struct SeasonPosterView: View {
                         .foregroundStyle(averageColor)
 
                     Text("Season \(seasonNum)")
-                        .font(.system(size: 14, weight: .regular))
+                        .font(.openSans(size: 14, weight: .regular))
                         .foregroundStyle(.white)
                 }
 

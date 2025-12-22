@@ -30,7 +30,7 @@ struct WatchedAtView: View {
         VStack(alignment: .leading, spacing: 15) {
             HStack {
                 Text("Watched at")
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.montserrat(size: 16, weight: .semibold))
                     .foregroundStyle(.white)
 
                 Spacer()
@@ -40,7 +40,7 @@ struct WatchedAtView: View {
                 ForEach(labels, id: \.self) { label in
                     Label {
                         Text(label)
-                            .font(.system(size: 14))
+                            .font(.openSans(size: 14))
                             .lineLimit(1)
                     } icon: {
                         Image(systemName: "house")
@@ -62,4 +62,5 @@ struct WatchedAtView: View {
 
 #Preview {
     WatchedAtView(averageColor: .red)
+        .loadCustomFonts()
 }

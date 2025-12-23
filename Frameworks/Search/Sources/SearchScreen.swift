@@ -56,10 +56,10 @@ private struct NoSearchContentView: View {
     var body: some View {
         VStack(spacing: 10) {
             Text("What's Pop'n?")
-                .font(.title3.bold())
+                .font(.montserrat(size: 24, weight: .semibold))
 
             Text("Find your next movie, tv show, friend, or favorite cast member.")
-                .font(.system(size: 16))
+                .font(.openSans(size: 16))
                 .multilineTextAlignment(.center)
         }
         .padding(.horizontal, 15)
@@ -99,8 +99,10 @@ private struct SearchContentResultView: View {
             if store.queryResults.isEmpty && !store.searchText.isEmpty {
                 ContentUnavailableView {
                     Label("We couldn't find any results for \"\(store.searchText)\"", systemImage: "xmark.circle")
+                        .font(.montserrat(size: 18, weight: .bold))
                 } description: {
                     Text("Try searching for something else.")
+                        .font(.openSans(size: 14, weight: .semibold))
                 }
             }
         }
@@ -124,10 +126,10 @@ private struct ResultRow: View {
 
             VStack(alignment: .leading, spacing: 5) {
                 Text(film.title ?? "")
-                    .font(.system(size: 16, weight: .medium))
+                    .font(.openSans(size: 16, weight: .medium))
 
                 Text(film.mediaType.title)
-                    .font(.system(size: 14, weight: .regular))
+                    .font(.openSans(size: 14, weight: .regular))
             }
 
             Spacer()
@@ -150,7 +152,7 @@ private struct NoMoreResultsView: View {
 
     var body: some View {
         Text("No more results")
-            .font(.callout)
+            .font(.openSans(size: 14, weight: .semibold))
             .foregroundStyle(.secondary)
             .padding(.vertical, 20)
             .frame(maxWidth: .infinity)
@@ -158,4 +160,8 @@ private struct NoMoreResultsView: View {
             .animation(.easeIn(duration: 0.25), value: appeared)
             .onAppear { appeared = true }
     }
+}
+
+#Preview {
+    SearchScreen(store: Store(initialState: SearchFeature.State(), reducer: SearchFeature.init))
 }

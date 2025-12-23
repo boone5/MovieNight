@@ -20,9 +20,27 @@ public struct SearchFeature {
         public init() {}
 
         var searchText: String = ""
-        var loadingState: LoadingState = .idle
+        var loadingState: LoadingState = .paginated(currentPage: 1, totalPages: 1)
 
-        var queryResults: [ResponseType] = []
+        var queryResults: [MediaResult] = [
+            .movie(.init()),
+            .tv(.init()),
+            .person(
+                .init(
+                    id: 3,
+                    adult: false,
+                    name: "Test",
+                    originalName: nil,
+                    mediaType: .person,
+                    popularity: nil,
+                    gender: nil,
+                    knownForDepartment: nil,
+                    profilePath: nil,
+                    character: nil,
+                    knownFor: []
+                )
+            )
+        ]
 
         @Presents var selectedFilm: SelectedFilm?
     }
@@ -40,7 +58,7 @@ public struct SearchFeature {
     @CasePathable
     public enum View: BindableAction, Equatable {
         case binding(BindingAction<State>)
-        case rowTapped(ResponseType)
+        case rowTapped(MediaResult)
     }
 
     public enum CancelID: Hashable {
@@ -92,11 +110,7 @@ public struct SearchFeature {
 
             case let .api(.fetchResponse(response)):
                 state.loadingState = .paginated(currentPage: response.page, totalPages: response.totalPages)
-                // NOTE: This sorta breaks pagination since a page of results could contain only empty items.
-                // NOTE: Nothing new would be added to the UI, so another `onAppear` wouldn't trigger.
-                // NOTE: This should be handled when we parse people results properly.
-                let cleanResults = response.results.filter { $0 != .empty }
-                state.queryResults.append(contentsOf: cleanResults)
+                state.queryResults.append(contentsOf: response.results)
                 return .none
 
             case .view(.binding):

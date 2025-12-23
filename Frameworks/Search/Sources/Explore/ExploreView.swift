@@ -10,8 +10,8 @@ import SwiftUI
 import UI
 
 struct ExploreView: View {
-    var trendingMovies: [MovieResponse] = []
-    var trendingTVShows: [TVShowResponse] = []
+    var trendingMovies: [MediaResult] = []
+    var trendingTVShows: [MediaResult] = []
     var namespace: Namespace.ID
     var selectedFilm: Binding<SelectedFilm?>
 

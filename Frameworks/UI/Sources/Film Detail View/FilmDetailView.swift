@@ -17,7 +17,7 @@ import YouTubePlayerKit
 #Preview {
     @Previewable @Namespace var namespace
 
-    let film: ResponseType = ResponseType.movie(MovieResponse())
+    let film: MediaResult = MediaResult.movie(MovieResponse())
 //    let film: ResponseType = ResponseType.tvShow(TVShowResponse())
 
     Text("FilmDetailView Preview")
@@ -66,8 +66,7 @@ public struct FilmDetailView: View {
                 // - Add gloss finish
                 PosterView(
                     imagePath: viewModel.filmDisplay.posterPath,
-                    size: posterSize,
-                    filmID: viewModel.filmDisplay.id
+                    size: posterSize
                 )
                 .shadow(radius: 6, y: 3)
                 .shimmyingEffect()
@@ -205,7 +204,7 @@ public struct FilmDetailView: View {
 //                    ParticipantsView(averageColor: viewModel.averageColor)
 //                        .padding(.top, 30)
 
-                if case .tvShow = viewModel.filmDisplay.mediaType {
+                if case .tv = viewModel.filmDisplay.mediaType {
                     SeasonsScrollView(viewModel: viewModel)
                 }
 
@@ -335,7 +334,7 @@ extension FilmDetailView {
         @Published var isDisliked: Bool = false
 
         @Published var menuSections: [MenuSection] = []
-        @Published var cast: [ActorResponse.Actor]?
+        @Published var cast: [PersonResponse]?
         @Published var seasons: [AdditionalDetailsTVShow.SeasonResponse] = []
         @Published var seasonsWatched = [AdditionalDetailsTVShow.SeasonResponse]()
         @Published var trailer: AdditionalDetailsMovie.VideoResponse.Video?

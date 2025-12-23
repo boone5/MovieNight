@@ -12,20 +12,22 @@ public struct MovieResponse: Codable, Hashable, Identifiable, DetailViewRepresen
     let adult: Bool?
     let backdropPath: String?
     let genreIDs: [Int]?
-    public let originalLanguage, originalTitle, overview: String?
+    public let originalLanguage: String?
+    public let originalTitle: String?
+    public let overview: String?
     let popularity: Double?
     public let posterPath: String?
-    public let releaseDate, title: String?
+    public let releaseDate: String?
+    public let title: String
     let video: Bool?
     let voteAverage: Double?
     let voteCount: Int64?
     public let mediaType: MediaType
 
-    // Additional Properties
-    public var posterData: Data?
-    var rating: Int16 = 0
-    var averageColor: UIColor?
-    var comment: String?
+    // MARK: - App-enriched (NOT decoded)
+    public var rating: Int16 = 0
+    public var averageColor: UIColor?
+    public var comment: String?
 
     enum CodingKeys: String, CodingKey {
         case adult
@@ -34,21 +36,24 @@ public struct MovieResponse: Codable, Hashable, Identifiable, DetailViewRepresen
         case id
         case originalLanguage = "original_language"
         case originalTitle = "original_title"
-        case overview, popularity
+        case overview
+        case popularity
         case posterPath = "poster_path"
         case releaseDate = "release_date"
-        case title, video
+        case title
+        case video
         case voteAverage = "vote_average"
         case voteCount = "vote_count"
         case mediaType = "media_type"
     }
+}
 
+extension MovieResponse {
     public init() {
         self.id = 0
         self.title = "Mocked Title"
         self.overview = "Lorem ipsum dolor sit amet, consect adipisc elit, sed do eiusmod tempor incidid ut labore et dolore magna. Ut enim ad minim veniam, quis"
         self.rating = 0
-        self.posterData = nil
         self.posterPath = nil
         self.genreIDs = []
         self.originalTitle = ""
@@ -61,14 +66,6 @@ public struct MovieResponse: Codable, Hashable, Identifiable, DetailViewRepresen
         self.mediaType = .movie
         self.adult = nil
         self.backdropPath = nil
-    }
-}
-
-extension MovieResponse {
-    func isValid() -> Bool {
-        let hasPoster = self.posterPath != nil
-
-        return hasPoster
     }
 }
 

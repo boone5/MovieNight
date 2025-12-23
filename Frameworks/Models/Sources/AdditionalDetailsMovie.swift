@@ -24,7 +24,11 @@ public struct AdditionalDetailsMovie: Codable {
 
     // Appended to response
     public let videos: VideoResponse
-    public let credits: ActorResponse?
+    public let credits: Credits?
+
+    public struct Credits: Codable {
+        let cast: [PersonResponse]
+    }
 
     enum CodingKeys: String, CodingKey {
         case backdropPath = "backdrop_path"
@@ -134,7 +138,7 @@ public struct AdditionalDetailsMovie: Codable {
 }
 
 extension AdditionalDetailsMovie {
-    public func actorsOrderedByPopularity() -> [ActorResponse.Actor] {
+    public func actorsOrderedByPopularity() -> [PersonResponse] {
         guard let actors = credits?.cast else { return [] }
         return actors.sorted(by: { $0.popularity ?? 0 > $1.popularity ?? 0 })
     }

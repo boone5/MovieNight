@@ -12,7 +12,7 @@ import SwiftUI
 
 struct CastScrollView: View {
     let averageColor: Color
-    let cast: [ActorResponse.Actor]
+    let cast: [PersonResponse]
 
     @State var uiImage: UIImage? = nil
 
@@ -43,7 +43,7 @@ struct CastScrollView: View {
         @Dependency(\.imageLoader) private var imageLoader
         @State private var uiImage: UIImage? = nil
 
-        let actor: ActorResponse.Actor
+        let actor: PersonResponse
 
         var body: some View {
             // TODO: Remove Background Image
@@ -61,7 +61,7 @@ struct CastScrollView: View {
                         .fill(Color.cinemaGray.opacity(0.3))
                         .frame(width: 60, height: 100)
                 }
-                Text(actor.name ?? "-")
+                Text(actor.name)
                     .font(.openSans(size: 12, weight: .regular))
                     .foregroundStyle(.white)
                     .multilineTextAlignment(.center)
@@ -92,9 +92,9 @@ struct CastScrollView: View {
         $0.imageLoader = ImageLoaderClient.liveValue
     }
     return CastScrollView(averageColor: .red, cast: [
-        ActorResponse.Actor.init(id: 0, adult: nil, name: "Samuel L. Jackson", originalName: nil, mediaType: nil, popularity: nil, gender: nil, knownForDepartment: nil, profilePath: "/hFt7Cj8sx1VYIwm18lYmq5kS7Pw.jpg", character: nil),
-        ActorResponse.Actor.init(id: 1, adult: nil, name: "Micheal Cera", originalName: nil, mediaType: nil, popularity: nil, gender: nil, knownForDepartment: nil, profilePath: "/hFt7Cj8sx1VYIwm18lYmq5kS7Pw.jpg", character: nil),
-        ActorResponse.Actor.init(id: 2, adult: nil, name: "Sam Worthington", originalName: nil, mediaType: nil, popularity: nil, gender: nil, knownForDepartment: nil, profilePath: "/hFt7Cj8sx1VYIwm18lYmq5kS7Pw.jpg", character: nil)
+        PersonResponse(id: 0, adult: nil, name: "Samuel L. Jackson", originalName: nil, mediaType: .person, popularity: nil, gender: nil, knownForDepartment: nil, profilePath: "/hFt7Cj8sx1VYIwm18lYmq5kS7Pw.jpg", character: nil, knownFor: []),
+        PersonResponse(id: 1, adult: nil, name: "Micheal Cera", originalName: nil, mediaType: .person, popularity: nil, gender: nil, knownForDepartment: nil, profilePath: "/hFt7Cj8sx1VYIwm18lYmq5kS7Pw.jpg", character: nil, knownFor: []),
+        PersonResponse(id: 2, adult: nil, name: "Sam Worthington", originalName: nil, mediaType: .person, popularity: nil, gender: nil, knownForDepartment: nil, profilePath: "/hFt7Cj8sx1VYIwm18lYmq5kS7Pw.jpg", character: nil, knownFor: [])
     ])
     .loadCustomFonts()
 }

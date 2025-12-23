@@ -13,58 +13,53 @@ import SwiftUI
 public struct ThumbnailView: View {
     @Dependency(\.movieProvider) var movieProvider
 
-    let filmID: Film.ID
-    let posterPath: String?
+    let media: any DetailViewRepresentable
     let size: CGSize
     let transitionConfig: NavigationTransitionConfiguration<Film.ID>
 
     @State private var feedback: Feedback? = nil
 
     public init(
-        filmID: Film.ID,
-        posterPath: String?,
+        media: any DetailViewRepresentable,
         size: CGSize,
         transitionConfig: NavigationTransitionConfiguration<Film.ID>
     ) {
-        self.filmID = filmID
-        self.posterPath = posterPath
+        self.media = media
         self.size = size
         self.transitionConfig = transitionConfig
     }
 
     public var body: some View {
-        PosterView(
-            imagePath: posterPath,
-            size: size,
-            filmID: filmID
-        )
-        .overlay(alignment: .bottomLeading) {
-            if let feedback {
-                FeedbackOverlayView(feedback: feedback)
-            }
-        }
-        .zoomSource(configuration: transitionConfig)
-        .shadow(radius: 3, y: 4)
-
-        // Uncomment if using button
-        //            Circle()
-        //                .matchedGeometryEffect(id: "info" + String(filmID), in: namespace)
-        //                .frame(width: 50, height: 20)
-        //                .foregroundStyle(.clear)
-        //                .padding([.bottom, .trailing], 15)
-        .task(id: "loadFeedback") {
-            if let film = movieProvider.fetchFilm(filmID) {
-                if film.isLiked {
-                    feedback = .like(enabled: true)
-                } else if film.isDisliked {
-                    feedback = .dislike(enabled: true)
-                } else if film.isLoved {
-                    feedback = .love(enabled: true)
+        PosterView(imagePath: media.posterPath, size: size)
+            .overlay(alignment: .bottomLeading) {
+                if let feedback {
+                    FeedbackOverlayView(feedback: feedback)
                 }
-            } else {
-                feedback = nil
             }
-        }
+            .zoomSource(configuration: transitionConfig)
+            .shadow(radius: 3, y: 4)
+
+            // Uncomment if using button
+            //            Circle()
+            //                .matchedGeometryEffect(id: "info" + String(filmID), in: namespace)
+            //                .frame(width: 50, height: 20)
+            //                .foregroundStyle(.clear)
+            //                .padding([.bottom, .trailing], 15)
+            .task(id: "loadFeedback") {
+                guard media.mediaType != .person else { return }
+
+                if let film = movieProvider.fetchFilm(media.id) {
+                    if film.isLiked {
+                        feedback = .like(enabled: true)
+                    } else if film.isDisliked {
+                        feedback = .dislike(enabled: true)
+                    } else if film.isLoved {
+                        feedback = .love(enabled: true)
+                    }
+                } else {
+                    feedback = nil
+                }
+            }
     }
 }
 
@@ -91,7 +86,6 @@ struct FeedbackOverlayView: View {
 struct PosterView: View {
     let imagePath: String?
     let size: CGSize
-    let filmID: Film.ID
 
     var imageShape: RoundedRectangle {
         RoundedRectangle(cornerRadius: 8)

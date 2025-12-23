@@ -121,8 +121,7 @@ private struct MediaModal: View {
             VStack {
                 if isVisible {
                     ThumbnailView(
-                        filmID: film.id,
-                        posterPath: film.posterPath,
+                        media: film,
                         size: posterSize,
                         transitionConfig: .init(namespace: transition, source: film)
                     )
@@ -131,7 +130,7 @@ private struct MediaModal: View {
                     .transition(.scale.combined(with: .opacity) )
                     .padding(.bottom, 16)
 
-                    Text(film.title ?? "")
+                    Text(film.title)
                         .font(.system(size: 18, weight: .bold))
                         .foregroundStyle(.primary)
                         .transition(.scale.combined(with: .opacity) )
@@ -209,7 +208,7 @@ struct WheelViewPreview: View {
 
         for i in 0..<3 {
             let film = Film(context: context)
-            film.title = "Mock Film \(i)"
+            film.displayTitle = "Mock Film \(i)"
             films.append(film)
         }
         return films

@@ -8,12 +8,18 @@
 import CoreData
 
 extension Film: DetailViewRepresentable {
+    public var title: String {
+        displayTitle ?? "Unknown"
+    }
+
     public var mediaType: MediaType {
         switch mediaTypeAsString {
         case MediaType.movie.rawValue:
                 .movie
-        case MediaType.tvShow.rawValue:
-                .tvShow
+        case MediaType.tv.rawValue:
+                .tv
+        case MediaType.person.rawValue:
+                .person
         default:
                 .movie
         }

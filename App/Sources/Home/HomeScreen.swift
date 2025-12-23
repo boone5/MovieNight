@@ -15,8 +15,8 @@ struct HomeScreen: View {
     //    @FetchRequest(fetchRequest: Film.recentlyWatched())
     //    private var recentlyWatchedFilms: FetchedResults<Film>
 
-    @State private var trendingMovies: [MovieResponse] = []
-    @State private var trendingTVShows: [TVShowResponse] = []
+    @State private var trendingMovies: [MediaResult] = []
+    @State private var trendingTVShows: [MediaResult] = []
     @State private var shouldLoad = true
 
     // Film Detail View Properties
@@ -99,7 +99,7 @@ struct HomeScreen: View {
 // MARK: Networking
 
 extension HomeScreen {
-    public func getTrendingMovies() async -> [MovieResponse] {
+    public func getTrendingMovies() async -> [MediaResult] {
         do {
             let response: TrendingMoviesResponse = try await networkClient.request(TMDBEndpoint.trendingMovies)
             return response.results
@@ -109,7 +109,7 @@ extension HomeScreen {
         }
     }
 
-    public func getTrendingTVShows() async -> [TVShowResponse] {
+    public func getTrendingTVShows() async -> [MediaResult] {
         do {
             let response: TrendingTVShowsResponse = try await networkClient.request(TMDBEndpoint.trendingTVShows)
             return response.results

@@ -28,7 +28,7 @@ public struct WatchLaterScreen: View {
             return Array(watchList)
         }
         return watchList.filter { film in
-            film.title?.localizedCaseInsensitiveContains(store.searchText) == true
+            film.title.localizedCaseInsensitiveContains(store.searchText) == true
         }
     }
 
@@ -226,7 +226,7 @@ import CoreData
             for i in 0..<3 {
                 let film = Film(context: context)
                 film.id = Int64(i)
-                film.title = "Mock Film \(i)"
+                film.displayTitle = "Mock Film \(i)"
                 film.collection =  watchList
                 film.posterPath = "/dKL78O9zxczVgjtNcQ9UkbYLzqX.jpg"
             }

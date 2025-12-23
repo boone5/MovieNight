@@ -35,8 +35,7 @@ public struct WatchList: View {
         LazyVGrid(columns: gridItems, spacing: 20) {
             ForEach(Array(watchList.enumerated()), id: \.element.id) { index, film in
                 ThumbnailView(
-                    filmID: film.id,
-                    posterPath: film.posterPath,
+                    media: film,
                     size: CGSize(width: 175, height: 225),
                     transitionConfig: .init(namespace: namespace, source: film)
                 )

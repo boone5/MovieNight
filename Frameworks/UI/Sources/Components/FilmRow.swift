@@ -33,8 +33,7 @@ public struct FilmRow: View {
             LazyHStack(spacing: 15) {
                 ForEach(items, id: \.id) { film in
                     ThumbnailView(
-                        filmID: film.id,
-                        posterPath: film.posterPath,
+                        media: film,
                         size: thumbnailSize,
                         transitionConfig: .init(namespace: namespace, source: film)
                     )

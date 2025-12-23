@@ -53,6 +53,7 @@ public struct SearchScreen: View {
 }
 
 private struct NoSearchContentView: View {
+
     var body: some View {
         VStack(spacing: 10) {
             Text("What's Pop'n?")
@@ -74,7 +75,7 @@ private struct SearchContentResultView: View {
         List {
             PaginatedContent(items: store.queryResults) { item in
                 ResultRow(
-                    film: item,
+                    media: item,
                     namespace: transitionNamespace
                 ) {
                     store.send(.view(.rowTapped(item)))
@@ -110,26 +111,69 @@ private struct SearchContentResultView: View {
 }
 
 private struct ResultRow: View {
-    let film: any DetailViewRepresentable
+    let media: MediaResult
     let namespace: Namespace.ID
 
     let action: () -> Void
 
     var body: some View {
-        HStack(spacing: 20) {
+        HStack(spacing: 15) {
             ThumbnailView(
-                filmID: film.id,
-                posterPath: film.posterPath,
+                media: media,
                 size: .init(width: 80, height: 120),
-                transitionConfig: .init(namespace: namespace, source: film)
+                transitionConfig: .init(namespace: namespace, source: media)
             )
 
             VStack(alignment: .leading, spacing: 5) {
-                Text(film.title ?? "")
-                    .font(.openSans(size: 16, weight: .medium))
+                Text(media.title)
+                    .font(.montserrat(size: 16, weight: .semibold))
+                    .lineLimit(3)
+                    .minimumScaleFactor(0.8)
 
-                Text(film.mediaType.title)
-                    .font(.openSans(size: 14, weight: .regular))
+                switch media {
+                case .movie, .tv:
+                    if let overview = media.overview {
+                        Text(overview)
+                            .font(.openSans(size: 12, weight: .regular))
+                            .lineLimit(2)
+                            .clipped()
+                            .multilineTextAlignment(.leading)
+                    }
+                case .person(let person):
+                    HStack(spacing: 2) {
+                        if let knownForDepartment = person.knownForDepartment {
+                            Text(knownForDepartment)
+                                .font(.openSans(size: 12, weight: .semibold))
+
+                            if person.knownFor?.isEmpty == false {
+                                Text("•")
+                                    .font(.openSans(size: 12, weight: .semibold))
+                            }
+                        }
+
+                        if let knownFor = person.knownFor?.first {
+                            Text(knownFor.title)
+                                .font(.openSans(size: 12, weight: .regular))
+                        }
+                    }
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+                    .truncationMode(.tail)
+                }
+
+                Text(media.mediaType.title)
+                    .font(.openSans(size: 10, weight: .medium))
+                    .foregroundStyle(.secondary)
+                    .padding(.vertical, 4)
+                    .padding(.horizontal, 8)
+                    .clipShape(.capsule)
+                    .frame(width: 50)
+                    .background {
+                        Capsule()
+                            .fill(media.mediaType.color.opacity(0.85))
+                            .strokeBorder(Color.primary.opacity(0.15), lineWidth: 1)
+                    }
+
             }
 
             Spacer()
@@ -159,6 +203,16 @@ private struct NoMoreResultsView: View {
             .opacity(appeared ? 1 : 0)
             .animation(.easeIn(duration: 0.25), value: appeared)
             .onAppear { appeared = true }
+    }
+}
+
+extension MediaType {
+    var color: Color {
+        switch self {
+        case .movie: Color.goldPopcorn
+        case .tv: Color.popRed
+        case .person: Color.card
+        }
     }
 }
 

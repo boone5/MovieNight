@@ -67,12 +67,12 @@ public class MovieProvider: MovieProviderClient {
     @discardableResult
     public func saveFilmToLibrary(_ request: FilmSaveRequest) throws(MovieError) -> Film {
         let movie = Film(context: container.viewContext)
-        movie.title = request.film.title
+        movie.displayTitle = request.film.title
         movie.id = request.film.id
         movie.dateWatched = Date()
         movie.posterPath = request.film.posterPath
         movie.overview = request.film.overview
-        movie.releaseDate = request.film.releaseDate
+//        movie.releaseDate = request.film.releaseDate
         movie.isLiked = request.isLiked
         movie.isDisliked = request.isDisliked
         movie.isLoved = request.isLoved
@@ -89,12 +89,15 @@ public class MovieProvider: MovieProviderClient {
                 movie.collection = movieCollection
             }
 
-        case .tvShow:
+        case .tv:
             // add to tvshow collection
             if let tvShowCollection = fetchCollection(FilmCollection.tvShowID) {
                 tvShowCollection.addToFilms(movie)
                 movie.collection = tvShowCollection
             }
+        case .person:
+            // TODO: maybe handle person type later
+            break
         }
 
         if let context = movie.managedObjectContext {
@@ -109,14 +112,14 @@ public class MovieProvider: MovieProviderClient {
     }
 
     @discardableResult
-    public func saveFilmToWatchLater(_ film: DetailViewRepresentable) throws(MovieError) -> Film {
+    public func saveFilmToWatchLater(_ film: any DetailViewRepresentable) throws(MovieError) -> Film {
         let filmCD = Film(context: container.viewContext)
-        filmCD.title = film.title
+        filmCD.displayTitle = film.title
         filmCD.id = film.id
         filmCD.dateWatched = nil
         filmCD.posterPath = film.posterPath
         filmCD.overview = film.overview
-        filmCD.releaseDate = film.releaseDate
+//        filmCD.releaseDate = film.releaseDate
         filmCD.isOnWatchList = true
 
         if let watchLaterCollection = fetchCollection(FilmCollection.watchLaterID) {

@@ -67,7 +67,7 @@ public class MovieProvider: MovieProviderClient {
     @discardableResult
     public func saveFilmToLibrary(_ request: FilmSaveRequest) throws(MovieError) -> Film {
         let movie = Film(context: container.viewContext)
-        movie.displayTitle = request.film.title
+        movie.title = request.film.title
         movie.id = request.film.id
         movie.dateWatched = Date()
         movie.posterPath = request.film.posterPath
@@ -112,7 +112,7 @@ public class MovieProvider: MovieProviderClient {
     @discardableResult
     public func saveFilmToWatchLater(_ film: MediaItem) throws(MovieError) -> Film {
         let filmCD = Film(context: container.viewContext)
-        filmCD.displayTitle = film.title
+        filmCD.title = film.title
         filmCD.id = film.id
         filmCD.dateWatched = nil
         filmCD.posterPath = film.posterPath

@@ -183,7 +183,7 @@ extension MediaItem {
         self.init(
             id: film.id,
             mediaType: film.mediaType,
-            title: film.title,
+            title: film.title ?? "-",
             overview: film.overview,
             posterPath: film.posterPath,
             releaseDate: film.releaseDate,

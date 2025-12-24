@@ -23,11 +23,14 @@ public struct WatchLaterScreen: View {
         predicate: NSPredicate(format: "collection.id == %@", FilmCollection.watchLaterID as CVarArg)
     )
     private var watchList: FetchedResults<Film>
-    private var filteredWatchList: [Film] {
+
+    private var items: [MediaItem] { watchList.map(MediaItem.init) }
+
+    private var filteredWatchList: [MediaItem] {
         guard store.searchText.isEmpty == false else {
-            return Array(watchList)
+            return items
         }
-        return watchList.filter { film in
+        return items.filter { film in
             film.title.localizedCaseInsensitiveContains(store.searchText) == true
         }
     }
@@ -63,7 +66,7 @@ public struct WatchLaterScreen: View {
                             searchBar
 
                             WatchList(
-                                watchList: filteredWatchList.map(MediaItem.init),
+                                watchList: filteredWatchList,
                                 namespace: namespace,
                                 selectedFilm: $store.selectedFilm
                             )
@@ -227,7 +230,7 @@ import CoreData
             for i in 0..<3 {
                 let film = Film(context: context)
                 film.id = Int64(i)
-                film.displayTitle = "Mock Film \(i)"
+                film.title = "Mock Film \(i)"
                 film.collection =  watchList
                 film.posterPath = "/dKL78O9zxczVgjtNcQ9UkbYLzqX.jpg"
             }

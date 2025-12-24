@@ -8,10 +8,6 @@
 import CoreData
 
 extension Film {
-    public var title: String {
-        displayTitle ?? "Unknown"
-    }
-
     public var mediaType: MediaType {
         switch mediaTypeAsString {
         case MediaType.movie.rawValue:

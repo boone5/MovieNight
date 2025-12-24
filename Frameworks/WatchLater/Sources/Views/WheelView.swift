@@ -208,7 +208,7 @@ struct WheelViewPreview: View {
 
         for i in 0..<3 {
             let film = Film(context: context)
-            film.displayTitle = "Mock Film \(i)"
+            film.title = "Mock Film \(i)"
             films.append(film)
         }
         return films.map(MediaItem.init)

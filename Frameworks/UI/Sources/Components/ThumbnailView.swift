@@ -48,6 +48,11 @@ public struct ThumbnailView: View {
             .task(id: "loadFeedback") {
                 guard media.mediaType != .person else { return }
 
+                guard media.feedback == nil else {
+                    feedback = media.feedback
+                    return
+                }
+
                 if let film = movieProvider.fetchFilm(media.id) {
                     feedback = film.feedback
                 }

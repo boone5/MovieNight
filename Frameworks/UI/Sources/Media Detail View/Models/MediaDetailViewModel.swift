@@ -18,7 +18,7 @@ class MediaDetailViewModel {
     var feedback: Feedback? = nil
 
     var menuSections: [MenuSection] = []
-    var cast: [PersonResponse]?
+    var cast: [Credits]?
     var seasons: [AdditionalDetailsTVShow.SeasonResponse] = []
     var seasonsWatched = [AdditionalDetailsTVShow.SeasonResponse]()
     var trailer: AdditionalDetailsMovie.VideoResponse.Video?

@@ -14,8 +14,6 @@ struct CastScrollView: View {
     let averageColor: Color
     let cast: [PersonResponse]
 
-    @State var uiImage: UIImage? = nil
-
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text("Cast")
@@ -41,7 +39,6 @@ struct CastScrollView: View {
 
     struct ActorProfileView: View {
         @Dependency(\.imageLoader) private var imageLoader
-        @State private var uiImage: UIImage? = nil
 
         let actor: PersonResponse
 
@@ -68,20 +65,6 @@ struct CastScrollView: View {
                     .lineLimit(2)
                     .frame(width: 70, height: 34, alignment: .top)
                     .allowsTightening(true)
-            }
-            .task {
-                await loadImage(url: actor.profilePath)
-            }
-        }
-
-        private func loadImage(url: String?) async {
-            guard let url else { return }
-
-            do {
-                guard let image = try await imageLoader.loadImage(url) else { return }
-                uiImage = image
-            } catch {
-                print("⛔️ Error loading image: \(error)")
             }
         }
     }

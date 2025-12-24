@@ -28,8 +28,11 @@ class MediaDetailViewModel {
     var releaseYear: String?
     var duration: String?
 
+    @ObservationIgnored
     @Dependency(\.date.now) var now
+    @ObservationIgnored
     @Dependency(\.movieProvider) var movieProvider
+    @ObservationIgnored
     @Dependency(\.networkClient) var networkClient
 
     init(film: some DetailViewRepresentable) {

@@ -32,7 +32,7 @@ import YouTubePlayerKit
 public struct MediaDetailView: View {
     @Environment(\.dismiss) var dismiss
 
-    @StateObject var viewModel: MediaDetailView.ViewModel
+    @State var viewModel: MediaDetailViewModel
     let navigationTransitionConfig: NavigationTransitionConfiguration<Film.ID>
     let posterSize: CGSize
 
@@ -43,7 +43,7 @@ public struct MediaDetailView: View {
         film: some DetailViewRepresentable,
         navigationTransitionConfig: NavigationTransitionConfiguration<Film.ID>,
     ) {
-        _viewModel = StateObject(wrappedValue: MediaDetailView.ViewModel(film: film))
+        _viewModel = State(wrappedValue: MediaDetailViewModel(film: film))
         self.navigationTransitionConfig = navigationTransitionConfig
 
         let size = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.screen.bounds.size ?? .zero
@@ -292,7 +292,7 @@ public struct MediaDetailView: View {
     // MARK: SeasonsScrollView
 
     struct SeasonsScrollView: View {
-        @ObservedObject var viewModel: MediaDetailView.ViewModel
+        var viewModel: MediaDetailViewModel
 
         var body: some View {
             VStack(alignment: .leading, spacing: 20) {

@@ -27,7 +27,7 @@ public enum MediaType: String, Codable {
     public var title: String {
         switch self {
         case .movie: "Movie"
-        case .tv: "TV Show"
+        case .tv: "Tv"
         case .person: "Person"
         }
     }

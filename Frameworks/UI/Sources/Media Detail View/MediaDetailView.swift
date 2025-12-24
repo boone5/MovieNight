@@ -39,8 +39,6 @@ public struct MediaDetailView: View {
         viewModel.averageColor
     }
 
-    @State var postion: ScrollPosition = .init()
-
     public var body: some View {
         ScrollView {
             VStack(alignment: .center, spacing: 30) {
@@ -222,13 +220,8 @@ public struct MediaDetailView: View {
         .safeAreaInset(edge: .top) {
             toolbar
         }
-        .task(id: "loadData") {
+        .task(id: "fetchInitialData") {
             await viewModel.loadInitialData()
-            if viewModel.media.mediaType == .movie {
-                await viewModel.getAdditionalDetailsMovie()
-            } else {
-                await viewModel.getAdditionalDetailsTVShow()
-            }
         }
         .zoomTransition(configuration: navigationTransitionConfig)
     }

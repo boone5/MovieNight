@@ -26,6 +26,8 @@ class MediaDetailViewModel {
     var releaseYear: String?
     var duration: String?
 
+    var loadingState: LoadingState = .idle
+
     @ObservationIgnored
     @Dependency(\.date.now) var now
     @ObservationIgnored
@@ -41,12 +43,25 @@ class MediaDetailViewModel {
 
     @MainActor
     func loadInitialData() async {
+        guard loadingState == .idle else { return }
+        loadingState = .loading
         if media.mediaType != .person, let existingFilm = movieProvider.fetchFilm(media.id) {
             feedback = existingFilm.feedback
             media = MediaItem(from: existingFilm)
         }
 
+        switch media.mediaType {
+        case .movie:
+            await getAdditionalDetailsMovie()
+        case .tv:
+            await getAdditionalDetailsTVShow()
+        case .person:
+            // TODO: Handle person details
+            break
+        }
+
         setMenuActions()
+        loadingState = .loaded
     }
 
     public func saveToLibraryIfNecessary() -> Film? {
@@ -119,15 +134,14 @@ class MediaDetailViewModel {
         setMenuActions()
     }
 
-    // FIXME: Would be nice to live in its own service
     public func getAdditionalDetailsTVShow() async {
         guard media.mediaType == .tv else { return }
         do {
-            let endpoint = TMDBEndpoint.tvShowDetails(id: media.id)
-            let tvShowDetails: AdditionalDetailsTVShow = try await networkClient.request(endpoint)
+            let tvShowDetails: AdditionalDetailsTVShow = try await networkClient.fetchTVShowDetails(media.id)
             let genres = tvShowDetails.genres.map { $0.name }.joined(separator: ", ")
             let releasedSeasons = tvShowDetails.releasedSeasons()
 
+            // TODO: Attach properties to MediaItem
             await MainActor.run {
                 self.seasons = releasedSeasons
                 self.genres = genres
@@ -138,15 +152,14 @@ class MediaDetailViewModel {
         }
     }
 
-    // FIXME: Would be nice to live in its own service
     public func getAdditionalDetailsMovie() async {
         guard media.mediaType == .movie else { return }
         do {
-            let endpoint = TMDBEndpoint.movieDetails(id: media.id)
-            let movieDetails: AdditionalDetailsMovie = try await networkClient.request(endpoint)
+            let movieDetails: AdditionalDetailsMovie = try await networkClient.fetchMovieDetails(media.id)
             let genres = movieDetails.genres.map { $0.name }.joined(separator: ", ")
 
             do {
+                // TODO: Attach properties to MediaItem
                 try await MainActor.run {
                     self.trailer = try movieDetails.videos.trailer()
                     self.genres = genres

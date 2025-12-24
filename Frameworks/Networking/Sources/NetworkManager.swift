@@ -8,8 +8,12 @@
 import Dependencies
 import Foundation
 import Logger
+import Models
 
 public struct NetworkClient {
+    /// Generic request function that fetches raw data from a given endpoint.
+    ///
+    /// Note: This is a low-level function. Prefer using the generic `request` function for most use cases.
     public var requestData: (_ endpoint: EndpointProviding) async throws -> Data
 
     /// Generic request function that fetches and decodes data from a given endpoint.
@@ -18,6 +22,24 @@ public struct NetworkClient {
     ///   - decoder: The JSON decoder to use for decoding the response. Defaults to `JSONDecoder()`.
     /// - Returns: Decoded object of type `T`.
     public func request<T: Decodable>(_ endpoint: EndpointProviding, decoder: JSONDecoder = JSONDecoder()) async throws -> T {
+        try await Self.decode(endpoint, requestData: requestData)
+    }
+
+    // MARK: Specific requests
+
+    /// Fetches additional details for a TV show by its ID.
+    public var fetchTVShowDetails: (_ id: MediaItem.ID) async throws -> AdditionalDetailsTVShow
+
+    /// Fetches additional details for a movie by its ID.
+    public var fetchMovieDetails: (_ id: MediaItem.ID) async throws -> AdditionalDetailsMovie
+}
+
+extension NetworkClient {
+    static func decode<T: Decodable>(
+        _ endpoint: EndpointProviding,
+        requestData: @escaping (_ endpoint: EndpointProviding) async throws -> Data,
+        decoder: JSONDecoder = JSONDecoder()
+    ) async throws -> T {
         do {
             let data = try await requestData(endpoint)
             return try decoder.decode(T.self, from: data)
@@ -29,11 +51,15 @@ public struct NetworkClient {
     }
 }
 
+
 extension NetworkClient: DependencyKey {
-    public static let liveValue =  Self(
-        requestData: { endpoint in
+    public static let liveValue: Self = {
+        let requestData: (EndpointProviding) async throws -> Data = { endpoint in
             @Dependency(\.logger.log) var log
-            guard let url = try? RequestUtils.createURL(from: endpoint) else { throw APIError.badURL }
+            guard let url = try? RequestUtils.createURL(from: endpoint) else {
+                throw APIError.badURL
+            }
+
             let request = RequestUtils.createRequest(url: url, apiKey: endpoint.apiKey)
 
             do {
@@ -50,7 +76,17 @@ extension NetworkClient: DependencyKey {
                 throw APIError.networkError(error)
             }
         }
-    )
+
+        return Self(
+            requestData: requestData,
+            fetchTVShowDetails: { id in
+                try await Self.decode(TMDBEndpoint.tvShowDetails(id: id), requestData: requestData)
+            },
+            fetchMovieDetails: { id in
+                try await Self.decode(TMDBEndpoint.movieDetails(id: id), requestData: requestData)
+            }
+        )
+    }()
 }
 
 public extension DependencyValues {

@@ -50,7 +50,8 @@ public struct WatchLaterScreen: View {
                             if watchList.count == 1 {
                                 singleItemCTA
                                     .onTapGesture {
-                                        send(.readyToWatchFilmButtonTapped(watchList.first))
+                                        guard let first = watchList.first else { return }
+                                        send(.readyToWatchFilmButtonTapped(.init(from: first)))
                                     }
                             } else {
                                 wheelSpinCTA
@@ -62,7 +63,7 @@ public struct WatchLaterScreen: View {
                             searchBar
 
                             WatchList(
-                                watchList: filteredWatchList,
+                                watchList: filteredWatchList.map(MediaItem.init),
                                 namespace: namespace,
                                 selectedFilm: $store.selectedFilm
                             )
@@ -80,13 +81,13 @@ public struct WatchLaterScreen: View {
             .navigationDestination(for: WatchLaterPath.self) { path in
                 switch path {
                 case .wheel:
-                    WheelView(films: Array(watchList))
+                    WheelView(films: Array(watchList).map(MediaItem.init))
                 }
             }
             .fullScreenCover(item: $store.selectedFilm) { selectedFilm in
                 MediaDetailView(
-                    media: selectedFilm.film,
-                    navigationTransitionConfig: .init(namespace: namespace, source: selectedFilm.film)
+                    media: selectedFilm,
+                    navigationTransitionConfig: .init(namespace: namespace, source: selectedFilm)
                 )
             }
         }

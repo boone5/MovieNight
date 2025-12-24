@@ -7,7 +7,7 @@
 
 import UIKit
 
-public struct TVShowResponse: Codable, Hashable, Identifiable, DetailViewRepresentable {
+public struct TVShowResponse: Codable, Hashable, Identifiable {
     public var releaseDate: String? {
         firstAirDate
     }

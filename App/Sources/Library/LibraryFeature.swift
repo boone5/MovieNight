@@ -14,7 +14,7 @@ import UI
 struct LibraryFeature {
     @ObservableState
     struct State: Equatable {
-        @Presents var selectedFilm: SelectedFilm?
+        @Presents var selectedFilm: MediaItem?
 
         public var navigationPath = NavigationPath()
     }

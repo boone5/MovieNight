@@ -18,15 +18,15 @@ public struct MediaDetailView: View {
     @Environment(\.dismiss) var dismiss
 
     @State var viewModel: MediaDetailViewModel
-    let navigationTransitionConfig: NavigationTransitionConfiguration<MediaResult.ID>
+    let navigationTransitionConfig: NavigationTransitionConfiguration<MediaItem.ID>
     let posterSize: CGSize
 
     @State private var actionTapped: QuickAction?
     @State private var watchCount = 0
 
     public init(
-        media: some DetailViewRepresentable,
-        navigationTransitionConfig: NavigationTransitionConfiguration<MediaResult.ID>,
+        media: MediaItem,
+        navigationTransitionConfig: NavigationTransitionConfiguration<MediaItem.ID>,
     ) {
         _viewModel = State(wrappedValue: MediaDetailViewModel(media: media))
         self.navigationTransitionConfig = navigationTransitionConfig
@@ -47,7 +47,7 @@ public struct MediaDetailView: View {
                 // MARK: TODO
                 // - Add gloss finish
                 PosterView(
-                    imagePath: viewModel.filmDisplay.posterPath,
+                    imagePath: viewModel.media.posterPath,
                     size: posterSize
                 )
                 .shadow(radius: 6, y: 3)
@@ -55,7 +55,7 @@ public struct MediaDetailView: View {
                 .safeAreaPadding(.top, 50)
 
                 VStack(alignment: .center, spacing: 5) {
-                    Text(viewModel.filmDisplay.title)
+                    Text(viewModel.media.title)
                         .font(.montserrat(size: 18, weight: .bold))
                         .foregroundStyle(.white)
 
@@ -74,7 +74,7 @@ public struct MediaDetailView: View {
                 }
 
                 // TODO: Add "See more" button
-                if let summary = viewModel.filmDisplay.overview {
+                if let summary = viewModel.media.overview {
                     VStack(alignment: .leading, spacing: 15) {
                         Text("Summary")
                             .font(.montserrat(size: 16, weight: .semibold))
@@ -92,14 +92,14 @@ public struct MediaDetailView: View {
 
                 CommentPromptView(
                     averageColor: viewModel.averageColor,
-                    comments: viewModel.filmDisplay.comments,
+                    comments: viewModel.media.comments ?? [],
                     didTapSave: { comment in
                         viewModel.addComment(text: comment)
                     }
                 )
 
                 QuickActionsView(
-                    mediaType: viewModel.filmDisplay.mediaType,
+                    mediaType: viewModel.media.mediaType,
                     averageColor: viewModel.averageColor,
                     actionTapped: $actionTapped
                 )
@@ -180,7 +180,7 @@ public struct MediaDetailView: View {
 //                    ParticipantsView(averageColor: viewModel.averageColor)
 //                        .padding(.top, 30)
 
-                if case .tv = viewModel.filmDisplay.mediaType {
+                if case .tv = viewModel.media.mediaType {
                     SeasonsScrollView(viewModel: viewModel)
                 }
 
@@ -224,7 +224,7 @@ public struct MediaDetailView: View {
         }
         .task(id: "loadData") {
             await viewModel.loadInitialData()
-            if viewModel.filmDisplay.mediaType == .movie {
+            if viewModel.media.mediaType == .movie {
                 await viewModel.getAdditionalDetailsMovie()
             } else {
                 await viewModel.getAdditionalDetailsTVShow()
@@ -277,7 +277,7 @@ extension MediaDetailView {
 #Preview {
     @Previewable @Namespace var namespace
 
-    let film: MediaResult = MediaResult.movie(MovieResponse())
+    let film: MediaItem = .init(from: .movie(MovieResponse()))
 //    let film: ResponseType = ResponseType.tvShow(TVShowResponse())
 
     Text("FilmDetailView Preview")

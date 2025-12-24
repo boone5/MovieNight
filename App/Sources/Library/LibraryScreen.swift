@@ -52,7 +52,7 @@ struct LibraryScreen: View {
                             )
 
                             RecentlyWatchedView(
-                                films: Array(recentlyWatchedFilms),
+                                films: recentlyWatchedFilms.map(MediaItem.init),
                                 selectedFilm: $store.selectedFilm,
                                 namespace: namespace
                             )
@@ -69,20 +69,20 @@ struct LibraryScreen: View {
             }
             .navigationDestination(for: FilmCollection.self) { collection in
                 let films = collection.films?.array as? [Film] ?? []
-                CollectionDetailView(title: collection.title, films: films)
+                CollectionDetailView(title: collection.title, films: films.map(MediaItem.init))
             }
             .fullScreenCover(item: $store.selectedFilm) { selectedFilm in
                 MediaDetailView(
-                    media: selectedFilm.film,
-                    navigationTransitionConfig: .init(namespace: namespace, source: selectedFilm.film)
+                    media: selectedFilm,
+                    navigationTransitionConfig: .init(namespace: namespace, source: selectedFilm)
                 )
             }
         }
     }
 
     struct RecentlyWatchedView: View {
-        let films: [Film]
-        @Binding var selectedFilm: SelectedFilm?
+        let films: [MediaItem]
+        @Binding var selectedFilm: MediaItem?
         let namespace: Namespace.ID
 
         var body: some View {
@@ -98,7 +98,7 @@ struct LibraryScreen: View {
 
                 FilmRow(
                     items: films,
-                    selectedFilm: $selectedFilm,
+                    selectedItem: $selectedFilm,
                     namespace: namespace
                 )
             }

@@ -13,9 +13,9 @@ public struct NavigationTransitionConfiguration<ID: Hashable> {
     let sourceID: ID
 }
 
-public extension NavigationTransitionConfiguration where ID == MediaResult.ID {
+public extension NavigationTransitionConfiguration where ID == MediaItem.ID {
     /// Creates a zoom transition configuration for the given source.
-    init(namespace: Namespace.ID, source: any DetailViewRepresentable) {
+    init(namespace: Namespace.ID, source: MediaItem) {
         self.namespace = namespace
         self.sourceID = source.id
     }

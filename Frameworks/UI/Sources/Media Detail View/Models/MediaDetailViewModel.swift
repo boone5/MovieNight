@@ -12,8 +12,8 @@ import SwiftUI
 
 @Observable
 class MediaDetailViewModel {
+    var media: MediaItem
     var averageColor: Color
-    var filmDisplay: FilmDisplay
 
     var feedback: Feedback? = nil
 
@@ -33,27 +33,27 @@ class MediaDetailViewModel {
     @ObservationIgnored
     @Dependency(\.networkClient) var networkClient
 
-    init(media: some DetailViewRepresentable) {
+    init(media: MediaItem) {
         @Dependency(\.imageLoader.cachedImage) var cachedImage
         self.averageColor = Color(cachedImage(media.posterPath)?.averageColor ?? UIColor(resource: .brightRed))
-        self.filmDisplay = FilmDisplay(from: media)
+        self.media = media
     }
 
     @MainActor
     func loadInitialData() async {
-       if let existingFilm = movieProvider.fetchFilm(filmDisplay.id) {
-           feedback = existingFilm.feedback
-            self.filmDisplay = FilmDisplay(from: existingFilm)
+        if media.mediaType != .person, let existingFilm = movieProvider.fetchFilm(media.id) {
+            feedback = existingFilm.feedback
+            media = MediaItem(from: existingFilm)
         }
 
         setMenuActions()
     }
 
     public func saveToLibraryIfNecessary() -> Film? {
-        if let existingFilm = movieProvider.fetchFilm(filmDisplay.id) {
+        if let existingFilm = movieProvider.fetchFilm(media.id) {
             existingFilm
         } else {
-            try? movieProvider.saveFilmToLibrary(.init(filmDisplay, feedback: feedback))
+            try? movieProvider.saveFilmToLibrary(.init(media, feedback: feedback))
         }
     }
 
@@ -74,7 +74,7 @@ class MediaDetailViewModel {
             print("Failed to save: \(error)")
         }
 
-        self.filmDisplay = FilmDisplay(from: cdFilm)
+        self.media = MediaItem(from: cdFilm)
     }
 
     public func addComment(text: String) {
@@ -94,7 +94,7 @@ class MediaDetailViewModel {
             print("Failed to save: \(error)")
         }
 
-        self.filmDisplay = FilmDisplay(from: cdFilm)
+        self.media = MediaItem(from: cdFilm)
     }
 
     public func addActivity(feedback: Feedback?) {
@@ -114,15 +114,16 @@ class MediaDetailViewModel {
             print("Failed to save: \(error)")
         }
 
-        self.filmDisplay = FilmDisplay(from: cdFilm)
+        self.media = MediaItem(from: cdFilm)
 
         setMenuActions()
     }
 
     // FIXME: Would be nice to live in its own service
     public func getAdditionalDetailsTVShow() async {
+        guard media.mediaType == .tv else { return }
         do {
-            let endpoint = TMDBEndpoint.tvShowDetails(id: filmDisplay.id)
+            let endpoint = TMDBEndpoint.tvShowDetails(id: media.id)
             let tvShowDetails: AdditionalDetailsTVShow = try await networkClient.request(endpoint)
             let genres = tvShowDetails.genres.map { $0.name }.joined(separator: ", ")
             let releasedSeasons = tvShowDetails.releasedSeasons()
@@ -139,8 +140,9 @@ class MediaDetailViewModel {
 
     // FIXME: Would be nice to live in its own service
     public func getAdditionalDetailsMovie() async {
+        guard media.mediaType == .movie else { return }
         do {
-            let endpoint = TMDBEndpoint.movieDetails(id: filmDisplay.id)
+            let endpoint = TMDBEndpoint.movieDetails(id: media.id)
             let movieDetails: AdditionalDetailsMovie = try await networkClient.request(endpoint)
             let genres = movieDetails.genres.map { $0.name }.joined(separator: ", ")
 
@@ -168,21 +170,21 @@ class MediaDetailViewModel {
     private func removeFromLibrary() {
         feedback = nil
 
-        try? movieProvider.deleteFilm(filmDisplay.id)
+        try? movieProvider.deleteFilm(media.id)
         setMenuActions()
     }
 
     private func markAsWatched() {
         feedback = nil
 
-        _ = try? movieProvider.saveFilmToLibrary(.init(filmDisplay, feedback: feedback))
+        _ = try? movieProvider.saveFilmToLibrary(.init(media, feedback: feedback))
         setMenuActions()
     }
 
     private func addToWatchList() {
         feedback = nil
 
-        _ = try? movieProvider.saveFilmToWatchLater(self.filmDisplay)
+        _ = try? movieProvider.saveFilmToWatchLater(self.media)
         setMenuActions()
     }
 
@@ -192,7 +194,7 @@ class MediaDetailViewModel {
         var primaryActions: [MenuAction] = []
         var destructiveActions: [MenuAction] = []
 
-        if let existingFilm = movieProvider.fetchFilm(filmDisplay.id) {
+        if let existingFilm = movieProvider.fetchFilm(media.id) {
             if existingFilm.isOnWatchList {
                 primaryActions.append(
                     MenuAction(

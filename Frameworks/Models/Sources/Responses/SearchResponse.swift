@@ -68,7 +68,7 @@ public enum MediaResult: Codable, Hashable {
     }
 }
 
-extension MediaResult: Identifiable, DetailViewRepresentable {
+extension MediaResult: Identifiable {
     public var id: Int64 {
         switch self {
         case .movie(let m): m.id

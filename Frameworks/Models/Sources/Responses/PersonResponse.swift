@@ -5,7 +5,7 @@
 //  Created by Boone on 3/14/24.
 //
 
-public struct PersonResponse: Codable, Hashable, Identifiable, DetailViewRepresentable {
+public struct PersonResponse: Codable, Hashable, Identifiable {
     public let id: Int64
     public let adult: Bool?
     public let name: String

@@ -7,7 +7,7 @@
 
 import UIKit
 
-public struct MovieResponse: Codable, Hashable, Identifiable, DetailViewRepresentable {
+public struct MovieResponse: Codable, Hashable, Identifiable {
     public let id: Int64
     let adult: Bool?
     let backdropPath: String?

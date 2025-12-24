@@ -20,29 +20,11 @@ public struct SearchFeature {
         public init() {}
 
         var searchText: String = ""
-        var loadingState: LoadingState = .paginated(currentPage: 1, totalPages: 1)
+        var loadingState: LoadingState = .idle
 
-        var queryResults: [MediaResult] = [
-            .movie(.init()),
-            .tv(.init()),
-            .person(
-                .init(
-                    id: 3,
-                    adult: false,
-                    name: "Test",
-                    originalName: nil,
-                    mediaType: .person,
-                    popularity: nil,
-                    gender: nil,
-                    knownForDepartment: nil,
-                    profilePath: nil,
-                    character: nil,
-                    knownFor: []
-                )
-            )
-        ]
+        var queryResults: [MediaItem] = []
 
-        @Presents var selectedFilm: SelectedFilm?
+        @Presents var selectedItem: MediaItem?
     }
 
     public enum Action: ViewAction, Equatable {
@@ -58,7 +40,7 @@ public struct SearchFeature {
     @CasePathable
     public enum View: BindableAction, Equatable {
         case binding(BindingAction<State>)
-        case rowTapped(MediaResult)
+        case rowTapped(MediaItem)
     }
 
     public enum CancelID: Hashable {
@@ -110,14 +92,14 @@ public struct SearchFeature {
 
             case let .api(.fetchResponse(response)):
                 state.loadingState = .paginated(currentPage: response.page, totalPages: response.totalPages)
-                state.queryResults.append(contentsOf: response.results)
+                state.queryResults.append(contentsOf: response.results.map(MediaItem.init))
                 return .none
 
             case .view(.binding):
                 return .none
 
             case let .view(.rowTapped(item)):
-                state.selectedFilm = SelectedFilm(film: item)
+                state.selectedItem = item
                 return .none
             }
         }

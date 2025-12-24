@@ -110,14 +110,14 @@ public class MovieProvider: MovieProviderClient {
     }
 
     @discardableResult
-    public func saveFilmToWatchLater(_ film: any DetailViewRepresentable) throws(MovieError) -> Film {
+    public func saveFilmToWatchLater(_ film: MediaItem) throws(MovieError) -> Film {
         let filmCD = Film(context: container.viewContext)
         filmCD.displayTitle = film.title
         filmCD.id = film.id
         filmCD.dateWatched = nil
         filmCD.posterPath = film.posterPath
         filmCD.overview = film.overview
-//        filmCD.releaseDate = film.releaseDate
+        filmCD.releaseDate = film.releaseDate
         filmCD.isOnWatchList = true
 
         if let watchLaterCollection = fetchCollection(FilmCollection.watchLaterID) {

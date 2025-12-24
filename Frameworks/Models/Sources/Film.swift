@@ -7,7 +7,7 @@
 
 import CoreData
 
-extension Film: DetailViewRepresentable {
+extension Film {
     public var title: String {
         displayTitle ?? "Unknown"
     }

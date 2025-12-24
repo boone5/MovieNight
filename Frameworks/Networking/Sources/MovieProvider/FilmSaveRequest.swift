@@ -8,11 +8,11 @@
 import Models
 
 public struct FilmSaveRequest {
-    public let film: any DetailViewRepresentable
+    public let film: MediaItem
     public let comment: Comment?
     public let feedback: Feedback?
 
-    public init(_ film: any DetailViewRepresentable, comment: Comment? = nil, feedback: Feedback? = nil) {
+    public init(_ film: MediaItem, comment: Comment? = nil, feedback: Feedback? = nil) {
         self.film = film
         self.comment = comment
         self.feedback = feedback

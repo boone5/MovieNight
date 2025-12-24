@@ -13,16 +13,16 @@ import SwiftUI
 public struct ThumbnailView: View {
     @Dependency(\.movieProvider) var movieProvider
 
-    let media: any DetailViewRepresentable
+    let media: MediaItem
     let size: CGSize
-    let transitionConfig: NavigationTransitionConfiguration<MediaResult.ID>
+    let transitionConfig: NavigationTransitionConfiguration<MediaItem.ID>
 
     @State private var feedback: Feedback? = nil
 
     public init(
-        media: any DetailViewRepresentable,
+        media: MediaItem,
         size: CGSize,
-        transitionConfig: NavigationTransitionConfiguration<MediaResult.ID>
+        transitionConfig: NavigationTransitionConfiguration<MediaItem.ID>
     ) {
         self.media = media
         self.size = size

@@ -12,9 +12,9 @@ import WatchLater
 
 struct CollectionDetailView: View {
     let title: String?
-    let films: [Film]
+    let films: [MediaItem]
 
-    @State var selectedFilm: SelectedFilm?
+    @State var selectedFilm: MediaItem?
     @Namespace private var namespace
 
     var body: some View {

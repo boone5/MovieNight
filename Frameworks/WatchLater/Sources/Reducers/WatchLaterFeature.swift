@@ -22,7 +22,7 @@ public struct WatchLaterFeature {
         var searchText: String = ""
         var isSearchFieldFocused: Bool = false
 
-        @Presents var selectedFilm: SelectedFilm?
+        @Presents var selectedFilm: MediaItem?
     }
 
     public enum Action: ViewAction, Equatable {
@@ -33,7 +33,7 @@ public struct WatchLaterFeature {
     public enum View: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case clearSearchFieldButtonTapped
-        case readyToWatchFilmButtonTapped(Film?)
+        case readyToWatchFilmButtonTapped(MediaItem?)
         case spinWheelButtonTapped
     }
 
@@ -51,7 +51,7 @@ public struct WatchLaterFeature {
 
             case .view(.readyToWatchFilmButtonTapped(let film)):
                 guard let film else { return .none }
-                state.selectedFilm = SelectedFilm(film: film)
+                state.selectedFilm = film
                 return .none
 
             case .view(.spinWheelButtonTapped):
@@ -59,6 +59,7 @@ public struct WatchLaterFeature {
                 return .none
             }
         }
+        ._printChanges()
     }
 }
 

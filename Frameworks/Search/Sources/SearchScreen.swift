@@ -42,10 +42,10 @@ public struct SearchScreen: View {
             .toolbar(.hidden, for: .navigationBar)
             .searchable(text: $store.searchText)
             .scrollDismissesKeyboard(.immediately)
-            .fullScreenCover(item: $store.selectedFilm) { film in
+            .fullScreenCover(item: $store.selectedItem) { item in
                 MediaDetailView(
-                    media: film.film,
-                    navigationTransitionConfig: .init(namespace: transitionNamespace, source: film.film),
+                    media: item,
+                    navigationTransitionConfig: .init(namespace: transitionNamespace, source: item),
                 )
             }
         }
@@ -111,7 +111,7 @@ private struct SearchContentResultView: View {
 }
 
 private struct ResultRow: View {
-    let media: MediaResult
+    let media: MediaItem
     let namespace: Namespace.ID
 
     let action: () -> Void
@@ -130,7 +130,7 @@ private struct ResultRow: View {
                     .lineLimit(3)
                     .minimumScaleFactor(0.8)
 
-                switch media {
+                switch media.mediaType {
                 case .movie, .tv:
                     if let overview = media.overview {
                         Text(overview)
@@ -139,19 +139,20 @@ private struct ResultRow: View {
                             .clipped()
                             .multilineTextAlignment(.leading)
                     }
-                case .person(let person):
+                case .person:
+                    let person = media.person
                     HStack(spacing: 2) {
-                        if let knownForDepartment = person.knownForDepartment {
+                        if let knownForDepartment = person?.knownForDepartment {
                             Text(knownForDepartment)
                                 .font(.openSans(size: 12, weight: .semibold))
 
-                            if person.knownFor?.isEmpty == false {
+                            if person?.knownFor.isEmpty == false {
                                 Text("•")
                                     .font(.openSans(size: 12, weight: .semibold))
                             }
                         }
 
-                        if let knownFor = person.knownFor?.first {
+                        if let knownFor = person?.knownFor.first {
                             Text(knownFor.title)
                                 .font(.openSans(size: 12, weight: .regular))
                         }

@@ -11,10 +11,10 @@ import SwiftUI
 import UI
 
 public struct WatchList: View {
-    let watchList: [Film]
+    let watchList: [MediaItem]
     let namespace: Namespace.ID
 
-    @Binding var selectedFilm: SelectedFilm?
+    @Binding var selectedFilm: MediaItem?
 
     let gridItems: [GridItem] = [
         GridItem(.flexible(), spacing: 20, alignment: .center),
@@ -22,9 +22,9 @@ public struct WatchList: View {
     ]
 
     public init(
-        watchList: [Film],
+        watchList: [MediaItem],
         namespace: Namespace.ID,
-        selectedFilm: Binding<SelectedFilm?>
+        selectedFilm: Binding<MediaItem?>
     ) {
         self.watchList = watchList
         self.namespace = namespace
@@ -41,7 +41,7 @@ public struct WatchList: View {
                 )
                 .onTapGesture {
                     withAnimation(.spring()) {
-                        selectedFilm = SelectedFilm(film: film)
+                        selectedFilm = film
                     }
                 }
             }
@@ -50,7 +50,7 @@ public struct WatchList: View {
 }
 
 #Preview {
-    @Previewable @State var selectedFilm: SelectedFilm? = nil
+    @Previewable @State var selectedFilm: MediaItem? = nil
     @Previewable @Namespace var namespace
 
     WatchList(watchList: [], namespace: namespace, selectedFilm: $selectedFilm)

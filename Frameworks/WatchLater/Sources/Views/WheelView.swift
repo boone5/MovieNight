@@ -15,15 +15,15 @@ import UI
 import FortuneWheel
 
 struct WheelView: View {
-    @State private var chosenIndex: [Film].Index? = nil
+    @State private var chosenIndex: [MediaItem].Index? = nil
 
     private let totalSpinDuration: Double = 5.0
 
-    private let films: [Film]
+    private let films: [MediaItem]
 
     @Namespace var transition
 
-    init(films: [Film]) {
+    init(films: [MediaItem]) {
         self.films = films
     }
 
@@ -86,7 +86,7 @@ struct WheelView: View {
 }
 
 private struct MediaModal: View {
-    let film: Film
+    let film: MediaItem
     @Binding var chosenIndex: [Film].Index?
 
     // Needed if we want to transition to the media detail view
@@ -95,7 +95,7 @@ private struct MediaModal: View {
     @State private var isVisible: Bool = false
     let posterSize: CGSize
 
-    init(film: Film, chosenIndex: Binding<[Film].Index?>) {
+    init(film: MediaItem, chosenIndex: Binding<[MediaItem].Index?>) {
         self.film = film
         self._chosenIndex = chosenIndex
 
@@ -198,7 +198,7 @@ extension Collection {
 }
 
 struct WheelViewPreview: View {
-    let films: [Film] = {
+    let films: [MediaItem] = {
         @Dependency(\.movieProvider) var movieProvider
         let context = movieProvider.container.viewContext
         let watchList = FilmCollection(context: context)
@@ -211,7 +211,7 @@ struct WheelViewPreview: View {
             film.displayTitle = "Mock Film \(i)"
             films.append(film)
         }
-        return films
+        return films.map(MediaItem.init)
     }()
 
     var body: some View {

@@ -84,7 +84,7 @@ public struct WatchLaterScreen: View {
                 }
             }
             .fullScreenCover(item: $store.selectedFilm) { selectedFilm in
-                FilmDetailView(
+                MediaDetailView(
                     film: selectedFilm.film,
                     navigationTransitionConfig: .init(namespace: namespace, source: selectedFilm.film)
                 )

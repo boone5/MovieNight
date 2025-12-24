@@ -43,7 +43,7 @@ public struct SearchScreen: View {
             .searchable(text: $store.searchText)
             .scrollDismissesKeyboard(.immediately)
             .fullScreenCover(item: $store.selectedFilm) { film in
-                FilmDetailView(
+                MediaDetailView(
                     film: film.film,
                     navigationTransitionConfig: .init(namespace: transitionNamespace, source: film.film),
                 )

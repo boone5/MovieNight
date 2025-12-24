@@ -15,9 +15,7 @@ class MediaDetailViewModel {
     var averageColor: Color
     var filmDisplay: FilmDisplay
 
-    var isLiked: Bool = false
-    var isLoved: Bool = false
-    var isDisliked: Bool = false
+    var feedback: Feedback? = nil
 
     var menuSections: [MenuSection] = []
     var cast: [PersonResponse]?
@@ -35,18 +33,16 @@ class MediaDetailViewModel {
     @ObservationIgnored
     @Dependency(\.networkClient) var networkClient
 
-    init(film: some DetailViewRepresentable) {
+    init(media: some DetailViewRepresentable) {
         @Dependency(\.imageLoader.cachedImage) var cachedImage
-        self.averageColor = Color(cachedImage(film.posterPath)?.averageColor ?? UIColor(resource: .brightRed))
-        self.filmDisplay = FilmDisplay(from: film)
+        self.averageColor = Color(cachedImage(media.posterPath)?.averageColor ?? UIColor(resource: .brightRed))
+        self.filmDisplay = FilmDisplay(from: media)
     }
 
     @MainActor
     func loadInitialData() async {
        if let existingFilm = movieProvider.fetchFilm(filmDisplay.id) {
-            isLiked = existingFilm.isLiked
-            isLoved = existingFilm.isLoved
-            isDisliked = existingFilm.isDisliked
+           feedback = existingFilm.feedback
             self.filmDisplay = FilmDisplay(from: existingFilm)
         }
 
@@ -57,14 +53,7 @@ class MediaDetailViewModel {
         if let existingFilm = movieProvider.fetchFilm(filmDisplay.id) {
             existingFilm
         } else {
-            try? movieProvider.saveFilmToLibrary(
-                .init(
-                    filmDisplay,
-                    isLiked: isLiked,
-                    isDisliked: isDisliked,
-                    isLoved: isLoved
-                )
-            )
+            try? movieProvider.saveFilmToLibrary(.init(filmDisplay, feedback: feedback))
         }
     }
 
@@ -108,24 +97,16 @@ class MediaDetailViewModel {
         self.filmDisplay = FilmDisplay(from: cdFilm)
     }
 
-    public func addActivity(isLiked: Bool, isLoved: Bool, isDisliked: Bool) {
-        guard isLiked || isLoved || isDisliked else {
+    public func addActivity(feedback: Feedback?) {
+        guard let feedback else {
             removeFromLibrary()
             // TODO: show confirmation
             return
         }
 
-        self.isLiked = isLiked
-        self.isLoved = isLoved
-        self.isDisliked = isDisliked
-
         let cdFilm = saveToLibraryIfNecessary()
-
         guard let cdFilm, let context = cdFilm.managedObjectContext else { return }
-
-        cdFilm.isLiked = isLiked
-        cdFilm.isLoved = isLoved
-        cdFilm.isDisliked = isDisliked
+        cdFilm.feedback = feedback
 
         do {
             try context.save()
@@ -185,36 +166,23 @@ class MediaDetailViewModel {
     // FIXME: Would be nice to live away from this VM
 
     private func removeFromLibrary() {
-        self.isLiked = false
-        self.isLoved = false
-        self.isDisliked = false
+        feedback = nil
 
         try? movieProvider.deleteFilm(filmDisplay.id)
         setMenuActions()
     }
 
     private func markAsWatched() {
-        self.isLiked = false
-        self.isLoved = false
-        self.isDisliked = false
+        feedback = nil
 
-        try? movieProvider.saveFilmToLibrary(
-            .init(
-                filmDisplay,
-                isLiked: false,
-                isDisliked: false,
-                isLoved: false
-            )
-        )
+        _ = try? movieProvider.saveFilmToLibrary(.init(filmDisplay, feedback: feedback))
         setMenuActions()
     }
 
     private func addToWatchList() {
-        self.isLiked = false
-        self.isLoved = false
-        self.isDisliked = false
+        feedback = nil
 
-        try? movieProvider.saveFilmToWatchLater(self.filmDisplay)
+        _ = try? movieProvider.saveFilmToWatchLater(self.filmDisplay)
         setMenuActions()
     }
 

@@ -12,38 +12,23 @@ import Networking
 import SwiftUI
 import YouTubePlayerKit
 
-// MARK: Preview
-
-#Preview {
-    @Previewable @Namespace var namespace
-
-    let film: MediaResult = MediaResult.movie(MovieResponse())
-//    let film: ResponseType = ResponseType.tvShow(TVShowResponse())
-
-    Text("FilmDetailView Preview")
-        .fullScreenCover(isPresented: .constant(true)) {
-            MediaDetailView(film: film, navigationTransitionConfig: .init(namespace: namespace, source: film))
-                .loadCustomFonts()
-        }
-}
-
 // MARK: FilmDetailView
 
 public struct MediaDetailView: View {
     @Environment(\.dismiss) var dismiss
 
     @State var viewModel: MediaDetailViewModel
-    let navigationTransitionConfig: NavigationTransitionConfiguration<Film.ID>
+    let navigationTransitionConfig: NavigationTransitionConfiguration<MediaResult.ID>
     let posterSize: CGSize
 
     @State private var actionTapped: QuickAction?
     @State private var watchCount = 0
 
     public init(
-        film: some DetailViewRepresentable,
-        navigationTransitionConfig: NavigationTransitionConfiguration<Film.ID>,
+        media: some DetailViewRepresentable,
+        navigationTransitionConfig: NavigationTransitionConfiguration<MediaResult.ID>,
     ) {
-        _viewModel = State(wrappedValue: MediaDetailViewModel(film: film))
+        _viewModel = State(wrappedValue: MediaDetailViewModel(media: media))
         self.navigationTransitionConfig = navigationTransitionConfig
 
         let size = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.screen.bounds.size ?? .zero
@@ -57,10 +42,7 @@ public struct MediaDetailView: View {
     @State var postion: ScrollPosition = .init()
 
     public var body: some View {
-        ScrollView(
-            .vertical,
-            showsIndicators: true
-        ) {
+        ScrollView {
             VStack(alignment: .center, spacing: 30) {
                 // MARK: TODO
                 // - Add gloss finish
@@ -73,7 +55,7 @@ public struct MediaDetailView: View {
                 .safeAreaPadding(.top, 50)
 
                 VStack(alignment: .center, spacing: 5) {
-                    Text(viewModel.filmDisplay.title ?? "")
+                    Text(viewModel.filmDisplay.title)
                         .font(.montserrat(size: 18, weight: .bold))
                         .foregroundStyle(.white)
 
@@ -87,15 +69,9 @@ public struct MediaDetailView: View {
                 }
 
 
-                FeedbackButtons(
-                    isLiked: $viewModel.isLiked,
-                    isLoved: $viewModel.isLoved,
-                    isDisliked: $viewModel.isDisliked,
-                    averageColor: viewModel.averageColor,
-                    didAddActivity: { isLiked, isLoved, isDisliked in
-                        viewModel.addActivity(isLiked: isLiked, isLoved: isLoved, isDisliked: isDisliked)
-                    }
-                )
+                FeedbackButtons(feedback: $viewModel.feedback, averageColor: viewModel.averageColor) {
+                    viewModel.addActivity(feedback: $0)
+                }
 
                 // TODO: Add "See more" button
                 if let summary = viewModel.filmDisplay.overview {
@@ -244,39 +220,7 @@ public struct MediaDetailView: View {
         }
         .ignoresSafeArea()
         .safeAreaInset(edge: .top) {
-            HStack {
-                Button {
-                    dismiss()
-                } label: {
-                    Label("Close", systemImage: "xmark")
-                        .foregroundStyle(Color.ivoryWhite.opacity(0.8))
-                        .labelStyle(.iconOnly)
-                        .frame(width: 50, height: 50)
-                }
-                .glassEffect(.regular.tint(averageColor.opacity(0.8)).interactive(), in: .circle)
-
-                Spacer()
-
-                Menu {
-                    ForEach(viewModel.menuSections) { section in
-                        ForEach(section.actions) { action in
-                            Button(role: action.role == .destructive ? .destructive : nil) {
-                                action.handler()
-                            } label: {
-                                Label(action.title, systemImage: action.systemImage)
-                            }
-                        }
-                    }
-                } label: {
-                    Image(systemName: "ellipsis")
-                        .foregroundStyle(Color.ivoryWhite.opacity(0.8))
-                        .labelStyle(.iconOnly)
-                        .frame(width: 50, height: 50)
-                        .glassEffect(.regular.tint(averageColor.opacity(0.8)).interactive(), in: .circle)
-                        .clipShape(.circle)
-                }
-            }
-            .safeAreaPadding(.horizontal)
+            toolbar
         }
         .task(id: "loadData") {
             await viewModel.loadInitialData()
@@ -288,36 +232,57 @@ public struct MediaDetailView: View {
         }
         .zoomTransition(configuration: navigationTransitionConfig)
     }
+}
 
-    // MARK: SeasonsScrollView
+extension MediaDetailView {
+    private var toolbar: some View {
+        HStack {
+            Button {
+                dismiss()
+            } label: {
+                Label("Close", systemImage: "xmark")
+                    .foregroundStyle(Color.ivoryWhite.opacity(0.8))
+                    .labelStyle(.iconOnly)
+                    .frame(width: 50, height: 50)
+            }
+            .glassEffect(.regular.tint(averageColor.opacity(0.8)).interactive(), in: .circle)
 
-    struct SeasonsScrollView: View {
-        var viewModel: MediaDetailViewModel
+            Spacer()
 
-        var body: some View {
-            VStack(alignment: .leading, spacing: 20) {
-                Text("Seasons Watched")
-                    .font(.montserrat(size: 16, weight: .semibold))
-                    .foregroundStyle(.white)
-
-                ScrollView(.horizontal) {
-                    HStack(spacing: 10) {
-                        ForEach(viewModel.seasons, id: \.id) { season in
-                            SeasonPosterView(
-                                posterPath: season.posterPath,
-                                seasonNum: season.number,
-                                averageColor: viewModel.averageColor
-                            )
+            Menu {
+                ForEach(viewModel.menuSections) { section in
+                    ForEach(section.actions) { action in
+                        Button(role: action.role == .destructive ? .destructive : nil) {
+                            action.handler()
+                        } label: {
+                            Label(action.title, systemImage: action.systemImage)
                         }
                     }
-                    .padding([.horizontal], 30)
                 }
-                .scrollIndicators(.hidden)
-                .padding([.horizontal], -30)
+            } label: {
+                Image(systemName: "ellipsis")
+                    .foregroundStyle(Color.ivoryWhite.opacity(0.8))
+                    .labelStyle(.iconOnly)
+                    .frame(width: 50, height: 50)
+                    .glassEffect(.regular.tint(averageColor.opacity(0.8)).interactive(), in: .circle)
+                    .clipShape(.circle)
             }
-            .padding(20)
-            .background(viewModel.averageColor.opacity(0.4))
-            .cornerRadius(12)
         }
+        .safeAreaPadding(.horizontal)
     }
+}
+
+// MARK: Preview
+
+#Preview {
+    @Previewable @Namespace var namespace
+
+    let film: MediaResult = MediaResult.movie(MovieResponse())
+//    let film: ResponseType = ResponseType.tvShow(TVShowResponse())
+
+    Text("FilmDetailView Preview")
+        .fullScreenCover(isPresented: .constant(true)) {
+            MediaDetailView(media: film, navigationTransitionConfig: .init(namespace: namespace, source: film))
+                .loadCustomFonts()
+        }
 }

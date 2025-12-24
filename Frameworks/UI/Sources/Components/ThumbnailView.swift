@@ -15,14 +15,14 @@ public struct ThumbnailView: View {
 
     let media: any DetailViewRepresentable
     let size: CGSize
-    let transitionConfig: NavigationTransitionConfiguration<Film.ID>
+    let transitionConfig: NavigationTransitionConfiguration<MediaResult.ID>
 
     @State private var feedback: Feedback? = nil
 
     public init(
         media: any DetailViewRepresentable,
         size: CGSize,
-        transitionConfig: NavigationTransitionConfiguration<Film.ID>
+        transitionConfig: NavigationTransitionConfiguration<MediaResult.ID>
     ) {
         self.media = media
         self.size = size
@@ -49,15 +49,7 @@ public struct ThumbnailView: View {
                 guard media.mediaType != .person else { return }
 
                 if let film = movieProvider.fetchFilm(media.id) {
-                    if film.isLiked {
-                        feedback = .like(enabled: true)
-                    } else if film.isDisliked {
-                        feedback = .dislike(enabled: true)
-                    } else if film.isLoved {
-                        feedback = .love(enabled: true)
-                    }
-                } else {
-                    feedback = nil
+                    feedback = film.feedback
                 }
             }
     }
@@ -67,7 +59,7 @@ struct FeedbackOverlayView: View {
     let feedback: Feedback
 
     var body: some View {
-        Image(systemName: feedback.imageName)
+        Image(systemName: feedback.selectedImageName)
             .renderingMode(.template)
             .resizable()
             .frame(width: 18, height: 18)

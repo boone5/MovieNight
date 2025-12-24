@@ -73,7 +73,7 @@ struct LibraryScreen: View {
             }
             .fullScreenCover(item: $store.selectedFilm) { selectedFilm in
                 MediaDetailView(
-                    film: selectedFilm.film,
+                    media: selectedFilm.film,
                     navigationTransitionConfig: .init(namespace: namespace, source: selectedFilm.film)
                 )
             }

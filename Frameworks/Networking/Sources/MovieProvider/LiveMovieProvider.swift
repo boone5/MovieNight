@@ -73,9 +73,7 @@ public class MovieProvider: MovieProviderClient {
         movie.posterPath = request.film.posterPath
         movie.overview = request.film.overview
 //        movie.releaseDate = request.film.releaseDate
-        movie.isLiked = request.isLiked
-        movie.isDisliked = request.isDisliked
-        movie.isLoved = request.isLoved
+        movie.feedback = request.feedback
 
         if let comment = request.comment {
             movie.addToComments(comment)

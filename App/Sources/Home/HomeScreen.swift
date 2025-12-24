@@ -89,7 +89,7 @@ struct HomeScreen: View {
         }
         .fullScreenCover(item: $selectedFilm) { selectedFilm in
             MediaDetailView(
-                film: selectedFilm.film,
+                media: selectedFilm.film,
                 navigationTransitionConfig: .init(namespace: namespace, source: selectedFilm.film)
             )
         }

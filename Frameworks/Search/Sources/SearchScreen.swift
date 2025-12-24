@@ -44,7 +44,7 @@ public struct SearchScreen: View {
             .scrollDismissesKeyboard(.immediately)
             .fullScreenCover(item: $store.selectedFilm) { film in
                 MediaDetailView(
-                    film: film.film,
+                    media: film.film,
                     navigationTransitionConfig: .init(namespace: transitionNamespace, source: film.film),
                 )
             }

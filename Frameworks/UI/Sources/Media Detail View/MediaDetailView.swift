@@ -58,7 +58,15 @@ public struct MediaDetailView: View {
                         .foregroundStyle(.white)
 
                     switch viewModel.media.mediaType {
-                    case .movie, .tv:
+                    case .movie:
+                        Text(viewModel.genres ?? "-")
+                            .font(.openSans(size: 12, weight: .regular))
+                            .foregroundStyle(Color(uiColor: .systemGray2))
+
+                        Text([viewModel.releaseYear, viewModel.duration].compactMap { $0 }.joined(separator: " · "))
+                            .font(.openSans(size: 12, weight: .regular))
+                            .foregroundStyle(Color(uiColor: .systemGray2))
+                    case .tv:
                         Text(viewModel.genres ?? "-")
                             .font(.openSans(size: 12, weight: .regular))
                             .foregroundStyle(Color(uiColor: .systemGray2))
@@ -76,140 +84,13 @@ public struct MediaDetailView: View {
                 }
 
                 switch viewModel.media.mediaType {
-                case .movie, .tv:
-                    FeedbackButtons(feedback: $viewModel.feedback, averageColor: viewModel.averageColor) {
-                        viewModel.addActivity(feedback: $0)
-                    }
-
-                    // TODO: Add "See more" button
-                    if let summary = viewModel.media.overview {
-                        Card(averageColor: averageColor) {
-                            VStack(alignment: .leading, spacing: 15) {
-                                Text("Summary")
-                                    .font(.montserrat(size: 16, weight: .semibold))
-                                    .foregroundStyle(.white)
-
-                                Text(summary)
-                                    .font(.openSans(size: 14))
-                                    .foregroundStyle(.white)
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                    }
-
-                    CommentPromptView(
-                        averageColor: viewModel.averageColor,
-                        comments: viewModel.media.comments ?? [],
-                        didTapSave: { comment in
-                            viewModel.addComment(text: comment)
-                        }
-                    )
-
-                    QuickActionsView(
-                        mediaType: viewModel.media.mediaType,
-                        averageColor: viewModel.averageColor,
-                        actionTapped: $actionTapped
-                    )
-
-                    if let actionTapped {
-                        switch actionTapped {
-                        case .collection:
-                            ActionView(averageColor: averageColor) {
-                                HStack {
-                                    Text(actionTapped.longTitle)
-                                        .font(.openSans(size: 16, weight: .semibold))
-                                        .foregroundStyle(.white)
-
-                                    Spacer()
-
-                                    Label {
-                                        Text("Add a collection")
-                                            .font(.openSans(size: 14))
-                                    } icon: {
-                                        Image(systemName: "plus")
-                                            .font(.openSans(size: 14))
-                                    }
-                                    .padding(.vertical, 10)
-                                    .padding(.horizontal, 8)
-                                    .background(averageColor.opacity(0.4))
-                                    .cornerRadius(12)
-                                }
-                            }
-                        case .location:
-                            WatchedAtView(averageColor: viewModel.averageColor)
-                        case .watchCount:
-                            ActionView(averageColor: averageColor) {
-                                HStack(spacing: 0) {
-                                    Text(actionTapped.longTitle + " \(watchCount) times")
-                                        .font(.openSans(size: 16, weight: .semibold))
-                                        .foregroundStyle(.white)
-
-                                    Spacer()
-
-                                    CustomStepper(steps: 10, startStep: $watchCount)
-                                }
-                                .padding(.vertical, 10)
-                            }
-                        case .watchedWith:
-                            ActionView(averageColor: averageColor) {
-                                Text(actionTapped.longTitle)
-                                    .font(.openSans(size: 16, weight: .semibold))
-                                    .foregroundStyle(.white)
-                            }
-                        case .occasion:
-                            ActionView(averageColor: averageColor) {
-                                Text(actionTapped.longTitle)
-                                    .font(.openSans(size: 16, weight: .semibold))
-                                    .foregroundStyle(.white)
-                            }
-                        case .seasonsWatched:
-                            ActionView(averageColor: averageColor) {
-                                Text(actionTapped.longTitle)
-                                    .font(.openSans(size: 16, weight: .semibold))
-                                    .foregroundStyle(.white)
-                            }
-                        case .favoriteSeason:
-                            ActionView(averageColor: averageColor) {
-                                Text(actionTapped.longTitle)
-                                    .font(.openSans(size: 16, weight: .semibold))
-                                    .foregroundStyle(.white)
-                            }
-                        case .favoriteEpisode:
-                            ActionView(averageColor: averageColor) {
-                                Text(actionTapped.longTitle)
-                                    .font(.openSans(size: 16, weight: .semibold))
-                                    .foregroundStyle(.white)
-                            }
-                        }
-                    }
-
-                    // V2 w/ Social Features
-                    //                    ParticipantsView(averageColor: viewModel.averageColor)
-                    //                        .padding(.top, 30)
-
-                    if case .tv = viewModel.media.mediaType {
-                        SeasonsScrollView(viewModel: viewModel)
-                    }
-
-                    if let cast = viewModel.cast {
-                        CastScrollView(averageColor: viewModel.averageColor, cast: cast)
-                    }
-
-                    if let trailer = viewModel.trailer, let key = trailer.key {
-                        VStack(alignment: .leading, spacing: 20) {
-                            Text("Trailer")
-                                .font(.montserrat(size: 16, weight: .semibold))
-                                .foregroundStyle(.white)
-
-                            TrailerView(videoID: key)
-                        }
-                        .padding(20)
-                        .background(averageColor.opacity(0.4))
-                        .cornerRadius(12)
-                    }
+                case .movie:
+                    movieLayout()
+                case .tv:
+                    tvLayout()
                 case .person:
                     if let details = viewModel.personDetails {
-                        personDetails(details)
+                        personLayout(details)
                     } else {
                         Text("Uh oh")
                             .foregroundStyle(.white)
@@ -285,6 +166,262 @@ extension MediaDetailView {
     @ViewBuilder
     private func personDetails(_ details: AdditionalDetailsPerson) -> some View {
         PersonDetailsView(details: details, averageColor: averageColor)
+    }
+
+    @ViewBuilder
+    private func movieLayout() -> some View {
+        FeedbackButtons(feedback: $viewModel.feedback, averageColor: viewModel.averageColor) {
+            viewModel.addActivity(feedback: $0)
+        }
+
+        if let summary = viewModel.media.overview {
+            Card(averageColor: averageColor) {
+                VStack(alignment: .leading, spacing: 15) {
+                    Text("Summary")
+                        .font(.montserrat(size: 16, weight: .semibold))
+                        .foregroundStyle(.white)
+
+                    Text(summary)
+                        .font(.openSans(size: 14))
+                        .foregroundStyle(.white)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+
+        CommentPromptView(
+            averageColor: viewModel.averageColor,
+            comments: viewModel.media.comments ?? [],
+            didTapSave: { comment in
+                viewModel.addComment(text: comment)
+            }
+        )
+
+        QuickActionsView(
+            mediaType: .movie,
+            averageColor: viewModel.averageColor,
+            actionTapped: $actionTapped
+        )
+
+        if let actionTapped {
+            switch actionTapped {
+            case .collection:
+                ActionView(averageColor: averageColor) {
+                    HStack {
+                        Text(actionTapped.longTitle)
+                            .font(.openSans(size: 16, weight: .semibold))
+                            .foregroundStyle(.white)
+
+                        Spacer()
+
+                        Label {
+                            Text("Add a collection")
+                                .font(.openSans(size: 14))
+                        } icon: {
+                            Image(systemName: "plus")
+                                .font(.openSans(size: 14))
+                        }
+                        .padding(.vertical, 10)
+                        .padding(.horizontal, 8)
+                        .background(averageColor.opacity(0.4))
+                        .cornerRadius(12)
+                    }
+                }
+            case .location:
+                WatchedAtView(averageColor: viewModel.averageColor)
+            case .watchCount:
+                ActionView(averageColor: averageColor) {
+                    HStack(spacing: 0) {
+                        Text(actionTapped.longTitle + " \(watchCount) times")
+                            .font(.openSans(size: 16, weight: .semibold))
+                            .foregroundStyle(.white)
+
+                        Spacer()
+
+                        CustomStepper(steps: 10, startStep: $watchCount)
+                    }
+                    .padding(.vertical, 10)
+                }
+            case .watchedWith:
+                ActionView(averageColor: averageColor) {
+                    Text(actionTapped.longTitle)
+                        .font(.openSans(size: 16, weight: .semibold))
+                        .foregroundStyle(.white)
+                }
+            case .occasion:
+                ActionView(averageColor: averageColor) {
+                    Text(actionTapped.longTitle)
+                        .font(.openSans(size: 16, weight: .semibold))
+                        .foregroundStyle(.white)
+                }
+            case .seasonsWatched, .favoriteSeason, .favoriteEpisode:
+                EmptyView()
+            }
+        }
+
+        if let cast = viewModel.cast {
+            CastScrollView(averageColor: viewModel.averageColor, cast: cast)
+        }
+
+        if let trailer = viewModel.trailer, let key = trailer.key {
+            VStack(alignment: .leading, spacing: 20) {
+                Text("Trailer")
+                    .font(.montserrat(size: 16, weight: .semibold))
+                    .foregroundStyle(.white)
+
+                TrailerView(videoID: key)
+            }
+            .padding(20)
+            .background(averageColor.opacity(0.4))
+            .cornerRadius(12)
+        }
+    }
+
+    @ViewBuilder
+    private func tvLayout() -> some View {
+        FeedbackButtons(feedback: $viewModel.feedback, averageColor: viewModel.averageColor) {
+            viewModel.addActivity(feedback: $0)
+        }
+
+        if let summary = viewModel.media.overview {
+            Card(averageColor: averageColor) {
+                VStack(alignment: .leading, spacing: 15) {
+                    Text("Summary")
+                        .font(.montserrat(size: 16, weight: .semibold))
+                        .foregroundStyle(.white)
+
+                    Text(summary)
+                        .font(.openSans(size: 14))
+                        .foregroundStyle(.white)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+
+        CommentPromptView(
+            averageColor: viewModel.averageColor,
+            comments: viewModel.media.comments ?? [],
+            didTapSave: { comment in
+                viewModel.addComment(text: comment)
+            }
+        )
+
+        QuickActionsView(
+            mediaType: .tv,
+            averageColor: viewModel.averageColor,
+            actionTapped: $actionTapped
+        )
+
+        if let actionTapped {
+            switch actionTapped {
+            case .collection:
+                ActionView(averageColor: averageColor) {
+                    HStack {
+                        Text(actionTapped.longTitle)
+                            .font(.openSans(size: 16, weight: .semibold))
+                            .foregroundStyle(.white)
+                        Spacer()
+                        Label {
+                            Text("Add a collection")
+                                .font(.openSans(size: 14))
+                        } icon: {
+                            Image(systemName: "plus")
+                                .font(.openSans(size: 14))
+                        }
+                        .padding(.vertical, 10)
+                        .padding(.horizontal, 8)
+                        .background(averageColor.opacity(0.4))
+                        .cornerRadius(12)
+                    }
+                }
+            case .location:
+                WatchedAtView(averageColor: viewModel.averageColor)
+            case .watchCount:
+                ActionView(averageColor: averageColor) {
+                    HStack(spacing: 0) {
+                        Text(actionTapped.longTitle + " \(watchCount) times")
+                            .font(.openSans(size: 16, weight: .semibold))
+                            .foregroundStyle(.white)
+                        Spacer()
+                        CustomStepper(steps: 10, startStep: $watchCount)
+                    }
+                    .padding(.vertical, 10)
+                }
+            case .watchedWith:
+                ActionView(averageColor: averageColor) {
+                    Text(actionTapped.longTitle)
+                        .font(.openSans(size: 16, weight: .semibold))
+                        .foregroundStyle(.white)
+                }
+            case .occasion:
+                ActionView(averageColor: averageColor) {
+                    Text(actionTapped.longTitle)
+                        .font(.openSans(size: 16, weight: .semibold))
+                        .foregroundStyle(.white)
+                }
+            case .seasonsWatched:
+                ActionView(averageColor: averageColor) {
+                    Text(actionTapped.longTitle)
+                        .font(.openSans(size: 16, weight: .semibold))
+                        .foregroundStyle(.white)
+                }
+            case .favoriteSeason:
+                ActionView(averageColor: averageColor) {
+                    Text(actionTapped.longTitle)
+                        .font(.openSans(size: 16, weight: .semibold))
+                        .foregroundStyle(.white)
+                }
+            case .favoriteEpisode:
+                ActionView(averageColor: averageColor) {
+                    Text(actionTapped.longTitle)
+                        .font(.openSans(size: 16, weight: .semibold))
+                        .foregroundStyle(.white)
+                }
+            }
+        }
+
+        SeasonsScrollView(viewModel: viewModel)
+
+        if let cast = viewModel.cast {
+            CastScrollView(averageColor: viewModel.averageColor, cast: cast)
+        }
+
+        if let trailer = viewModel.trailer, let key = trailer.key {
+            VStack(alignment: .leading, spacing: 20) {
+                Text("Trailer")
+                    .font(.montserrat(size: 16, weight: .semibold))
+                    .foregroundStyle(.white)
+                TrailerView(videoID: key)
+            }
+            .padding(20)
+            .background(averageColor.opacity(0.4))
+            .cornerRadius(12)
+        }
+    }
+
+    @ViewBuilder
+    private func personLayout(_ details: AdditionalDetailsPerson) -> some View {
+        PersonDetailsView(details: details, averageColor: averageColor)
+
+        // Person-specific quick actions with placeholder handlers
+        QuickActionsView(
+            mediaType: .person,
+            averageColor: viewModel.averageColor,
+            actionTapped: $actionTapped
+        )
+
+        if let actionTapped {
+            ActionView(averageColor: averageColor) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(actionTapped.longTitle)
+                        .font(.openSans(size: 16, weight: .semibold))
+                        .foregroundStyle(.white)
+                    Text("This action will be available soon.")
+                        .font(.openSans(size: 13))
+                        .foregroundStyle(.white.opacity(0.9))
+                }
+            }
+        }
     }
 }
 

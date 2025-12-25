@@ -120,7 +120,7 @@ public struct AdditionalDetailsTVShow: Codable {
     }
 
     // MARK: - Season
-    public struct SeasonResponse: Codable {
+    public struct SeasonResponse: Codable, Identifiable {
         public let airDate: String?
         public let episodeCount, id: Int
         public let name, overview: String

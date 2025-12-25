@@ -59,23 +59,33 @@ public struct MediaDetailView: View {
 
                     switch viewModel.media.mediaType {
                     case .movie:
-                        Text(viewModel.genres ?? "-")
-                            .font(.openSans(size: 12, weight: .regular))
-                            .foregroundStyle(Color(uiColor: .systemGray2))
-
-                        Text([viewModel.releaseYear, viewModel.duration].compactMap { $0 }.joined(separator: " · "))
-                            .font(.openSans(size: 12, weight: .regular))
-                            .foregroundStyle(Color(uiColor: .systemGray2))
+                        if case let .movie(details)? = viewModel.details {
+                            Text(details.genres ?? "-")
+                                .font(.openSans(size: 12, weight: .regular))
+                                .foregroundStyle(Color(uiColor: .systemGray2))
+                            Text([details.releaseYear, details.duration].compactMap { $0 }.joined(separator: " · "))
+                                .font(.openSans(size: 12, weight: .regular))
+                                .foregroundStyle(Color(uiColor: .systemGray2))
+                        } else {
+                            Text("-")
+                                .font(.openSans(size: 12, weight: .regular))
+                                .foregroundStyle(Color(uiColor: .systemGray2))
+                        }
                     case .tv:
-                        Text(viewModel.genres ?? "-")
-                            .font(.openSans(size: 12, weight: .regular))
-                            .foregroundStyle(Color(uiColor: .systemGray2))
-
-                        Text([viewModel.releaseYear, viewModel.duration].compactMap { $0 }.joined(separator: " · "))
-                            .font(.openSans(size: 12, weight: .regular))
-                            .foregroundStyle(Color(uiColor: .systemGray2))
+                        if case let .tv(details)? = viewModel.details {
+                            Text(details.genres ?? "-")
+                                .font(.openSans(size: 12, weight: .regular))
+                                .foregroundStyle(Color(uiColor: .systemGray2))
+                            Text([details.releaseYear, details.duration].compactMap { $0 }.joined(separator: " · "))
+                                .font(.openSans(size: 12, weight: .regular))
+                                .foregroundStyle(Color(uiColor: .systemGray2))
+                        } else {
+                            Text("-")
+                                .font(.openSans(size: 12, weight: .regular))
+                                .foregroundStyle(Color(uiColor: .systemGray2))
+                        }
                     case .person:
-                        if let personDetails = viewModel.personDetails {
+                        if case let .person(personDetails)? = viewModel.details {
                             Text(personDetails.knownForDepartment ?? "-")
                                 .font(.openSans(size: 12, weight: .regular))
                                 .foregroundStyle(Color(uiColor: .systemGray2))
@@ -89,7 +99,7 @@ public struct MediaDetailView: View {
                 case .tv:
                     tvLayout()
                 case .person:
-                    if let details = viewModel.personDetails {
+                    if case let .person(details)? = viewModel.details {
                         personLayout(details)
                     } else {
                         Text("Uh oh")
@@ -259,11 +269,11 @@ extension MediaDetailView {
             }
         }
 
-        if let cast = viewModel.cast {
+        if case let .movie(details)? = viewModel.details, let cast = details.cast {
             CastScrollView(averageColor: viewModel.averageColor, cast: cast)
         }
 
-        if let trailer = viewModel.trailer, let key = trailer.key {
+        if case let .movie(details)? = viewModel.details, let trailer = details.trailer, let key = trailer.key {
             VStack(alignment: .leading, spacing: 20) {
                 Text("Trailer")
                     .font(.montserrat(size: 16, weight: .semibold))
@@ -380,22 +390,22 @@ extension MediaDetailView {
             }
         }
 
-        SeasonsScrollView(viewModel: viewModel)
-
-        if let cast = viewModel.cast {
-            CastScrollView(averageColor: viewModel.averageColor, cast: cast)
-        }
-
-        if let trailer = viewModel.trailer, let key = trailer.key {
-            VStack(alignment: .leading, spacing: 20) {
-                Text("Trailer")
-                    .font(.montserrat(size: 16, weight: .semibold))
-                    .foregroundStyle(.white)
-                TrailerView(videoID: key)
+        if case let .tv(details)? = viewModel.details {
+            SeasonsScrollView(viewModel: viewModel)
+            if let cast = details.cast {
+                CastScrollView(averageColor: viewModel.averageColor, cast: cast)
             }
-            .padding(20)
-            .background(averageColor.opacity(0.4))
-            .cornerRadius(12)
+            if let trailer = details.trailer, let key = trailer.key {
+                VStack(alignment: .leading, spacing: 20) {
+                    Text("Trailer")
+                        .font(.montserrat(size: 16, weight: .semibold))
+                        .foregroundStyle(.white)
+                    TrailerView(videoID: key)
+                }
+                .padding(20)
+                .background(averageColor.opacity(0.4))
+                .cornerRadius(12)
+            }
         }
     }
 
@@ -603,7 +613,7 @@ private struct FilmographySection: View {
                 .font(.montserrat(size: 16, weight: .semibold))
                 .foregroundStyle(.white)
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
+                LazyHStack(alignment: .top, spacing: 12) {
                     ForEach(credits) { credit in
                         FilmographyItem(credit: credit)
                     }

@@ -18,17 +18,11 @@ class MediaDetailViewModel {
     var feedback: Feedback? = nil
 
     var menuSections: [MenuSection] = []
-    var cast: [CastCredit]?
-    var seasons: [AdditionalDetailsTVShow.SeasonResponse] = []
-    var seasonsWatched = [AdditionalDetailsTVShow.SeasonResponse]()
-    var trailer: AdditionalDetailsMovie.VideoResponse.Video?
-    var genres: String?
-    var releaseYear: String?
-    var duration: String?
 
     var loadingState: LoadingState = .idle
 
-    var personDetails: AdditionalDetailsPerson?
+    // Unified additional details per media type
+    var details: MediaAdditionalDetails?
 
     @ObservationIgnored
     @Dependency(\.date.now) var now
@@ -141,11 +135,10 @@ class MediaDetailViewModel {
             let tvShowDetails: AdditionalDetailsTVShow = try await networkClient.fetchTVShowDetails(media.id)
             let genres = tvShowDetails.genres.map { $0.name }.joined(separator: ", ")
             let releasedSeasons = tvShowDetails.releasedSeasons()
+            // let cast = Array(tvShowDetails.orderedCast().prefix(10))
 
-            // TODO: Attach properties to MediaItem
             await MainActor.run {
-                self.seasons = releasedSeasons
-                self.genres = genres
+                self.details = .tv(.init(genres: genres, releaseYear: tvShowDetails.firstAirDate, duration: nil, cast: [], seasons: releasedSeasons, trailer: nil))
             }
 
         } catch {
@@ -158,19 +151,11 @@ class MediaDetailViewModel {
         do {
             let movieDetails: AdditionalDetailsMovie = try await networkClient.fetchMovieDetails(media.id)
             let genres = movieDetails.genres.map { $0.name }.joined(separator: ", ")
+            let cast = Array(movieDetails.orderedCast().prefix(10))
+            let trailer = try? movieDetails.videos.trailer()
 
-            do {
-                // TODO: Attach properties to MediaItem
-                try await MainActor.run {
-                    self.trailer = try movieDetails.videos.trailer()
-                    self.genres = genres
-                    self.cast = Array(movieDetails.orderedCast().prefix(10))
-                    self.releaseYear = movieDetails.releaseYear
-                    self.duration = movieDetails.formattedDuration
-                }
-
-            } catch {
-                print("⛔️ No trailer: \(error)")
+            await MainActor.run {
+                self.details = .movie(.init(genres: genres, releaseYear: movieDetails.releaseYear, duration: movieDetails.formattedDuration, cast: cast, trailer: trailer))
             }
 
         } catch {
@@ -183,7 +168,7 @@ class MediaDetailViewModel {
         do {
             let personDetails: AdditionalDetailsPerson = try await networkClient.fetchPersonDetails(media.id)
             await MainActor.run {
-                self.personDetails = personDetails
+                self.details = .person(personDetails)
             }
         } catch {
             print("⛔️ Error fetching additional details: \(error)")
@@ -290,17 +275,40 @@ class MediaDetailViewModel {
 }
 
 extension MediaDetailViewModel {
+    enum MediaAdditionalDetails {
+        case movie(MovieDetails)
+        case tv(TVDetails)
+        case person(AdditionalDetailsPerson)
+    }
+
+    struct MovieDetails {
+        let genres: String?
+        let releaseYear: String?
+        let duration: String?
+        let cast: [CastCredit]?
+        let trailer: AdditionalDetailsMovie.VideoResponse.Video?
+    }
+
+    struct TVDetails {
+        let genres: String?
+        let releaseYear: String?
+        let duration: String?
+        let cast: [CastCredit]?
+        let seasons: [AdditionalDetailsTVShow.SeasonResponse]
+        let trailer: AdditionalDetailsMovie.VideoResponse.Video?
+    }
+
     struct MenuSection: Identifiable {
         let id = UUID()
         let actions: [MenuAction]
     }
-    
+
     struct MenuAction: Identifiable {
         enum Role {
             case normal
             case destructive
         }
-        
+
         let id = UUID()
         let title: String
         let systemImage: String

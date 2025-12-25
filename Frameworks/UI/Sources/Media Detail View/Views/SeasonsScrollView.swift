@@ -5,10 +5,19 @@
 //  Created by Ayren King on 12/23/25.
 //
 
+import Models
 import SwiftUI
 
 struct SeasonsScrollView: View {
     var viewModel: MediaDetailViewModel
+
+    var seasons: [AdditionalDetailsTVShow.SeasonResponse] {
+        if case let .tv(details) = viewModel.details {
+            details.seasons
+        } else {
+            []
+        }
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -18,7 +27,7 @@ struct SeasonsScrollView: View {
 
             ScrollView(.horizontal) {
                 HStack(spacing: 10) {
-                    ForEach(viewModel.seasons, id: \.id) { season in
+                    ForEach(seasons) { season in
                         SeasonPosterView(
                             posterPath: season.posterPath,
                             seasonNum: season.number,

@@ -28,6 +28,8 @@ class MediaDetailViewModel {
 
     var loadingState: LoadingState = .idle
 
+    var personDetails: AdditionalDetailsPerson?
+
     @ObservationIgnored
     @Dependency(\.date.now) var now
     @ObservationIgnored
@@ -180,6 +182,9 @@ class MediaDetailViewModel {
         guard media.mediaType == .person else { return }
         do {
             let personDetails: AdditionalDetailsPerson = try await networkClient.fetchPersonDetails(media.id)
+            await MainActor.run {
+                self.personDetails = personDetails
+            }
         } catch {
             print("⛔️ Error fetching additional details: \(error)")
         }

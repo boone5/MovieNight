@@ -18,7 +18,7 @@ class MediaDetailViewModel {
     var feedback: Feedback? = nil
 
     var menuSections: [MenuSection] = []
-    var cast: [PersonResponse]?
+    var cast: [CastCredit]?
     var seasons: [AdditionalDetailsTVShow.SeasonResponse] = []
     var seasonsWatched = [AdditionalDetailsTVShow.SeasonResponse]()
     var trailer: AdditionalDetailsMovie.VideoResponse.Video?
@@ -163,7 +163,7 @@ class MediaDetailViewModel {
                 try await MainActor.run {
                     self.trailer = try movieDetails.videos.trailer()
                     self.genres = genres
-                    self.cast = Array(movieDetails.actorsOrderedByPopularity().prefix(10))
+                    self.cast = Array(movieDetails.orderedCast().prefix(10))
                     self.releaseYear = movieDetails.releaseYear
                     self.duration = movieDetails.formattedDuration
                 }

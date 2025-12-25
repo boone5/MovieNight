@@ -12,7 +12,7 @@ import SwiftUI
 
 struct CastScrollView: View {
     let averageColor: Color
-    let cast: [PersonResponse]
+    let cast: [CastCredit]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -40,13 +40,13 @@ struct CastScrollView: View {
     struct ActorProfileView: View {
         @Dependency(\.imageLoader) private var imageLoader
 
-        let actor: PersonResponse
+        let actor: CastCredit
 
         var body: some View {
             // TODO: Remove Background Image
             // TODO: Open Detail Modal on tap
             VStack(spacing: 4) {
-                CachedAsyncImage(actor.profilePath) { image in
+                CachedAsyncImage(actor.person.profilePath) { image in
                     Image(uiImage: image)
                         .resizable()
                         .scaledToFill()
@@ -58,7 +58,7 @@ struct CastScrollView: View {
                         .fill(Color.cinemaGray.opacity(0.3))
                         .frame(width: 60, height: 100)
                 }
-                Text(actor.name)
+                Text(actor.person.name)
                     .font(.openSans(size: 12, weight: .regular))
                     .foregroundStyle(.white)
                     .multilineTextAlignment(.center)
@@ -68,16 +68,4 @@ struct CastScrollView: View {
             }
         }
     }
-}
-
-#Preview {
-    _ = prepareDependencies {
-        $0.imageLoader = ImageLoaderClient.liveValue
-    }
-    return CastScrollView(averageColor: .red, cast: [
-        PersonResponse(id: 0, adult: nil, name: "Samuel L. Jackson", originalName: nil, mediaType: .person, popularity: nil, gender: nil, knownForDepartment: nil, profilePath: "/hFt7Cj8sx1VYIwm18lYmq5kS7Pw.jpg", character: nil, knownFor: []),
-        PersonResponse(id: 1, adult: nil, name: "Micheal Cera", originalName: nil, mediaType: .person, popularity: nil, gender: nil, knownForDepartment: nil, profilePath: "/hFt7Cj8sx1VYIwm18lYmq5kS7Pw.jpg", character: nil, knownFor: []),
-        PersonResponse(id: 2, adult: nil, name: "Sam Worthington", originalName: nil, mediaType: .person, popularity: nil, gender: nil, knownForDepartment: nil, profilePath: "/hFt7Cj8sx1VYIwm18lYmq5kS7Pw.jpg", character: nil, knownFor: [])
-    ])
-    .loadCustomFonts()
 }

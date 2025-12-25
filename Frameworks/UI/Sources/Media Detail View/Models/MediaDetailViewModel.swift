@@ -56,8 +56,7 @@ class MediaDetailViewModel {
         case .tv:
             await getAdditionalDetailsTVShow()
         case .person:
-            // TODO: Handle person details
-            break
+            await getAdditionDetailsPerson()
         }
 
         setMenuActions()
@@ -172,6 +171,15 @@ class MediaDetailViewModel {
                 print("⛔️ No trailer: \(error)")
             }
 
+        } catch {
+            print("⛔️ Error fetching additional details: \(error)")
+        }
+    }
+
+    public func getAdditionDetailsPerson() async {
+        guard media.mediaType == .person else { return }
+        do {
+            let personDetails: AdditionalDetailsPerson = try await networkClient.fetchPersonDetails(media.id)
         } catch {
             print("⛔️ Error fetching additional details: \(error)")
         }

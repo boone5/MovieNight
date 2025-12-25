@@ -32,6 +32,9 @@ public struct NetworkClient {
 
     /// Fetches additional details for a movie by its ID.
     public var fetchMovieDetails: (_ id: MediaItem.ID) async throws -> AdditionalDetailsMovie
+
+    /// Fetches additional details for a person by its ID.
+    public var fetchPersonDetails: (_ id: MediaItem.ID) async throws -> AdditionalDetailsPerson
 }
 
 extension NetworkClient {
@@ -84,6 +87,9 @@ extension NetworkClient: DependencyKey {
             },
             fetchMovieDetails: { id in
                 try await Self.decode(TMDBEndpoint.movieDetails(id: id), requestData: requestData)
+            },
+            fetchPersonDetails: { id in
+                try await Self.decode(TMDBEndpoint.personDetails(id: id), requestData: requestData)
             }
         )
     }()

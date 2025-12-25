@@ -6,10 +6,12 @@
 //
 
 import Foundation
+import Models
 
 public enum TMDBEndpoint: EndpointProviding {
-    case movieDetails(id: Int64)
-    case tvShowDetails(id: Int64)
+    case movieDetails(id: MediaItem.ID)
+    case tvShowDetails(id: MediaItem.ID)
+    case personDetails(id: MediaItem.ID)
     case trendingMovies
     case trendingTVShows
 }
@@ -29,6 +31,8 @@ public extension TMDBEndpoint {
             "/3/movie/\(id)"
         case .tvShowDetails(let id):
             "/3/tv/\(id)"
+        case .personDetails(let id):
+            "/3/person/\(id)"
         case .trendingMovies:
             "/3/trending/movie/day"
         case .trendingTVShows:
@@ -42,6 +46,8 @@ public extension TMDBEndpoint {
             [.init(name: "append_to_response", value: "videos,credits")]
         case .tvShowDetails, .trendingMovies, .trendingTVShows:
             nil
+        case .personDetails:
+            [.init(name: "append_to_response", value: "combined_credits")]
         }
     }
 }

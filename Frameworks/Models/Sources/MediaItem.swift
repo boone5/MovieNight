@@ -44,7 +44,7 @@ public struct MediaItem: Identifiable, Hashable {
     public let backdropPath: String?
     public let releaseDate: String?
     public let popularity: Double?
-    public let feedback: Feedback?
+    public var feedback: Feedback?
 
     // MARK: - Type-Specific Data
 
@@ -52,7 +52,7 @@ public struct MediaItem: Identifiable, Hashable {
     public let tvShow: TVShowMetadata?
     public let person: PersonMetadata?
 
-    public let comments: [Comment]?
+    public var comments: [Comment]?
 
     init(
         id: Int64,

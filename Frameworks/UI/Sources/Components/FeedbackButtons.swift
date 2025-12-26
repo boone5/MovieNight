@@ -36,12 +36,11 @@ struct FeedbackButtons: View {
                 selectedType = type
                 onButtonTap?(type)
             } label: {
-                Image(systemName: type == selectedType ? type.selectedImageName : type.unSelectedImageName)
-                    .resizable()
-                    .symbolEffect(.bounce, value: selectedType == type)
-                    .frame(width: 35, height: 35)
-                    .font(.system(size: 24, weight: .medium))
+                Image(systemName: type.imageName)
+                    .symbolVariant(selectedType == type ? .fill : .none)
+                    .contentTransition(.symbolEffect(.automatic))
                     .foregroundStyle(type.color)
+                    .font(.system(size: 24, weight: .medium))
                     .padding(20)
                     .background {
                         Group {
@@ -55,6 +54,22 @@ struct FeedbackButtons: View {
                         .shadow(color: .black.opacity(0.4), radius: 6, y: 3)
                     }
             }
+        }
+    }
+}
+
+#Preview {
+    @Previewable @State var feedback: Feedback? = nil
+
+    VStack {
+        FeedbackButtons(feedback: $feedback, averageColor: .deepRed) { newFeedback in
+            withAnimation {
+                feedback = newFeedback
+            }
+        }
+
+        Button("Clear Feedback") {
+            feedback = nil
         }
     }
 }

@@ -64,9 +64,9 @@ struct FeedbackOverlayView: View {
     let feedback: Feedback
 
     var body: some View {
-        Image(systemName: feedback.selectedImageName)
-            .renderingMode(.template)
+        Image(systemName: feedback.imageName)
             .resizable()
+            .symbolVariant(.fill)
             .frame(width: 18, height: 18)
             .foregroundStyle(feedback.color)
             .padding(8)

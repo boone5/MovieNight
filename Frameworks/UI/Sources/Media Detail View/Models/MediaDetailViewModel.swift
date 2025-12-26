@@ -15,8 +15,6 @@ class MediaDetailViewModel {
     var media: MediaItem
     var averageColor: Color
 
-    var feedback: Feedback? = nil
-
     var menuSections: [MenuSection] = []
 
     var loadingState: LoadingState = .idle
@@ -41,10 +39,9 @@ class MediaDetailViewModel {
     func loadInitialData() async {
         guard loadingState == .idle else { return }
         loadingState = .loading
-        if media.mediaType != .person, let existingFilm = movieProvider.fetchFilm(media.id) {
-            feedback = existingFilm.feedback
-            media = MediaItem(from: existingFilm)
-        }
+
+        // Sync the display snapshot from library once at startup
+        syncMediaFromLibrary()
 
         switch media.mediaType {
         case .movie:
@@ -59,17 +56,26 @@ class MediaDetailViewModel {
         loadingState = .loaded
     }
 
+    /// Hydrates the `media` snapshot from the saved library if present.
+    /// Persons are not synced because they do not correspond to a Film record.
+    private func syncMediaFromLibrary() {
+        guard media.mediaType != .person else { return }
+        if let existingFilm = movieProvider.fetchFilm(media.id) {
+            media.feedback = existingFilm.feedback
+            media.comments = MediaItem(from: existingFilm).comments
+        }
+    }
+
     public func saveToLibraryIfNecessary() -> Film? {
         if let existingFilm = movieProvider.fetchFilm(media.id) {
             existingFilm
         } else {
-            try? movieProvider.saveFilmToLibrary(.init(media, feedback: feedback))
+            try? movieProvider.saveFilmToLibrary(.init(media))
         }
     }
 
     public func markSeasonAsWatched(_ season: AdditionalDetailsTVShow.SeasonResponse) {
         let cdFilm = saveToLibraryIfNecessary()
-
         guard let cdFilm, let context = cdFilm.managedObjectContext else { return }
 
         let seasonCD = Season(context: context)
@@ -83,14 +89,13 @@ class MediaDetailViewModel {
         } catch {
             print("Failed to save: \(error)")
         }
-
-        self.media = MediaItem(from: cdFilm)
+        // Do not mutate `media` snapshot; keep the view stable.
+        // If needed, derive lightweight UI state updates separately.
     }
 
     public func addComment(text: String) {
         let date = now
         let cdFilm = saveToLibraryIfNecessary()
-
         guard let cdFilm, let context = cdFilm.managedObjectContext else { return }
 
         let comment = Comment(context: context)
@@ -104,11 +109,15 @@ class MediaDetailViewModel {
             print("Failed to save: \(error)")
         }
 
-        self.media = MediaItem(from: cdFilm)
+        // Update UI snapshot
+        if media.comments == nil {
+            media.comments = []
+        }
+        media.comments?.append(comment)
     }
 
     public func addActivity(feedback: Feedback?) {
-        guard let feedback else {
+        guard let feedback = media.feedback else {
             removeFromLibrary()
             // TODO: show confirmation
             return
@@ -124,8 +133,7 @@ class MediaDetailViewModel {
             print("Failed to save: \(error)")
         }
 
-        self.media = MediaItem(from: cdFilm)
-
+        media.feedback = feedback
         setMenuActions()
     }
 
@@ -179,21 +187,21 @@ class MediaDetailViewModel {
     // FIXME: Would be nice to live away from this VM
 
     private func removeFromLibrary() {
-        feedback = nil
+        media.feedback = nil
 
         try? movieProvider.deleteFilm(media.id)
         setMenuActions()
     }
 
     private func markAsWatched() {
-        feedback = nil
+        media.feedback = nil
 
-        _ = try? movieProvider.saveFilmToLibrary(.init(media, feedback: feedback))
+        _ = try? movieProvider.saveFilmToLibrary(.init(media))
         setMenuActions()
     }
 
     private func addToWatchList() {
-        feedback = nil
+        media.feedback = nil
 
         _ = try? movieProvider.saveFilmToWatchLater(self.media)
         setMenuActions()

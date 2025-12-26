@@ -21,6 +21,7 @@ public struct MediaDetailView: View {
     let navigationTransitionConfig: NavigationTransitionConfiguration<MediaItem.ID>
     let posterSize: CGSize
 
+    @State private var showFullSummary = false
     @State private var actionTapped: QuickAction?
     @State private var watchCount = 0
 
@@ -180,7 +181,7 @@ extension MediaDetailView {
 
     @ViewBuilder
     private func movieLayout() -> some View {
-        FeedbackButtons(feedback: $viewModel.feedback, averageColor: viewModel.averageColor) {
+        FeedbackButtons(feedback: $viewModel.media.feedback, averageColor: viewModel.averageColor) {
             viewModel.addActivity(feedback: $0)
         }
 
@@ -194,6 +195,14 @@ extension MediaDetailView {
                     Text(summary)
                         .font(.openSans(size: 14))
                         .foregroundStyle(.white)
+                        .lineLimit(showFullSummary ? nil : 5)
+                        .animation(.easeInOut(duration: 0.2), value: showFullSummary)
+
+                    Button(showFullSummary ? "Read less" : "Read more") {
+                        showFullSummary.toggle()
+                    }
+                    .font(.openSans(size: 13, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.9))
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -289,7 +298,7 @@ extension MediaDetailView {
 
     @ViewBuilder
     private func tvLayout() -> some View {
-        FeedbackButtons(feedback: $viewModel.feedback, averageColor: viewModel.averageColor) {
+        FeedbackButtons(feedback: $viewModel.media.feedback, averageColor: viewModel.averageColor) {
             viewModel.addActivity(feedback: $0)
         }
 
@@ -303,6 +312,14 @@ extension MediaDetailView {
                     Text(summary)
                         .font(.openSans(size: 14))
                         .foregroundStyle(.white)
+                        .lineLimit(showFullSummary ? nil : 5)
+                        .animation(.easeInOut(duration: 0.2), value: showFullSummary)
+
+                    Button(showFullSummary ? "Read less" : "Read more") {
+                        showFullSummary.toggle()
+                    }
+                    .font(.openSans(size: 13, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.9))
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -493,24 +510,6 @@ private struct PersonDetailsView: View {
                     if let pob = details.placeOfBirth, pob.isEmpty == false {
                         infoLabel(title: "Place of birth", detail: pob)
                     }
-
-                    if details.alsoKnownAs.isEmpty == false {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Also known as")
-                                .font(.openSans(size: 13, weight: .semibold))
-                                .foregroundStyle(.white.opacity(0.9))
-
-                            ForEach(details.alsoKnownAs, id: \.self) { aka in
-                                Text(aka)
-                                    .font(.openSans(size: 12))
-                                    .foregroundStyle(.white)
-                                    .padding(.vertical, 6)
-                                    .padding(.horizontal, 10)
-                                    .background(.white.opacity(0.08))
-                                    .clipShape(.capsule)
-                            }
-                        }
-                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -654,57 +653,6 @@ private struct FilmographyItem: View {
                     .frame(width: 120, alignment: .leading)
             }
         }
-    }
-}
-
-// A very lightweight flow layout for chips
-private struct HFlowLayout<Data: RandomAccessCollection, Content: View>: View where Data.Element: Hashable {
-    let alignment: HorizontalAlignment
-    let spacing: CGFloat
-    let data: Data
-    let content: (Data.Element) -> Content
-
-    init(alignment: HorizontalAlignment = .leading, spacing: CGFloat = 8, @ViewBuilder content: @escaping () -> Content) {
-        // dummy to satisfy compiler; unused initializer
-        self.alignment = alignment
-        self.spacing = spacing
-        self.data = [] as! Data
-        self.content = { _ in content() }
-    }
-
-    init(alignment: HorizontalAlignment = .leading, spacing: CGFloat = 8, data: Data, @ViewBuilder content: @escaping (Data.Element) -> Content) {
-        self.alignment = alignment
-        self.spacing = spacing
-        self.data = data
-        self.content = content
-    }
-
-    var body: some View {
-        var width: CGFloat = 0
-        var height: CGFloat = 0
-        return GeometryReader { geometry in
-            ZStack(alignment: Alignment(horizontal: alignment, vertical: .top)) {
-                ForEach(Array(data), id: \.self) { element in
-                    content(element)
-                        .padding(.trailing, spacing)
-                        .alignmentGuide(.leading, computeValue: { d in
-                            if abs(width - d.width) > geometry.size.width {
-                                width = 0
-                                height -= d.height + spacing
-                            }
-                            let result = width
-                            if element == data.last { width = 0 } else { width -= d.width + spacing }
-                            return result
-                        })
-                        .alignmentGuide(.top, computeValue: { _ in
-                            let result = height
-                            if element == data.last { height = 0 }
-                            return result
-                        })
-                }
-            }
-        }
-        .frame(maxWidth: .infinity, minHeight: 0)
     }
 }
 

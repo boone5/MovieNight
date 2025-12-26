@@ -15,6 +15,11 @@ class MediaDetailViewModel {
     var media: MediaItem
     var averageColor: Color
 
+    // UI state moved from view
+    var showFullSummary: Bool = false
+    var actionTapped: QuickAction? = nil
+    var watchCount: Int = 0
+
     var menuSections: [MenuSection] = []
 
     var loadingState: LoadingState = .idle
@@ -213,6 +218,38 @@ class MediaDetailViewModel {
         var primaryActions: [MenuAction] = []
         var destructiveActions: [MenuAction] = []
 
+        // Person-specific actions
+        if media.mediaType == .person {
+            sections.append(
+                MenuSection(
+                    actions: [
+                        MenuAction(
+                            title: "Follow",
+                            systemImage: "person.badge.plus",
+                            role: .normal,
+                            handler: { print("Follow person tapped") }
+                        ),
+                        MenuAction(
+                            title: "Add to Favorites",
+                            systemImage: "star",
+                            role: .normal,
+                            handler: { print("Add person to favorites tapped") }
+                        ),
+                        MenuAction(
+                            title: "Share",
+                            systemImage: "square.and.arrow.up",
+                            role: .normal,
+                            handler: { print("Share person tapped") }
+                        )
+                    ]
+                )
+            )
+            // Assign and return early to avoid film/TV library actions
+            menuSections = sections
+            return
+        }
+
+        // Film/TV actions
         if let existingFilm = movieProvider.fetchFilm(media.id) {
             if existingFilm.isOnWatchList {
                 primaryActions.append(

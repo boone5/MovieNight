@@ -21,10 +21,6 @@ public struct MediaDetailView: View {
     let navigationTransitionConfig: NavigationTransitionConfiguration<MediaItem.ID>
     let posterSize: CGSize
 
-    @State private var showFullSummary = false
-    @State private var actionTapped: QuickAction?
-    @State private var watchCount = 0
-
     public init(
         media: MediaItem,
         navigationTransitionConfig: NavigationTransitionConfiguration<MediaItem.ID>,
@@ -181,8 +177,11 @@ extension MediaDetailView {
 
     @ViewBuilder
     private func movieLayout() -> some View {
-        FeedbackButtons(feedback: $viewModel.media.feedback, averageColor: viewModel.averageColor) {
-            viewModel.addActivity(feedback: $0)
+        FeedbackButtons(
+            feedback: $viewModel.media.feedback,
+            averageColor: viewModel.averageColor
+        ) { newFeedback in
+            viewModel.addActivity(feedback: newFeedback)
         }
 
         if let summary = viewModel.media.overview {
@@ -195,10 +194,10 @@ extension MediaDetailView {
                     Text(summary)
                         .font(.openSans(size: 14))
                         .foregroundStyle(.white)
-                        .truncationEffect(length: 5, isEnabled: !showFullSummary, animation: .smooth(duration: 0.5, extraBounce: 0))
+                        .truncationEffect(length: 5, isEnabled: !viewModel.showFullSummary, animation: .smooth(duration: 0.5, extraBounce: 0))
 
-                    Button(showFullSummary ? "Read less" : "Read more") {
-                        showFullSummary.toggle()
+                    Button(viewModel.showFullSummary ? "Read less" : "Read more") {
+                        viewModel.showFullSummary.toggle()
                     }
                     .font(.openSans(size: 13, weight: .semibold))
                     .foregroundStyle(.white.opacity(0.9))
@@ -218,10 +217,10 @@ extension MediaDetailView {
         QuickActionsView(
             mediaType: .movie,
             averageColor: viewModel.averageColor,
-            actionTapped: $actionTapped
+            actionTapped: $viewModel.actionTapped
         )
 
-        if let actionTapped {
+        if let actionTapped = viewModel.actionTapped {
             switch actionTapped {
             case .collection:
                 ActionView(averageColor: averageColor) {
@@ -250,13 +249,13 @@ extension MediaDetailView {
             case .watchCount:
                 ActionView(averageColor: averageColor) {
                     HStack(spacing: 0) {
-                        Text(actionTapped.longTitle + " \(watchCount) times")
+                        Text(actionTapped.longTitle + " \(viewModel.watchCount) times")
                             .font(.openSans(size: 16, weight: .semibold))
                             .foregroundStyle(.white)
 
                         Spacer()
 
-                        CustomStepper(steps: 10, startStep: $watchCount)
+                        CustomStepper(steps: 10, startStep: $viewModel.watchCount)
                     }
                     .padding(.vertical, 10)
                 }
@@ -297,8 +296,11 @@ extension MediaDetailView {
 
     @ViewBuilder
     private func tvLayout() -> some View {
-        FeedbackButtons(feedback: $viewModel.media.feedback, averageColor: viewModel.averageColor) {
-            viewModel.addActivity(feedback: $0)
+        FeedbackButtons(
+            feedback: $viewModel.media.feedback,
+            averageColor: viewModel.averageColor
+        ) { newFeedback in
+            viewModel.addActivity(feedback: newFeedback)
         }
 
         if let summary = viewModel.media.overview {
@@ -311,10 +313,10 @@ extension MediaDetailView {
                     Text(summary)
                         .font(.openSans(size: 14))
                         .foregroundStyle(.white)
-                        .truncationEffect(length: 5, isEnabled: !showFullSummary, animation: .smooth(duration: 0.5, extraBounce: 0))
+                        .truncationEffect(length: 5, isEnabled: !viewModel.showFullSummary, animation: .smooth(duration: 0.5, extraBounce: 0))
 
-                    Button(showFullSummary ? "Read less" : "Read more") {
-                        showFullSummary.toggle()
+                    Button(viewModel.showFullSummary ? "Read less" : "Read more") {
+                        viewModel.showFullSummary.toggle()
                     }
                     .font(.openSans(size: 13, weight: .semibold))
                     .foregroundStyle(.white.opacity(0.9))
@@ -334,10 +336,10 @@ extension MediaDetailView {
         QuickActionsView(
             mediaType: .tv,
             averageColor: viewModel.averageColor,
-            actionTapped: $actionTapped
+            actionTapped: $viewModel.actionTapped
         )
 
-        if let actionTapped {
+        if let actionTapped = viewModel.actionTapped {
             switch actionTapped {
             case .collection:
                 ActionView(averageColor: averageColor) {
@@ -364,39 +366,15 @@ extension MediaDetailView {
             case .watchCount:
                 ActionView(averageColor: averageColor) {
                     HStack(spacing: 0) {
-                        Text(actionTapped.longTitle + " \(watchCount) times")
+                        Text(actionTapped.longTitle + " \(viewModel.watchCount) times")
                             .font(.openSans(size: 16, weight: .semibold))
                             .foregroundStyle(.white)
                         Spacer()
-                        CustomStepper(steps: 10, startStep: $watchCount)
+                        CustomStepper(steps: 10, startStep: $viewModel.watchCount)
                     }
                     .padding(.vertical, 10)
                 }
-            case .watchedWith:
-                ActionView(averageColor: averageColor) {
-                    Text(actionTapped.longTitle)
-                        .font(.openSans(size: 16, weight: .semibold))
-                        .foregroundStyle(.white)
-                }
-            case .occasion:
-                ActionView(averageColor: averageColor) {
-                    Text(actionTapped.longTitle)
-                        .font(.openSans(size: 16, weight: .semibold))
-                        .foregroundStyle(.white)
-                }
-            case .seasonsWatched:
-                ActionView(averageColor: averageColor) {
-                    Text(actionTapped.longTitle)
-                        .font(.openSans(size: 16, weight: .semibold))
-                        .foregroundStyle(.white)
-                }
-            case .favoriteSeason:
-                ActionView(averageColor: averageColor) {
-                    Text(actionTapped.longTitle)
-                        .font(.openSans(size: 16, weight: .semibold))
-                        .foregroundStyle(.white)
-                }
-            case .favoriteEpisode:
+            case .watchedWith, .occasion, .seasonsWatched, .favoriteSeason, .favoriteEpisode:
                 ActionView(averageColor: averageColor) {
                     Text(actionTapped.longTitle)
                         .font(.openSans(size: 16, weight: .semibold))
@@ -428,14 +406,13 @@ extension MediaDetailView {
     private func personLayout(_ details: AdditionalDetailsPerson) -> some View {
         PersonDetailsView(details: details, averageColor: averageColor)
 
-        // Person-specific quick actions with placeholder handlers
         QuickActionsView(
             mediaType: .person,
             averageColor: viewModel.averageColor,
-            actionTapped: $actionTapped
+            actionTapped: $viewModel.actionTapped
         )
 
-        if let actionTapped {
+        if let actionTapped = viewModel.actionTapped {
             ActionView(averageColor: averageColor) {
                 VStack(alignment: .leading, spacing: 8) {
                     Text(actionTapped.longTitle)

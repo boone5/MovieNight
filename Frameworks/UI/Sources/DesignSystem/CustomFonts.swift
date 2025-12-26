@@ -17,6 +17,16 @@ extension Font {
     }
 }
 
+extension UIFont {
+    public static func montserrat(size: CGFloat) -> UIFont {
+        UIFont(name: "Montserrat", size: size) ?? UIFont.systemFont(ofSize: size)
+    }
+
+    public static func openSans(size: CGFloat) -> UIFont {
+        UIFont(name: "Open Sans", size: size) ?? UIFont.systemFont(ofSize: size)
+    }
+}
+
 public enum CustomFonts {
     /// Registers all bundled fonts in the Pop UI framework.
     /// Safe to call multiple times.

@@ -195,8 +195,7 @@ extension MediaDetailView {
                     Text(summary)
                         .font(.openSans(size: 14))
                         .foregroundStyle(.white)
-                        .lineLimit(showFullSummary ? nil : 5)
-                        .animation(.easeInOut(duration: 0.2), value: showFullSummary)
+                        .truncationEffect(length: 5, isEnabled: !showFullSummary, animation: .smooth(duration: 0.5, extraBounce: 0))
 
                     Button(showFullSummary ? "Read less" : "Read more") {
                         showFullSummary.toggle()
@@ -312,8 +311,7 @@ extension MediaDetailView {
                     Text(summary)
                         .font(.openSans(size: 14))
                         .foregroundStyle(.white)
-                        .lineLimit(showFullSummary ? nil : 5)
-                        .animation(.easeInOut(duration: 0.2), value: showFullSummary)
+                        .truncationEffect(length: 5, isEnabled: !showFullSummary, animation: .smooth(duration: 0.5, extraBounce: 0))
 
                     Button(showFullSummary ? "Read less" : "Read more") {
                         showFullSummary.toggle()
@@ -472,8 +470,7 @@ private struct PersonDetailsView: View {
                         Text(bio)
                             .font(.openSans(size: 14))
                             .foregroundStyle(.white)
-                            .lineLimit(showFullBio ? nil : 5)
-                            .animation(.easeInOut(duration: 0.2), value: showFullBio)
+                            .truncationEffect(length: 5, isEnabled: !showFullBio, animation: .smooth(duration: 0.5, extraBounce: 0))
 
                         Button(showFullBio ? "Read less" : "Read more") {
                             showFullBio.toggle()

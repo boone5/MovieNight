@@ -69,6 +69,8 @@ class MediaDetailViewModel {
             media.feedback = existingFilm.feedback
             media.comments = MediaItem(from: existingFilm).comments
         }
+
+        // TODO: Fetch watched seasons for TV shows
     }
 
     public func saveToLibraryIfNecessary() -> Film? {
@@ -94,8 +96,8 @@ class MediaDetailViewModel {
         } catch {
             print("Failed to save: \(error)")
         }
-        // Do not mutate `media` snapshot; keep the view stable.
-        // If needed, derive lightweight UI state updates separately.
+
+        // TODO: Update UI snapshot to reflect watched seasons
     }
 
     public func addComment(text: String) {
@@ -148,6 +150,7 @@ class MediaDetailViewModel {
             let tvShowDetails: AdditionalDetailsTVShow = try await networkClient.fetchTVShowDetails(media.id)
             let genres = tvShowDetails.genres.map { $0.name }.joined(separator: ", ")
             let releasedSeasons = tvShowDetails.releasedSeasons()
+            // FIXME: Possibly fetch cast as well
             // let cast = Array(tvShowDetails.orderedCast().prefix(10))
 
             await MainActor.run {

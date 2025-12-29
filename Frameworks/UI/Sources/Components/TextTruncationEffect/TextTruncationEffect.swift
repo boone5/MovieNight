@@ -1,6 +1,6 @@
 //
 //  TextTruncationEffect.swift
-//  Logger
+//  UI
 //
 //  Created by Ayren King on 12/25/25.
 //
@@ -73,7 +73,7 @@ fileprivate struct TruncationEffectViewModifier: ViewModifier {
                 }
             }
             .onAppear {
-                /// Setting Intial Value without animation
+                /// Setting Initial Value without animation
                 animatedProgress = !isEnabled ? 1 : 0
             }
     }

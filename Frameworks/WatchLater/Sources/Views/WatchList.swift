@@ -14,7 +14,7 @@ public struct WatchList: View {
     let watchList: [MediaItem]
     let namespace: Namespace.ID
 
-    @Binding var selectedFilm: MediaItem?
+    @Binding var selectedItem: MediaItem?
 
     let gridItems: [GridItem] = [
         GridItem(.flexible(), spacing: 20, alignment: .center),
@@ -24,24 +24,24 @@ public struct WatchList: View {
     public init(
         watchList: [MediaItem],
         namespace: Namespace.ID,
-        selectedFilm: Binding<MediaItem?>
+        selectedItem: Binding<MediaItem?>
     ) {
         self.watchList = watchList
         self.namespace = namespace
-        _selectedFilm = selectedFilm
+        _selectedItem = selectedItem
     }
 
     public var body: some View {
         LazyVGrid(columns: gridItems, spacing: 20) {
-            ForEach(Array(watchList.enumerated()), id: \.element.id) { index, film in
+            ForEach(Array(watchList.enumerated()), id: \.element.id) { index, media in
                 ThumbnailView(
-                    media: film,
+                    media: media,
                     size: CGSize(width: 175, height: 225),
-                    transitionConfig: .init(namespace: namespace, source: film)
+                    transitionConfig: .init(namespace: namespace, source: media)
                 )
                 .onTapGesture {
                     withAnimation(.spring()) {
-                        selectedFilm = film
+                        selectedItem = media
                     }
                 }
             }
@@ -50,8 +50,8 @@ public struct WatchList: View {
 }
 
 #Preview {
-    @Previewable @State var selectedFilm: MediaItem? = nil
+    @Previewable @State var selectedItem: MediaItem? = nil
     @Previewable @Namespace var namespace
 
-    WatchList(watchList: [], namespace: namespace, selectedFilm: $selectedFilm)
+    WatchList(watchList: [], namespace: namespace, selectedItem: $selectedItem)
 }

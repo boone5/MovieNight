@@ -30,8 +30,8 @@ public struct WatchLaterScreen: View {
         guard store.searchText.isEmpty == false else {
             return items
         }
-        return items.filter { film in
-            film.title.localizedCaseInsensitiveContains(store.searchText) == true
+        return items.filter {
+            $0.title.localizedCaseInsensitiveContains(store.searchText) == true
         }
     }
 
@@ -68,7 +68,7 @@ public struct WatchLaterScreen: View {
                             WatchList(
                                 watchList: filteredWatchList,
                                 namespace: namespace,
-                                selectedFilm: $store.selectedFilm
+                                selectedItem: $store.selectedItem
                             )
                             .animation(.default, value: filteredWatchList.count)
                         } else {
@@ -84,13 +84,13 @@ public struct WatchLaterScreen: View {
             .navigationDestination(for: WatchLaterPath.self) { path in
                 switch path {
                 case .wheel:
-                    WheelView(films: Array(watchList).map(MediaItem.init))
+                    WheelView(items: items)
                 }
             }
-            .fullScreenCover(item: $store.selectedFilm) { selectedFilm in
+            .fullScreenCover(item: $store.selectedItem) { selectedItem in
                 MediaDetailView(
-                    media: selectedFilm,
-                    navigationTransitionConfig: .init(namespace: namespace, source: selectedFilm)
+                    media: selectedItem,
+                    navigationTransitionConfig: .init(namespace: namespace, source: selectedItem)
                 )
             }
         }

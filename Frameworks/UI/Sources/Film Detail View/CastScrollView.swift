@@ -19,20 +19,20 @@ struct CastScrollView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text("Cast")
-                .font(.system(size: 16, weight: .semibold))
+                .font(.montserrat(size: 16, weight: .semibold))
                 .foregroundStyle(.white)
 
             ScrollView(.horizontal) {
-                LazyHStack(spacing: 10) {
+                LazyHStack(alignment: .top, spacing: 12) {
                     ForEach(cast, id: \.id) { actor in
                         ActorProfileView(actor: actor)
                     }
                 }
+                .frame(height: 140)
                 .padding([.horizontal], 30)
             }
             .scrollIndicators(.hidden)
             .padding([.horizontal], -30)
-            .frame(height: 100) // profileView height + name height
         }
         .padding(20)
         .background(averageColor.opacity(0.4))
@@ -48,25 +48,26 @@ struct CastScrollView: View {
         var body: some View {
             // TODO: Remove Background Image
             // TODO: Open Detail Modal on tap
-            VStack(spacing: 0) {
-                if let uiImage {
-                    Image(uiImage: uiImage)
+            VStack(spacing: 4) {
+                CachedAsyncImage(actor.profilePath) { image in
+                    Image(uiImage: image)
                         .resizable()
-                        .scaledToFit()
-                        .frame(width: 70, height: 70)
-                        .clipShape(Circle())
-                } else {
-                    Circle()
-                        .frame(width: 70, height: 70)
-                        .foregroundStyle(Color(uiColor: .systemGray4))
+                        .scaledToFill()
+                        .frame(width: 60, height: 100)
+                        .clipShape(.rect(cornerRadius: 8))
+                        .shadow(radius: 3, y: 4)
+                } placeholder: {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.cinemaGray.opacity(0.3))
+                        .frame(width: 60, height: 100)
                 }
-
-                Text(actor.nameAdjusted)
-                    .font(.system(size: 12, weight: .regular))
+                Text(actor.name ?? "-")
+                    .font(.openSans(size: 12, weight: .regular))
                     .foregroundStyle(.white)
-                    .lineLimit(2)
                     .multilineTextAlignment(.center)
-                    .frame(width: 70, height: 30)
+                    .lineLimit(2)
+                    .frame(width: 70, height: 34, alignment: .top)
+                    .allowsTightening(true)
             }
             .task {
                 await loadImage(url: actor.profilePath)
@@ -87,8 +88,13 @@ struct CastScrollView: View {
 }
 
 #Preview {
-    CastScrollView(averageColor: .red, cast: [
-        ActorResponse.Actor.init(id: 0, adult: nil, name: "Hello Worldd", originalName: nil, mediaType: nil, popularity: nil, gender: nil, knownForDepartment: nil, profilePath: nil, character: nil),
-        ActorResponse.Actor.init(id: 0, adult: nil, name: "Hello Worldd", originalName: nil, mediaType: nil, popularity: nil, gender: nil, knownForDepartment: nil, profilePath: nil, character: nil)
+    _ = prepareDependencies {
+        $0.imageLoader = ImageLoaderClient.liveValue
+    }
+    return CastScrollView(averageColor: .red, cast: [
+        ActorResponse.Actor.init(id: 0, adult: nil, name: "Samuel L. Jackson", originalName: nil, mediaType: nil, popularity: nil, gender: nil, knownForDepartment: nil, profilePath: "/hFt7Cj8sx1VYIwm18lYmq5kS7Pw.jpg", character: nil),
+        ActorResponse.Actor.init(id: 1, adult: nil, name: "Micheal Cera", originalName: nil, mediaType: nil, popularity: nil, gender: nil, knownForDepartment: nil, profilePath: "/hFt7Cj8sx1VYIwm18lYmq5kS7Pw.jpg", character: nil),
+        ActorResponse.Actor.init(id: 2, adult: nil, name: "Sam Worthington", originalName: nil, mediaType: nil, popularity: nil, gender: nil, knownForDepartment: nil, profilePath: "/hFt7Cj8sx1VYIwm18lYmq5kS7Pw.jpg", character: nil)
     ])
+    .loadCustomFonts()
 }

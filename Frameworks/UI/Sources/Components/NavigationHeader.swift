@@ -31,7 +31,7 @@ public struct NavigationHeader: View {
     public var body: some View {
         HStack(spacing: 0) {
             Text(title)
-                .font(.largeTitle.bold())
+                .font(.montserrat(size: 34, weight: .semibold))
 
             Spacer()
 
@@ -63,4 +63,5 @@ public struct NavigationHeader: View {
         ]
     )
     .padding()
+    .loadCustomFonts()
 }

@@ -29,7 +29,6 @@ struct CollectionDetailFeature {
     @CasePathable
     enum View: BindableAction, Equatable {
         case binding(BindingAction<State>)
-        case tappedRenameCollection
         case tappedDeleteCollection
         case rowTapped(Film)
         case actionTapped(CollectionType.Action)
@@ -59,13 +58,9 @@ struct CollectionDetailFeature {
                     state.isEditing.toggle()
 
                 case .rename:
-                    // TODO: Rename Collection
+                    // TODO: Make Text Field First Responder in Header
                     print("rename tapped")
                 }
-                return .none
-
-            case .view(.tappedRenameCollection):
-                // TODO: Implement rename
                 return .none
 
             case .view(.tappedDeleteCollection):

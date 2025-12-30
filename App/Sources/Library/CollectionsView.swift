@@ -51,12 +51,12 @@ struct CollectionsView: View {
                 // TODO: Pass in poster paths of collection
                 PosterFanView(items: ["1", "2", "3"])
 
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 5) {
                     Text(collection.title ?? "-")
                         .font(.openSans(size: 16, weight: .medium))
 
                     Text(String(collection.films?.count ?? 0) + " films")
-                        .font(.openSans(size: 16, weight: .medium))
+                        .font(.openSans(size: 16))
                         .foregroundStyle(.gray)
                 }
                 .padding(.leading, 20)

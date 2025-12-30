@@ -5,37 +5,40 @@
 //  Created by Boone on 12/17/25.
 //
 
+import Models
 import SwiftUI
+import UI
 
 struct CollectionTypeButton: View {
-    let icon: String
-    let title: String
-    let subtitle: String
+    let type: CollectionType
     var isSelected: Bool
 
     var body: some View {
         ThreeColumnLayout(leadingWidth: 30, trailingWidth: 30, spacing: 25) {
-            Image(systemName: icon)
+            Image(systemName: type.icon)
                 .font(.largeTitle)
+                .foregroundStyle(.white)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(.system(size: 18, weight: .medium))
+                Text(type.title)
+                    .font(.openSans(size: 16, weight: .bold))
+                    .foregroundStyle(.white)
 
-                Text(subtitle)
-                    .font(.system(size: 14, weight: .regular))
-                    .foregroundStyle(.secondary)
+                Text(type.subtitle)
+                    .font(.openSans(size: 14, weight: .regular))
+                    .foregroundStyle(.white)
             }
 
             Image(systemName: "checkmark")
                 .font(.title2)
                 .opacity(isSelected ? 1 : 0)
+                .foregroundStyle(.white)
         }
         .frame(maxWidth: .infinity)
         .padding(20)
         .background {
             RoundedRectangle(cornerRadius: 12)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(type.buttonBackgroundGradient)
         }
         .contentShape(Rectangle())
     }

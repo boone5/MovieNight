@@ -114,13 +114,12 @@ struct CollectionDetailViewHeader: View {
     @State private var initialMinY: CGFloat?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 15) {
+        VStack(alignment: .leading, spacing: 10) {
             Text(collection.safeTitle)
-                .font(.largeTitle)
-                .fontWeight(.bold)
+                .font(.montserrat(size: 34, weight: .bold))
 
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack {
+                HStack(spacing: 7) {
                     ForEach(collection.type.actions, id: \.self) { action in
                         Button {
                             didTapAction?(action)
@@ -130,13 +129,14 @@ struct CollectionDetailViewHeader: View {
                                     .font(.system(size: 14))
 
                                 Text(action.title)
-                                    .font(.system(size: 14))
+                                    .font(.openSans(size: 14))
+                                    .foregroundStyle(.black)
                             }
                             .padding(.vertical, 8)
                             .padding(.horizontal, 14)
                             .background {
                                 Capsule()
-                                    .foregroundStyle(.secondary)
+                                    .foregroundStyle(Color.goldPopcorn)
                             }
                         }
                         .buttonStyle(.plain)
@@ -191,7 +191,7 @@ extension CollectionType {
         case .custom:
             [.addFilm, .rename]
         case .ranked:
-            [.addFilm, .reorder, .rename]
+            [.addFilm, .rename, .reorder]
         case .smart:
             [.addFilm, .rename]
         }
@@ -245,7 +245,7 @@ struct RankedList: View {
         var body: some View {
             HStack(spacing: 15) {
                 Text("\(rank)")
-                    .font(.system(size: 18, weight: .bold))
+                    .font(.openSans(size: 18, weight: .bold))
                     .foregroundStyle(.secondary)
 
                 ThumbnailView(
@@ -257,12 +257,12 @@ struct RankedList: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(film.title ?? "-")
-                        .font(.system(size: 16, weight: .medium))
+                        .font(.openSans(size: 16, weight: .medium))
                         .lineLimit(2)
 
                     if let releaseDate = film.releaseDate {
                         Text(releaseDate.prefix(4))
-                            .font(.system(size: 14))
+                            .font(.openSans(size: 14))
                             .foregroundStyle(.secondary)
                     }
                 }

@@ -63,19 +63,19 @@ struct AddCollectionSheet: View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 24) {
                 Text("Choose a name")
-                    .font(.system(size: 16, weight: .medium))
+                    .font(.openSans(size: 16, weight: .medium))
                     .foregroundStyle(.secondary)
 
                 VStack(spacing: 5) {
                     TextField("", text: $store.collectionName)
                         .textFieldStyle(.plain)
-                        .font(.system(size: 28))
+                        .font(.openSans(size: 28))
 
                     Divider()
                 }
 
                 Text("Select one")
-                    .font(.system(size: 16, weight: .medium))
+                    .font(.openSans(size: 16, weight: .medium))
                     .foregroundStyle(.secondary)
 
                 VStack(spacing: 15) {
@@ -84,9 +84,7 @@ struct AddCollectionSheet: View {
                             store.send(.tappedCollectionType(type))
                         } label: {
                             CollectionTypeButton(
-                                icon: type.icon,
-                                title: type.title,
-                                subtitle: type.subtitle,
+                                type: type,
                                 isSelected: store.selectedCollectionType == type
                             )
                         }

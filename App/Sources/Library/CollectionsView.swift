@@ -22,7 +22,7 @@ struct CollectionsView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: LibraryScreen.sectionSpacing) {
             Text("Collections")
-                .font(.system(size: 18, weight: .bold))
+                .font(.montserrat(size: 18, weight: .semibold))
 
             ForEach(visibleCollections.enumerated(), id: \.element.id) { idx, collection in
                 VStack(spacing: 10) {
@@ -53,10 +53,10 @@ struct CollectionsView: View {
 
                 VStack(alignment: .leading, spacing: 8) {
                     Text(collection.title ?? "-")
-                        .font(.system(size: 16, weight: .medium))
+                        .font(.openSans(size: 16, weight: .medium))
 
                     Text(String(collection.films?.count ?? 0) + " films")
-                        .font(.system(size: 16, weight: .medium))
+                        .font(.openSans(size: 16, weight: .medium))
                         .foregroundStyle(.gray)
                 }
                 .padding(.leading, 20)

@@ -52,14 +52,14 @@ struct LibraryScreen: View {
                                 ]
                             )
 
-                            RecentlyWatchedView(
-                                films: Array(recentlyWatchedFilms),
-                                selectedFilm: $store.selectedFilm,
-                                namespace: namespace
-                            )
-
-                            // TODO: In Progress TV Shows
-                            InProgressView()
+//                            RecentlyWatchedView(
+//                                films: Array(recentlyWatchedFilms),
+//                                selectedFilm: $store.selectedFilm,
+//                                namespace: namespace
+//                            )
+//
+//                            // TODO: In Progress TV Shows
+//                            InProgressView()
 
                             CollectionsView(
                                 collections: Array(collections),

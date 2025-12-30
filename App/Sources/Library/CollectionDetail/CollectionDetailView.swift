@@ -118,6 +118,20 @@ struct CollectionDetailViewHeader: View {
             Text(collection.safeTitle)
                 .font(.montserrat(size: 34, weight: .bold))
 
+            HStack(spacing: 8) {
+                Text("\(collection.type.title) Collection")
+                    .font(.openSans(size: 16))
+                    .foregroundStyle(.secondary)
+
+                Text("•")
+                    .font(.openSans(size: 16))
+                    .foregroundStyle(.secondary)
+
+                Text("\(collection.films?.count ?? 0) films")
+                    .font(.openSans(size: 16))
+                    .foregroundStyle(.secondary)
+            }
+
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 7) {
                     ForEach(collection.type.actions, id: \.self) { action in
@@ -145,6 +159,7 @@ struct CollectionDetailViewHeader: View {
                 .padding(.horizontal, PLayout.horizontalMarginPadding)
             }
             .padding(.horizontal, -PLayout.horizontalMarginPadding)
+            .padding(.top, 5)
         }
         .opacity(headerOpacity)
         .onGeometryChange(for: CGFloat.self) { proxy in

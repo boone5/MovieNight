@@ -169,8 +169,8 @@ struct CollectionDetailViewHeader: View {
                 initialMinY = minY
             }
             let normalizedMinY = minY - (initialMinY ?? 0)
-            let fadeThreshold = 100.0
-            print("Raw minY: \(minY), Initial: \(initialMinY ?? 0), Normalized: \(normalizedMinY)")
+            let fadeThreshold = 125.0
+//            print("Raw minY: \(minY), Initial: \(initialMinY ?? 0), Normalized: \(normalizedMinY)")
             // When scrolling up, normalizedMinY goes negative
             // opacity should fade from 1 to 0 as we scroll from 0 to -50
             headerOpacity = max(0, min(1, (fadeThreshold + normalizedMinY) / fadeThreshold))

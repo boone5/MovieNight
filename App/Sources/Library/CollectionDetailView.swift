@@ -12,18 +12,18 @@ import WatchLater
 
 struct CollectionDetailView: View {
     let title: String?
-    let films: [Film]
+    let items: [MediaItem]
 
-    @State var selectedFilm: SelectedFilm?
+    @State var selectedItem: MediaItem?
     @Namespace private var namespace
 
     var body: some View {
         BackgroundColorView {
             ScrollView {
                 WatchList(
-                    watchList: films,
+                    watchList: items,
                     namespace: namespace,
-                    selectedFilm: $selectedFilm
+                    selectedItem: $selectedItem
                 )
                 .padding(.horizontal, 15)
             }

@@ -15,12 +15,12 @@ struct HomeScreen: View {
     //    @FetchRequest(fetchRequest: Film.recentlyWatched())
     //    private var recentlyWatchedFilms: FetchedResults<Film>
 
-    @State private var trendingMovies: [MovieResponse] = []
-    @State private var trendingTVShows: [TVShowResponse] = []
+    @State private var trendingMovies: [MediaItem] = []
+    @State private var trendingTVShows: [MediaItem] = []
     @State private var shouldLoad = true
 
     // Film Detail View Properties
-    @State private var selectedFilm: SelectedFilm?
+    @State private var selectedItem: MediaItem?
 
     @Namespace private var namespace
 
@@ -58,7 +58,7 @@ struct HomeScreen: View {
 
                 FilmRow(
                     items: trendingMovies,
-                    selectedFilm: $selectedFilm,
+                    selectedItem: $selectedItem,
                     namespace: namespace
                 )
 
@@ -67,7 +67,7 @@ struct HomeScreen: View {
 
                 FilmRow(
                     items: trendingTVShows,
-                    selectedFilm: $selectedFilm,
+                    selectedItem: $selectedItem,
                     namespace: namespace
                 )
             }
@@ -87,10 +87,10 @@ struct HomeScreen: View {
 
             shouldLoad = false
         }
-        .fullScreenCover(item: $selectedFilm) { selectedFilm in
-            FilmDetailView(
-                film: selectedFilm.film,
-                navigationTransitionConfig: .init(namespace: namespace, source: selectedFilm.film)
+        .fullScreenCover(item: $selectedItem) { item in
+            MediaDetailView(
+                media: item,
+                navigationTransitionConfig: .init(namespace: namespace, source: item)
             )
         }
     }
@@ -99,20 +99,20 @@ struct HomeScreen: View {
 // MARK: Networking
 
 extension HomeScreen {
-    public func getTrendingMovies() async -> [MovieResponse] {
+    public func getTrendingMovies() async -> [MediaItem] {
         do {
             let response: TrendingMoviesResponse = try await networkClient.request(TMDBEndpoint.trendingMovies)
-            return response.results
+            return response.results.map(MediaItem.init)
         } catch {
             print("⛔️ Error fetching trending movies: \(error)")
             return []
         }
     }
 
-    public func getTrendingTVShows() async -> [TVShowResponse] {
+    public func getTrendingTVShows() async -> [MediaItem] {
         do {
             let response: TrendingTVShowsResponse = try await networkClient.request(TMDBEndpoint.trendingTVShows)
-            return response.results
+            return response.results.map(MediaItem.init)
         } catch {
             print("⛔️ Error fetching trending tv shows: \(error)")
             return []

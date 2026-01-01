@@ -9,21 +9,21 @@ import Models
 import SwiftUI
 
 public struct FilmRow: View {
-    public var items: [any DetailViewRepresentable]
+    public var items: [MediaItem]
 
-    @Binding public var selectedFilm: SelectedFilm?
+    @Binding public var selectedItem: MediaItem?
 
     private let namespace: Namespace.ID
     private let thumbnailSize: CGSize
 
     public init(
-        items: [any DetailViewRepresentable],
-        selectedFilm: Binding<SelectedFilm?>,
+        items: [MediaItem],
+        selectedItem: Binding<MediaItem?>,
         namespace: Namespace.ID,
         thumbnailSize: CGSize = CGSize(width: 175, height: 250)
     ) {
         self.items = items
-        self._selectedFilm = selectedFilm
+        self._selectedItem = selectedItem
         self.namespace = namespace
         self.thumbnailSize = thumbnailSize
     }
@@ -33,19 +33,18 @@ public struct FilmRow: View {
             LazyHStack(spacing: 15) {
                 ForEach(items, id: \.id) { film in
                     ThumbnailView(
-                        filmID: film.id,
-                        posterPath: film.posterPath,
+                        media: film,
                         size: thumbnailSize,
                         transitionConfig: .init(namespace: namespace, source: film)
                     )
                     .onTapGesture {
-                        selectedFilm = SelectedFilm(film: film)
+                        selectedItem = film
                     }
                 }
             }
             .padding(.horizontal, PLayout.horizontalMarginPadding)
         }
         .padding(.horizontal, -20)
-        .toolbar(selectedFilm != nil ? .hidden : .visible, for: .tabBar)
+        .toolbar(selectedItem != nil ? .hidden : .visible, for: .tabBar)
     }
 }

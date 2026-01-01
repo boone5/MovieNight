@@ -15,21 +15,21 @@ import UI
 import FortuneWheel
 
 struct WheelView: View {
-    @State private var chosenIndex: [Film].Index? = nil
+    @State private var chosenIndex: [MediaItem].Index? = nil
 
     private let totalSpinDuration: Double = 5.0
 
-    private let films: [Film]
+    private let items: [MediaItem]
 
     @Namespace var transition
 
-    init(films: [Film]) {
-        self.films = films
+    init(items: [MediaItem]) {
+        self.items = items
     }
 
     private var wheelModel: FortuneWheelModel {
         FortuneWheelModel(
-            titles: films.compactMap(\.title),
+            titles: items.compactMap(\.title),
             size: 350,
             colors: nil,
             sliceConfig: .init(strokeWidth: 10),
@@ -76,8 +76,8 @@ struct WheelView: View {
         }
         .safeAreaPadding(.bottom)
         .overlay {
-            if let chosenIndex, let film = films[safe: chosenIndex] {
-                MediaModal(film: film, chosenIndex: $chosenIndex)
+            if let chosenIndex, let item = items[safe: chosenIndex] {
+                MediaModal(item: item, chosenIndex: $chosenIndex)
             }
         }
         .toolbarVisibility(.hidden, for: .tabBar)
@@ -86,8 +86,8 @@ struct WheelView: View {
 }
 
 private struct MediaModal: View {
-    let film: Film
-    @Binding var chosenIndex: [Film].Index?
+    let item: MediaItem
+    @Binding var chosenIndex: [MediaItem].Index?
 
     // Needed if we want to transition to the media detail view
     @Namespace var transition
@@ -95,8 +95,8 @@ private struct MediaModal: View {
     @State private var isVisible: Bool = false
     let posterSize: CGSize
 
-    init(film: Film, chosenIndex: Binding<[Film].Index?>) {
-        self.film = film
+    init(item: MediaItem, chosenIndex: Binding<[MediaItem].Index?>) {
+        self.item = item
         self._chosenIndex = chosenIndex
 
         let size = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.screen.bounds.size ?? .zero
@@ -121,17 +121,16 @@ private struct MediaModal: View {
             VStack {
                 if isVisible {
                     ThumbnailView(
-                        filmID: film.id,
-                        posterPath: film.posterPath,
+                        media: item,
                         size: posterSize,
-                        transitionConfig: .init(namespace: transition, source: film)
+                        transitionConfig: .init(namespace: transition, source: item)
                     )
                     .shadow(radius: 6, y: 3)
                     .shimmyingEffect()
                     .transition(.scale.combined(with: .opacity) )
                     .padding(.bottom, 16)
 
-                    Text(film.title ?? "")
+                    Text(item.title)
                         .font(.system(size: 18, weight: .bold))
                         .foregroundStyle(.primary)
                         .transition(.scale.combined(with: .opacity) )
@@ -199,7 +198,7 @@ extension Collection {
 }
 
 struct WheelViewPreview: View {
-    let films: [Film] = {
+    let films: [MediaItem] = {
         @Dependency(\.movieProvider) var movieProvider
         let context = movieProvider.container.viewContext
         let watchList = FilmCollection(context: context)
@@ -212,10 +211,10 @@ struct WheelViewPreview: View {
             film.title = "Mock Film \(i)"
             films.append(film)
         }
-        return films
+        return films.map(MediaItem.init)
     }()
 
     var body: some View {
-        WheelView(films: films)
+        WheelView(items: films)
     }
 }

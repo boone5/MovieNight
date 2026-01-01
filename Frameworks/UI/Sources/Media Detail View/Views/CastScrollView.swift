@@ -12,9 +12,7 @@ import SwiftUI
 
 struct CastScrollView: View {
     let averageColor: Color
-    let cast: [ActorResponse.Actor]
-
-    @State var uiImage: UIImage? = nil
+    let cast: [CastCredit]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -41,15 +39,14 @@ struct CastScrollView: View {
 
     struct ActorProfileView: View {
         @Dependency(\.imageLoader) private var imageLoader
-        @State private var uiImage: UIImage? = nil
 
-        let actor: ActorResponse.Actor
+        let actor: CastCredit
 
         var body: some View {
             // TODO: Remove Background Image
             // TODO: Open Detail Modal on tap
             VStack(spacing: 4) {
-                CachedAsyncImage(actor.profilePath) { image in
+                CachedAsyncImage(actor.person.profilePath) { image in
                     Image(uiImage: image)
                         .resizable()
                         .scaledToFill()
@@ -61,7 +58,7 @@ struct CastScrollView: View {
                         .fill(Color.cinemaGray.opacity(0.3))
                         .frame(width: 60, height: 100)
                 }
-                Text(actor.name ?? "-")
+                Text(actor.person.name)
                     .font(.openSans(size: 12, weight: .regular))
                     .foregroundStyle(.white)
                     .multilineTextAlignment(.center)
@@ -69,32 +66,6 @@ struct CastScrollView: View {
                     .frame(width: 70, height: 34, alignment: .top)
                     .allowsTightening(true)
             }
-            .task {
-                await loadImage(url: actor.profilePath)
-            }
-        }
-
-        private func loadImage(url: String?) async {
-            guard let url else { return }
-
-            do {
-                guard let image = try await imageLoader.loadImage(url) else { return }
-                uiImage = image
-            } catch {
-                print("⛔️ Error loading image: \(error)")
-            }
         }
     }
-}
-
-#Preview {
-    _ = prepareDependencies {
-        $0.imageLoader = ImageLoaderClient.liveValue
-    }
-    return CastScrollView(averageColor: .red, cast: [
-        ActorResponse.Actor.init(id: 0, adult: nil, name: "Samuel L. Jackson", originalName: nil, mediaType: nil, popularity: nil, gender: nil, knownForDepartment: nil, profilePath: "/hFt7Cj8sx1VYIwm18lYmq5kS7Pw.jpg", character: nil),
-        ActorResponse.Actor.init(id: 1, adult: nil, name: "Micheal Cera", originalName: nil, mediaType: nil, popularity: nil, gender: nil, knownForDepartment: nil, profilePath: "/hFt7Cj8sx1VYIwm18lYmq5kS7Pw.jpg", character: nil),
-        ActorResponse.Actor.init(id: 2, adult: nil, name: "Sam Worthington", originalName: nil, mediaType: nil, popularity: nil, gender: nil, knownForDepartment: nil, profilePath: "/hFt7Cj8sx1VYIwm18lYmq5kS7Pw.jpg", character: nil)
-    ])
-    .loadCustomFonts()
 }

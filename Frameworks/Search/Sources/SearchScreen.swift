@@ -42,120 +42,16 @@ public struct SearchScreen: View {
             .toolbar(.hidden, for: .navigationBar)
             .searchable(text: $store.searchText)
             .scrollDismissesKeyboard(.immediately)
-            .fullScreenCover(item: $store.selectedFilm) { film in
-                FilmDetailView(
-                    film: film.film,
-                    navigationTransitionConfig: .init(namespace: transitionNamespace, source: film.film),
+            .fullScreenCover(item: $store.selectedItem) { item in
+                MediaDetailView(
+                    media: item,
+                    navigationTransitionConfig: .init(namespace: transitionNamespace, source: item),
                 )
             }
         }
     }
 }
 
-private struct NoSearchContentView: View {
-    var body: some View {
-        VStack(spacing: 10) {
-            Text("What's Pop'n?")
-                .font(.title3.bold())
-
-            Text("Find your next movie, tv show, friend, or favorite cast member.")
-                .font(.system(size: 16))
-                .multilineTextAlignment(.center)
-        }
-        .padding(.horizontal, 15)
-    }
-}
-
-private struct SearchContentResultView: View {
-    let store: StoreOf<SearchFeature>
-    let transitionNamespace: Namespace.ID
-
-    var body: some View {
-        List {
-            PaginatedContent(items: store.queryResults) { item in
-                ResultRow(
-                    film: item,
-                    namespace: transitionNamespace
-                ) {
-                    store.send(.view(.rowTapped(item)))
-                }
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-                .buttonStyle(PlainButtonStyle())
-
-            } onLoadMore: {
-                store.send(.api(.fetchResults))
-            }
-
-            if store.loadingState.completedPagination, !store.queryResults.isEmpty {
-                NoMoreResultsView()
-                    .listRowBackground(Color.clear)
-                    .listRowSeparator(.hidden)
-            }
-        }
-        .listStyle(.plain)
-        .scrollContentBackground(.hidden)
-        .overlay {
-            if store.queryResults.isEmpty && !store.searchText.isEmpty {
-                ContentUnavailableView {
-                    Label("We couldn't find any results for \"\(store.searchText)\"", systemImage: "xmark.circle")
-                } description: {
-                    Text("Try searching for something else.")
-                }
-            }
-        }
-    }
-}
-
-private struct ResultRow: View {
-    let film: any DetailViewRepresentable
-    let namespace: Namespace.ID
-
-    let action: () -> Void
-
-    var body: some View {
-        HStack(spacing: 20) {
-            ThumbnailView(
-                filmID: film.id,
-                posterPath: film.posterPath,
-                size: .init(width: 80, height: 120),
-                transitionConfig: .init(namespace: namespace, source: film)
-            )
-
-            VStack(alignment: .leading, spacing: 5) {
-                Text(film.title ?? "")
-                    .font(.system(size: 16, weight: .medium))
-
-                Text(film.mediaType.title)
-                    .font(.system(size: 14, weight: .regular))
-            }
-
-            Spacer()
-
-            Image(systemName: "chevron.right")
-                .foregroundColor(.gray)
-        }
-        .contentShape(Rectangle())
-        .onTapGesture {
-            withAnimation(.spring()) {
-                action()
-            }
-        }
-        .padding(.vertical, 5)
-    }
-}
-
-private struct NoMoreResultsView: View {
-    @State private var appeared = false
-
-    var body: some View {
-        Text("No more results")
-            .font(.callout)
-            .foregroundStyle(.secondary)
-            .padding(.vertical, 20)
-            .frame(maxWidth: .infinity)
-            .opacity(appeared ? 1 : 0)
-            .animation(.easeIn(duration: 0.25), value: appeared)
-            .onAppear { appeared = true }
-    }
+#Preview {
+    SearchScreen(store: Store(initialState: SearchFeature.State(), reducer: SearchFeature.init))
 }

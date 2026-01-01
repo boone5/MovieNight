@@ -57,5 +57,14 @@ extension PersonResponse {
         case female = 1
         case male = 2
         case nonBinary = 3
+
+        public var description: String {
+            switch self {
+            case .notSpecified: "Not Specified"
+            case .female: "Female"
+            case .male: "Male"
+            case .nonBinary: "Non-binary"
+            }
+        }
     }
 }

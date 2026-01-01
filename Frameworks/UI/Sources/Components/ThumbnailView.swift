@@ -38,13 +38,6 @@ public struct ThumbnailView: View {
             }
             .zoomSource(configuration: transitionConfig)
             .shadow(radius: 3, y: 4)
-
-            // Uncomment if using button
-            //            Circle()
-            //                .matchedGeometryEffect(id: "info" + String(filmID), in: namespace)
-            //                .frame(width: 50, height: 20)
-            //                .foregroundStyle(.clear)
-            //                .padding([.bottom, .trailing], 15)
             .task(id: "loadFeedback") {
                 guard media.mediaType != .person else { return }
 

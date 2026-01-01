@@ -103,3 +103,37 @@ extension AdditionalDetailsPerson {
         }
     }
 }
+
+extension AdditionalDetailsPerson {
+    private static var dateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        return formatter
+    }
+
+    public var formattedBirthday: String? {
+        let formatter = Self.dateFormatter
+        guard let birthday, let date = formatter.date(from: birthday) else { return birthday }
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter.string(from: date)
+    }
+
+    public var formattedDeathDay: String? {
+        let formatter = Self.dateFormatter
+        guard let deathDay, let date = formatter.date(from: deathDay) else { return deathDay }
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter.string(from: date)
+    }
+
+    public var age: Int? {
+        let formatter = Self.dateFormatter
+        guard let birthday, let birthDate = formatter.date(from: birthday) else { return nil
+        }
+        let deathDay = self.deathDay.flatMap { formatter.date(from: $0) } ?? .now
+        let ageComponents = Calendar.current.dateComponents([.year], from: birthDate, to: deathDay)
+        return ageComponents.year
+    }
+}

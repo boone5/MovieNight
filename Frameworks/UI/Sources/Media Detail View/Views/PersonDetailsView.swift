@@ -7,7 +7,6 @@
 
 import Models
 import SwiftUI
-import UI
 
 struct PersonDetailsView: View {
     let details: AdditionalDetailsPerson
@@ -49,15 +48,14 @@ struct PersonDetailsView: View {
                         infoLabel(title: "Known for", detail: knownFor)
                     }
 
-                    infoLabel(title: "Gender", detail: genderString(details.gender))
+                    infoLabel(title: "Gender", detail: details.gender.description)
 
-                    if let birthday = formattedDate(details.birthday) {
-                        let age = computeAge(from: details.birthday, to: details.deathDay)
-                        let suffix = age.map { " (" + String($0) + " years)" } ?? ""
+                    if let birthday = details.formattedBirthday {
+                        let suffix = details.age.map { " (" + String($0) + " years)" } ?? ""
                         infoLabel(title: "Birthday", detail: birthday + suffix)
                     }
 
-                    if let deathday = formattedDate(details.deathDay) {
+                    if let deathday = details.formattedDeathDay {
                         infoLabel(title: "Died", detail: deathday)
                     }
 
@@ -91,40 +89,5 @@ struct PersonDetailsView: View {
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
-    }
-
-    // MARK: Helpers
-
-    private func genderString(_ gender: PersonResponse.Gender) -> String {
-        switch gender {
-        case .female: return "Female"
-        case .male: return "Male"
-        case .nonBinary: return "Non-binary"
-        case .notSpecified: return "Not specified"
-        }
-    }
-
-    private func formattedDate(_ raw: String?) -> String? {
-        guard let raw else { return nil }
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        guard let date = formatter.date(from: raw) else { return raw }
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .none
-        return formatter.string(from: date)
-    }
-
-    private func computeAge(from birthday: String?, to deathday: String?) -> Int? {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        guard let b = birthday, let birthDate = formatter.date(from: b) else { return nil }
-        let endDate: Date = {
-            if let d = deathday, let deathDate = formatter.date(from: d) { return deathDate }
-            return Date()
-        }()
-        let components = Calendar.current.dateComponents([.year], from: birthDate, to: endDate)
-        return components.year
     }
 }

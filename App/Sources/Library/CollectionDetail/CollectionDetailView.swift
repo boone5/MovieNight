@@ -18,61 +18,34 @@ struct CollectionDetailView: View {
     @Namespace private var namespace
     @State private var headerOpacity: CGFloat = 1.0
 
-    init(store: StoreOf<CollectionDetailFeature>) {
-        self.store = store
-
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithTransparentBackground()
-
-        // Customize title color & font if needed
-        appearance.titleTextAttributes = [
-            .foregroundColor: UIColor.label
-        ]
-
-        // Apply appearance to navigation bar
-        UINavigationBar.appearance().standardAppearance = appearance
-        UINavigationBar.appearance().scrollEdgeAppearance = appearance
-    }
-
     var body: some View {
         BackgroundColorView {
-            VStack {
-                switch store.collection.type {
-                case .ranked:
-                    RankedList(
-                        collection: store.collection,
-                        films: $store.films,
-                        namespace: namespace,
-                        headerOpacity: $headerOpacity,
-                        isEditing: store.isEditing,
-                        onTap: { film in
-                            send(.rowTapped(film))
-                        },
-                        onActionTap: { action in
-                            send(.actionTapped(action))
-                        }
-                    )
-                case .custom, .smart:
-                    ScrollView {
-                        VStack(spacing: 25) {
-                            CollectionDetailViewHeader(
-                                collection: store.collection,
-                                headerOpacity: $headerOpacity,
-                                didTapAction: { action in
-                                    send(.actionTapped(action))
-                                }
-                            )
-                            .padding(.top, 10)
-
-                            WatchList(
-                                watchList: store.films,
-                                namespace: namespace,
-                                selectedFilm: $store.selectedFilm
-                            )
-                        }
-                        .padding(.horizontal, PLayout.horizontalMarginPadding)
+            switch store.collection.type {
+            case .ranked:
+                RankedList(
+                    collection: store.collection,
+                    films: $store.films,
+                    namespace: namespace,
+                    headerOpacity: $headerOpacity,
+                    isEditing: store.isEditing,
+                    onTap: { film in
+                        send(.rowTapped(film))
+                    },
+                    onActionTap: { action in
+                        send(.actionTapped(action))
                     }
-                }
+                )
+            case .custom, .smart:
+                DefaultGridView(
+                    collection: store.collection,
+                    films: store.films,
+                    namespace: namespace,
+                    headerOpacity: $headerOpacity,
+                    selectedFilm: $store.selectedFilm,
+                    onActionTap: { action in
+                        send(.actionTapped(action))
+                    }
+                )
             }
         }
         .navigationTitle("")
@@ -87,6 +60,20 @@ struct CollectionDetailView: View {
 
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
+                    Button {
+                        // TODO: Search Modal
+                        print("open search modal")
+                    } label: {
+                        Label("Add Films", systemImage: "rectangle.portrait.badge.plus")
+                    }
+
+                    Button {
+                        // TODO: Rename inline
+                        print("rename inline")
+                    } label: {
+                        Label("Rename Collection", systemImage: "pencil")
+                    }
+
                     Button(role: .destructive) {
                         send(.tappedDeleteCollection)
                     } label: {
@@ -106,6 +93,77 @@ struct CollectionDetailView: View {
     }
 }
 
+extension CollectionDetailView {
+    struct DefaultGridView: View {
+        let collection: FilmCollection
+        let films: [Film]
+        let namespace: Namespace.ID
+        @Binding var headerOpacity: CGFloat
+        @Binding var selectedFilm: SelectedFilm?
+        var onActionTap: ((CollectionType.Action) -> Void)? = nil
+
+        private let gridItems: [GridItem] = [
+            GridItem(.flexible(), spacing: 15, alignment: .center),
+            GridItem(.flexible(), spacing: 15, alignment: .center)
+        ]
+
+        var body: some View {
+            ScrollView {
+                VStack(spacing: 25) {
+                    CollectionDetailViewHeader(
+                        collection: collection,
+                        headerOpacity: $headerOpacity,
+                        didTapAction: onActionTap
+                    )
+                    .padding(.top, 10)
+
+                    LazyVGrid(columns: gridItems, spacing: 20) {
+                        ForEach(Array(films.enumerated()), id: \.element.id) { index, film in
+                            VStack(spacing: 10) {
+                                ThumbnailView(
+                                    filmID: film.id,
+                                    posterPath: film.posterPath,
+                                    size: CGSize(width: 175, height: 225),
+                                    transitionConfig: .init(namespace: namespace, source: film)
+                                )
+                                .onTapGesture {
+                                    withAnimation(.spring()) {
+                                        selectedFilm = SelectedFilm(film: film)
+                                    }
+                                }
+
+                                HStack {
+                                    Text(film.title ?? "")
+                                        .font(.system(size: 12))
+                                        .lineLimit(1)
+                                        .truncationMode(.tail)
+                                        .foregroundStyle(.secondary)
+
+                                    Spacer()
+
+                                    Menu {
+                                        Button(role: .destructive) {
+                                            // TODO: Delete Film from collection
+                                            print("delete movie from collection")
+                                        } label: {
+                                            Label("Delete", systemImage: "trash")
+                                        }
+                                    } label: {
+                                        Image(systemName: "ellipsis")
+                                            .foregroundStyle(.gray)
+                                    }
+                                }
+                                .padding(.horizontal, 5)
+                            }
+                        }
+                    }
+                }
+                .padding(.horizontal, PLayout.horizontalMarginPadding)
+            }
+        }
+    }
+}
+
 struct CollectionDetailViewHeader: View {
     public let collection: FilmCollection
     @Binding public var headerOpacity: CGFloat
@@ -114,22 +172,18 @@ struct CollectionDetailViewHeader: View {
     @State private var initialMinY: CGFloat?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
+        VStack(alignment: .leading, spacing: 10) {
             Text(collection.safeTitle)
                 .font(.montserrat(size: 34, weight: .bold))
 
             HStack(spacing: 8) {
-                Text("\(collection.type.title) Collection")
-                    .font(.openSans(size: 16))
-                    .foregroundStyle(.secondary)
-
-                Text("•")
-                    .font(.openSans(size: 16))
-                    .foregroundStyle(.secondary)
-
-                Text("\(collection.films?.count ?? 0) films")
-                    .font(.openSans(size: 16))
-                    .foregroundStyle(.secondary)
+                Group {
+                    Text("\(collection.type.title)")
+                    Text("•")
+                    Text("\(collection.films?.count ?? 0) films")
+                }
+                .font(.openSans(size: 16, weight: .semibold))
+                .foregroundStyle(.secondary)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

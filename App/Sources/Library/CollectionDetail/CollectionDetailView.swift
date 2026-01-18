@@ -54,7 +54,7 @@ struct CollectionDetailView: View {
                     )
                 case .custom, .smart:
                     ScrollView {
-                        VStack {
+                        VStack(spacing: 25) {
                             CollectionDetailViewHeader(
                                 collection: store.collection,
                                 headerOpacity: $headerOpacity,
@@ -62,13 +62,13 @@ struct CollectionDetailView: View {
                                     send(.actionTapped(action))
                                 }
                             )
+                            .padding(.top, 10)
 
                             WatchList(
                                 watchList: store.films,
                                 namespace: namespace,
                                 selectedFilm: $store.selectedFilm
                             )
-                            .padding(.top, 15)
                         }
                         .padding(.horizontal, PLayout.horizontalMarginPadding)
                     }
@@ -114,7 +114,7 @@ struct CollectionDetailViewHeader: View {
     @State private var initialMinY: CGFloat?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 5) {
             Text(collection.safeTitle)
                 .font(.montserrat(size: 34, weight: .bold))
 
@@ -131,36 +131,8 @@ struct CollectionDetailViewHeader: View {
                     .font(.openSans(size: 16))
                     .foregroundStyle(.secondary)
             }
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 7) {
-                    ForEach(collection.type.actions, id: \.self) { action in
-                        Button {
-                            didTapAction?(action)
-                        } label: {
-                            HStack {
-                                Image(systemName: action.icon)
-                                    .font(.system(size: 14))
-
-                                Text(action.title)
-                                    .font(.openSans(size: 14))
-                                    .foregroundStyle(.black)
-                            }
-                            .padding(.vertical, 8)
-                            .padding(.horizontal, 14)
-                            .background {
-                                Capsule()
-                                    .foregroundStyle(Color.goldPopcorn)
-                            }
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-                .padding(.horizontal, PLayout.horizontalMarginPadding)
-            }
-            .padding(.horizontal, -PLayout.horizontalMarginPadding)
-            .padding(.top, 5)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .opacity(headerOpacity)
         .onGeometryChange(for: CGFloat.self) { proxy in
             proxy.frame(in: .scrollView).minY
@@ -169,7 +141,7 @@ struct CollectionDetailViewHeader: View {
                 initialMinY = minY
             }
             let normalizedMinY = minY - (initialMinY ?? 0)
-            let fadeThreshold = 125.0
+            let fadeThreshold = 80.0
 //            print("Raw minY: \(minY), Initial: \(initialMinY ?? 0), Normalized: \(normalizedMinY)")
             // When scrolling up, normalizedMinY goes negative
             // opacity should fade from 1 to 0 as we scroll from 0 to -50

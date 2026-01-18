@@ -16,8 +16,8 @@ public struct WatchList: View {
     @Binding var selectedFilm: SelectedFilm?
 
     let gridItems: [GridItem] = [
-        GridItem(.flexible(), spacing: 20, alignment: .center),
-        GridItem(.flexible(), spacing: 20, alignment: .center)
+        GridItem(.flexible(), spacing: 15, alignment: .center),
+        GridItem(.flexible(), spacing: 15, alignment: .center)
     ]
 
     public init(

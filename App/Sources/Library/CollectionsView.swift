@@ -5,18 +5,19 @@
 //  Created by Boone on 12/19/25.
 //
 
+import ComposableArchitecture
 import Dependencies
 import Models
 import Networking
 import SwiftUI
 import UI
 
+@ViewAction(for: LibraryFeature.self)
 struct CollectionsView: View {
-    let collections: [FilmCollection]
-    let onTapCollection: (FilmCollection) -> Void
+    @Bindable var store: StoreOf<LibraryFeature>
 
-    private var visibleCollections: [FilmCollection] {
-        collections.filter { $0.id != FilmCollection.watchLaterID }
+    private var visibleCollections: [CollectionModel] {
+        store.collections.filter { $0.id != FilmCollection.watchLaterID }
     }
 
     var body: some View {
@@ -27,7 +28,7 @@ struct CollectionsView: View {
             ForEach(visibleCollections.enumerated(), id: \.element.id) { idx, collection in
                 VStack(spacing: 10) {
                     Button {
-                        onTapCollection(collection)
+                        send(.tappedCollection(collection))
                     } label: {
                         CollectionTypeRow(collection: collection)
                     }
@@ -44,7 +45,7 @@ struct CollectionsView: View {
     }
 
     struct CollectionTypeRow: View {
-        let collection: FilmCollection
+        let collection: CollectionModel
 
         var body: some View {
             HStack(spacing: 15) {
@@ -52,10 +53,10 @@ struct CollectionsView: View {
                 PosterFanView(items: ["1", "2", "3"])
 
                 VStack(alignment: .leading, spacing: 5) {
-                    Text(collection.title ?? "-")
+                    Text(collection.title)
                         .font(.openSans(size: 16, weight: .medium))
 
-                    Text(String(collection.films?.count ?? 0) + " films")
+                    Text(String(collection.filmCount) + " films")
                         .font(.openSans(size: 16))
                         .foregroundStyle(.gray)
                 }
@@ -72,36 +73,35 @@ struct CollectionsView: View {
 }
 
 #Preview {
-    @Previewable @Dependency(\.movieProvider) var movieProvider
-
-    let collections: [FilmCollection] = {
-        let context = movieProvider.container.viewContext
-
-        let customCollection = FilmCollection(context: context)
-        customCollection.id = UUID()
-        customCollection.title = "My Favorites"
-        customCollection.dateCreated = Date()
-        customCollection.type = .custom
-
-        let rankedCollection = FilmCollection(context: context)
-        rankedCollection.id = UUID()
-        rankedCollection.title = "Top 10 of 2024"
-        rankedCollection.dateCreated = Date()
-        rankedCollection.type = .ranked
-
-        let smartCollection = FilmCollection(context: context)
-        smartCollection.id = UUID()
-        smartCollection.title = "Unwatched Sci-Fi"
-        smartCollection.dateCreated = Date()
-        smartCollection.type = .smart
-
-        return [customCollection, rankedCollection, smartCollection]
-    }()
+    let collections: [CollectionModel] = [
+        CollectionModel(
+            id: UUID(),
+            title: "My Favorites",
+            type: .custom,
+            dateCreated: Date(),
+            filmCount: 5
+        ),
+        CollectionModel(
+            id: UUID(),
+            title: "Top 10 of 2024",
+            type: .ranked,
+            dateCreated: Date(),
+            filmCount: 10
+        ),
+        CollectionModel(
+            id: UUID(),
+            title: "Unwatched Sci-Fi",
+            type: .smart,
+            dateCreated: Date(),
+            filmCount: 3
+        )
+    ]
 
     CollectionsView(
-        collections: collections,
-        onTapCollection: { _ in }
+        store: Store(
+            initialState: LibraryFeature.State(collections: collections),
+            reducer: { LibraryFeature() }
+        )
     )
     .padding()
 }
-

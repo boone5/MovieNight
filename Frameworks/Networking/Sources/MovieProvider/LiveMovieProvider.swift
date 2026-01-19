@@ -151,6 +151,15 @@ public class MovieProvider: MovieProviderClient {
         save()
     }
 
+    public func renameCollection(_ id: UUID, to newTitle: String) throws(MovieError) {
+        guard let collection = fetchCollection(id) else {
+            throw MovieError.collectionNotFound
+        }
+        collection.title = newTitle
+        save()
+        container.viewContext.refresh(collection, mergeChanges: true)
+    }
+
     @discardableResult
     public func createCollection(name: String, type: CollectionType) throws(MovieError) -> FilmCollection {
         let collection = FilmCollection(context: container.viewContext)

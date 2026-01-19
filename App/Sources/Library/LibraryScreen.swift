@@ -67,9 +67,13 @@ struct LibraryScreen: View {
                                     send(.tappedCollection(collection))
                                 }
                             )
+                            CollectionsView(store: store)
                         }
                         .padding(.horizontal, PLayout.horizontalMarginPadding)
                         .padding(.bottom, PLayout.bottomMarginPadding)
+                    }
+                    .onAppear {
+                        send(.collectionsUpdated(Array(collections)))
                     }
                 }
             }

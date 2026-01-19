@@ -15,9 +15,11 @@ import UI
 struct CollectionDetailFeature {
     @ObservableState
     struct State: Equatable {
-        let collection: FilmCollection
+        var collection: CollectionModel
         var films: [Film]
         var isEditing: Bool = false
+        var isEditingTitle: Bool = false
+        var originalTitle: String = ""
 
         @Presents var selectedFilm: SelectedFilm?
     }
@@ -31,7 +33,9 @@ struct CollectionDetailFeature {
         case binding(BindingAction<State>)
         case tappedDeleteCollection
         case rowTapped(Film)
-        case actionTapped(CollectionType.Action)
+        case confirmRename
+        case cancelRename
+        case startRename
     }
 
     @Dependency(\.dismiss) var dismiss
@@ -49,22 +53,26 @@ struct CollectionDetailFeature {
                 state.selectedFilm = SelectedFilm(film: film)
                 return .none
 
-            case .view(.actionTapped(let action)):
-                switch action {
-                case .addFilm:
-                    // TODO: Open Search Sheet
-                    print("addFilm tapped")
-                case .reorder:
-                    state.isEditing.toggle()
+            case .view(.startRename):
+                state.originalTitle = state.collection.title
+                state.isEditingTitle = true
+                return .none
 
-                case .rename:
-                    // TODO: Make Text Field First Responder in Header
-                    print("rename tapped")
+            case .view(.confirmRename):
+                let collectionID = state.collection.id
+                let newTitle = state.collection.title
+                state.isEditingTitle = false
+                return .run { _ in
+                    try movieProvider.renameCollection(collectionID, to: newTitle)
                 }
+
+            case .view(.cancelRename):
+                state.collection.title = state.originalTitle
+                state.isEditingTitle = false
                 return .none
 
             case .view(.tappedDeleteCollection):
-                guard let collectionID = state.collection.id else { return .none }
+                let collectionID = state.collection.id
                 return .run { _ in
                     try movieProvider.deleteCollection(collectionID)
                     await dismiss()

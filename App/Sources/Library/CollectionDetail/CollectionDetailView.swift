@@ -23,28 +23,15 @@ struct CollectionDetailView: View {
             switch store.collection.type {
             case .ranked:
                 RankedList(
-                    collection: store.collection,
-                    films: $store.films,
+                    store: store,
                     namespace: namespace,
-                    headerOpacity: $headerOpacity,
-                    isEditing: store.isEditing,
-                    onTap: { film in
-                        send(.rowTapped(film))
-                    },
-                    onActionTap: { action in
-                        send(.actionTapped(action))
-                    }
+                    headerOpacity: $headerOpacity
                 )
             case .custom, .smart:
                 DefaultGridView(
-                    collection: store.collection,
-                    films: store.films,
+                    store: store,
                     namespace: namespace,
-                    headerOpacity: $headerOpacity,
-                    selectedFilm: $store.selectedFilm,
-                    onActionTap: { action in
-                        send(.actionTapped(action))
-                    }
+                    headerOpacity: $headerOpacity
                 )
             }
         }
@@ -52,7 +39,7 @@ struct CollectionDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .principal) {
-                Text(store.collection.safeTitle)
+                Text(store.collection.title)
                     .fontWeight(.bold)
                     .foregroundColor(.primary)
                     .opacity(1 - headerOpacity)
@@ -68,8 +55,7 @@ struct CollectionDetailView: View {
                     }
 
                     Button {
-                        // TODO: Rename inline
-                        print("rename inline")
+                        send(.startRename)
                     } label: {
                         Label("Rename Collection", systemImage: "pencil")
                     }
@@ -93,94 +79,129 @@ struct CollectionDetailView: View {
     }
 }
 
-extension CollectionDetailView {
-    struct DefaultGridView: View {
-        let collection: FilmCollection
-        let films: [Film]
-        let namespace: Namespace.ID
-        @Binding var headerOpacity: CGFloat
-        @Binding var selectedFilm: SelectedFilm?
-        var onActionTap: ((CollectionType.Action) -> Void)? = nil
+@ViewAction(for: CollectionDetailFeature.self)
+struct DefaultGridView: View {
+    @Bindable var store: StoreOf<CollectionDetailFeature>
+    let namespace: Namespace.ID
+    @Binding var headerOpacity: CGFloat
 
-        private let gridItems: [GridItem] = [
-            GridItem(.flexible(), spacing: 15, alignment: .center),
-            GridItem(.flexible(), spacing: 15, alignment: .center)
-        ]
+    private let gridItems: [GridItem] = [
+        GridItem(.flexible(), spacing: 15, alignment: .center),
+        GridItem(.flexible(), spacing: 15, alignment: .center)
+    ]
 
-        var body: some View {
-            ScrollView {
-                VStack(spacing: 25) {
-                    CollectionDetailViewHeader(
-                        collection: collection,
-                        headerOpacity: $headerOpacity,
-                        didTapAction: onActionTap
-                    )
-                    .padding(.top, 10)
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 25) {
+                CollectionDetailViewHeader(
+                    title: $store.collection.title,
+                    type: store.collection.type,
+                    filmCount: store.collection.filmCount,
+                    headerOpacity: $headerOpacity,
+                    isEditingTitle: $store.isEditingTitle,
+                    onConfirmRename: {
+                        send(.confirmRename)
+                    },
+                    onCancelRename: {
+                        send(.cancelRename)
+                    }
+                )
+                .padding(.top, 10)
 
-                    LazyVGrid(columns: gridItems, spacing: 20) {
-                        ForEach(Array(films.enumerated()), id: \.element.id) { index, film in
-                            VStack(spacing: 10) {
-                                ThumbnailView(
-                                    filmID: film.id,
-                                    posterPath: film.posterPath,
-                                    size: CGSize(width: 175, height: 225),
-                                    transitionConfig: .init(namespace: namespace, source: film)
-                                )
-                                .onTapGesture {
-                                    withAnimation(.spring()) {
-                                        selectedFilm = SelectedFilm(film: film)
-                                    }
-                                }
-
-                                HStack {
-                                    Text(film.title ?? "")
-                                        .font(.system(size: 12))
-                                        .lineLimit(1)
-                                        .truncationMode(.tail)
-                                        .foregroundStyle(.secondary)
-
-                                    Spacer()
-
-                                    Menu {
-                                        Button(role: .destructive) {
-                                            // TODO: Delete Film from collection
-                                            print("delete movie from collection")
-                                        } label: {
-                                            Label("Delete", systemImage: "trash")
-                                        }
-                                    } label: {
-                                        Image(systemName: "ellipsis")
-                                            .foregroundStyle(.gray)
-                                    }
-                                }
-                                .padding(.horizontal, 5)
+                LazyVGrid(columns: gridItems, spacing: 20) {
+                    ForEach(Array(store.films.enumerated()), id: \.element.id) { index, film in
+                        VStack(spacing: 10) {
+                            ThumbnailView(
+                                filmID: film.id,
+                                posterPath: film.posterPath,
+                                size: CGSize(width: 175, height: 225),
+                                transitionConfig: .init(namespace: namespace, source: film)
+                            )
+                            .onTapGesture {
+                                send(.rowTapped(film))
                             }
+
+                            HStack {
+                                Text(film.title ?? "")
+                                    .font(.system(size: 12))
+                                    .lineLimit(1)
+                                    .truncationMode(.tail)
+                                    .foregroundStyle(.secondary)
+
+                                Spacer()
+
+                                Menu {
+                                    Button(role: .destructive) {
+                                        // TODO: Delete Film from collection
+                                        print("delete movie from collection")
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+                                } label: {
+                                    Image(systemName: "ellipsis")
+                                        .foregroundStyle(.gray)
+                                }
+                            }
+                            .padding(.horizontal, 5)
                         }
                     }
                 }
-                .padding(.horizontal, PLayout.horizontalMarginPadding)
             }
+            .padding(.horizontal, PLayout.horizontalMarginPadding)
         }
     }
 }
 
 struct CollectionDetailViewHeader: View {
-    public let collection: FilmCollection
+    @Binding public var title: String
+    public let type: CollectionType
+    public let filmCount: Int
     @Binding public var headerOpacity: CGFloat
-    public var didTapAction: ((CollectionType.Action) -> Void)? = nil
+    @Binding public var isEditingTitle: Bool
+    public var onConfirmRename: (() -> Void)? = nil
+    public var onCancelRename: (() -> Void)? = nil
 
     @State private var initialMinY: CGFloat?
+    @FocusState private var isTitleFieldFocused: Bool
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(collection.safeTitle)
-                .font(.montserrat(size: 34, weight: .bold))
+        VStack(alignment: .leading, spacing: 7) {
+            HStack(spacing: 12) {
+                if isEditingTitle {
+                    TextField("Collection Name", text: $title)
+                        .font(.montserrat(size: 34, weight: .bold))
+                        .textFieldStyle(.plain)
+                        .focused($isTitleFieldFocused)
+                        .onAppear {
+                            isTitleFieldFocused = true
+                        }
+
+                    Button {
+                        onConfirmRename?()
+                    } label: {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 24))
+                            .foregroundStyle(.green)
+                    }
+
+                    Button {
+                        onCancelRename?()
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 24))
+                            .foregroundStyle(.red)
+                    }
+                } else {
+                    Text(title)
+                        .font(.montserrat(size: 34, weight: .bold))
+                }
+            }
 
             HStack(spacing: 8) {
                 Group {
-                    Text("\(collection.type.title)")
+                    Text("\(type.title)")
                     Text("•")
-                    Text("\(collection.films?.count ?? 0) films")
+                    Text("\(filmCount) films")
                 }
                 .font(.openSans(size: 16, weight: .semibold))
                 .foregroundStyle(.secondary)
@@ -196,10 +217,10 @@ struct CollectionDetailViewHeader: View {
             }
             let normalizedMinY = minY - (initialMinY ?? 0)
             let fadeThreshold = 80.0
-//            print("Raw minY: \(minY), Initial: \(initialMinY ?? 0), Normalized: \(normalizedMinY)")
-            // When scrolling up, normalizedMinY goes negative
-            // opacity should fade from 1 to 0 as we scroll from 0 to -50
             headerOpacity = max(0, min(1, (fadeThreshold + normalizedMinY) / fadeThreshold))
+        }
+        .onChange(of: isEditingTitle) { _, newValue in
+            isTitleFieldFocused = newValue
         }
     }
 }
@@ -239,43 +260,48 @@ extension CollectionType {
     }
 }
 
+@ViewAction(for: CollectionDetailFeature.self)
 struct RankedList: View {
-    let collection: FilmCollection
-    @Binding var films: [Film]
+    @Bindable var store: StoreOf<CollectionDetailFeature>
     let namespace: Namespace.ID
     @Binding var headerOpacity: CGFloat
-    var isEditing: Bool = false
-    var onTap: ((Film) -> Void)? = nil
-    var onActionTap: ((CollectionType.Action) -> Void)? = nil
 
     var body: some View {
         List {
             CollectionDetailViewHeader(
-                collection: collection,
+                title: $store.collection.title,
+                type: store.collection.type,
+                filmCount: store.collection.filmCount,
                 headerOpacity: $headerOpacity,
-                didTapAction: onActionTap
+                isEditingTitle: $store.isEditingTitle,
+                onConfirmRename: {
+                    send(.confirmRename)
+                },
+                onCancelRename: {
+                    send(.cancelRename)
+                }
             )
             .listRowBackground(Color.clear)
             .listRowSeparator(.hidden)
 
-            ForEach(Array(films.enumerated()), id: \.element.id) { idx, film in
+            ForEach(Array(store.films.enumerated()), id: \.element.id) { idx, film in
                 Row(
                     rank: idx + 1,
                     film: film,
                     namespace: namespace
                 )
                 .onTapGesture {
-                    onTap?(film)
+                    send(.rowTapped(film))
                 }
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.visible, edges: .bottom)
                 .listRowSeparator(.hidden, edges: .top)
             }
-            .onMove { films.move(fromOffsets: $0, toOffset: $1) }
-            .onDelete(perform: { films.remove(atOffsets: $0) } )
+            .onMove { store.films.move(fromOffsets: $0, toOffset: $1) }
+            .onDelete(perform: { store.films.remove(atOffsets: $0) })
         }
         .listStyle(.plain)
-        .environment(\.editMode, .constant(isEditing ? .active : .inactive))
+        .environment(\.editMode, .constant(store.isEditing ? .active : .inactive))
     }
 
     struct Row: View {
@@ -318,11 +344,14 @@ struct RankedList: View {
 #Preview {
     @Previewable @Dependency(\.movieProvider) var movieProvider
     let context = movieProvider.container.viewContext
-    let collection = FilmCollection(context: context)
-    collection.id = UUID()
-    collection.title = "Top 10 Films"
-    collection.dateCreated = Date()
-    collection.type = .custom
+
+    let collection = CollectionModel(
+        id: UUID(),
+        title: "Top 10 Films",
+        type: .custom,
+        dateCreated: Date(),
+        filmCount: 10
+    )
 
     var films = [Film]()
     let titles = ["The Shawshank Redemption", "The Godfather", "The Dark Knight", "Pulp Fiction", "Fight Club", "Inception", "The Matrix", "Goodfellas", "Se7en", "The Silence of the Lambs"]

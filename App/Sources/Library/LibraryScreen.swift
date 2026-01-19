@@ -46,27 +46,21 @@ struct LibraryScreen: View {
                             NavigationHeader(
                                 title: "Library",
                                 trailingButtons: [
-                                    NavigationHeaderButton(systemImage: "plus") {
+                                    NavigationHeaderButton(systemImage: "folder.badge.plus") {
                                         send(.tappedAddCollectionButton)
                                     }
                                 ]
                             )
 
-//                            RecentlyWatchedView(
-//                                films: Array(recentlyWatchedFilms),
-//                                selectedFilm: $store.selectedFilm,
-//                                namespace: namespace
-//                            )
-//
-//                            // TODO: In Progress TV Shows
-//                            InProgressView()
-
-                            CollectionsView(
-                                collections: Array(collections),
-                                onTapCollection: { collection in
-                                    send(.tappedCollection(collection))
-                                }
+                            RecentlyWatchedView(
+                                films: Array(recentlyWatchedFilms),
+                                selectedFilm: $store.selectedFilm,
+                                namespace: namespace
                             )
+
+                            // TODO: In Progress TV Shows
+                            InProgressView()
+
                             CollectionsView(store: store)
                         }
                         .padding(.horizontal, PLayout.horizontalMarginPadding)
@@ -101,14 +95,8 @@ struct LibraryScreen: View {
 
         var body: some View {
             VStack(alignment: .leading, spacing: LibraryScreen.sectionSpacing) {
-                VStack(alignment: .leading) {
-                    Text("Recently watched")
-                        .font(.system(size: 18, weight: .bold))
-
-                    Text("\(films.count) this week")
-                        .foregroundStyle(.secondary)
-                        .font(.system(size: 16, weight: .medium))
-                }
+                Text("Recently watched")
+                    .font(.system(size: 18, weight: .bold))
 
                 FilmRow(
                     items: films,
@@ -122,14 +110,8 @@ struct LibraryScreen: View {
     struct InProgressView: View {
         var body: some View {
             VStack(alignment: .leading, spacing: LibraryScreen.sectionSpacing) {
-                VStack(alignment: .leading) {
-                    Text("In Progress")
-                        .font(.system(size: 18, weight: .bold))
-
-                    Text("__ shows")
-                        .foregroundStyle(.secondary)
-                        .font(.system(size: 16, weight: .medium))
-                }
+                Text("In Progress")
+                    .font(.system(size: 18, weight: .bold))
 
                 ScrollView(.horizontal) {
                     HStack {

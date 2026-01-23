@@ -194,86 +194,75 @@ public class MovieProvider: MovieProviderClient {
             if count == 0 {
                 let movieCollection = FilmCollection(context: context)
                 movieCollection.id = FilmCollection.movieID
-                movieCollection.title = "Movies"
+                movieCollection.title = "Recently Watched"
                 movieCollection.imageName = "movieclapper"
                 movieCollection.dateCreated = Date()
+                movieCollection.type = .custom
 
-                let tvShowCollection = FilmCollection(context: context)
-                tvShowCollection.id = FilmCollection.tvShowID
-                tvShowCollection.title = "TV Shows"
-                tvShowCollection.imageName = "rectangle.portrait.on.rectangle.portrait.angled"
-                tvShowCollection.dateCreated = Date()
-
-                let watchLaterCollection = FilmCollection(context: context)
-                watchLaterCollection.id = FilmCollection.watchLaterID
-                watchLaterCollection.title = "Watch Later"
-                watchLaterCollection.imageName = "text.badge.checkmark"
-                watchLaterCollection.dateCreated = Date()
-
-                let posterPaths = [
-                    "/jNsttCWZyPtW66MjhUozBzVsRb7.jpg",
-                    "/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg",
-                    "/d5NXSklXo0qyIYkgV94XAgMIckC.jpg",
-                    "/rCzpDGLbOoPwLjy3OAm5NUPOTrC.jpg",
-                    "/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg",
-                    "/vpnVM9B6NMmQpWeZvzLvDESb2QY.jpg",
-                    "/7WsyChQLEftFiDOVTGkv3hFpyyt.jpg",
-                    "/nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg",
-                    "/kqjL17yufvn9OVLyXYpvtyrFfak.jpg",
-                    "/hZkgoQYus5vegHoetLkCJzb17zJ.jpg"
-                ]
-
-                let filmTitles = [
-                    "The Shawshank Redemption",
-                    "The Godfather",
-                    "The Dark Knight",
-                    "Pulp Fiction",
-                    "Fight Club",
-                    "Inception",
-                    "The Matrix",
-                    "Goodfellas",
-                    "Se7en",
-                    "The Silence of the Lambs"
-                ]
-
-                // Create a ranked collection with films
-                let rankedCollection = FilmCollection(context: context)
-                rankedCollection.id = UUID()
-                rankedCollection.title = "Top 10 Films"
-                rankedCollection.dateCreated = Date()
-                rankedCollection.type = .ranked
-
-                for i in 0..<10 {
-                    let film = Film(context: context)
-                    film.id = Int64(1000 + i)
-                    film.title = filmTitles[i]
-                    film.posterPath = posterPaths[i]
-                    film.releaseDate = "199\(i)-01-01"
-                    film.collection = rankedCollection
-                }
-
-                // Create a custom collection with films
-                let customCollection = FilmCollection(context: context)
-                customCollection.id = UUID()
-                customCollection.title = "My Favorites"
-                customCollection.dateCreated = Date()
-                customCollection.type = .custom
-
-                for i in 0..<5 {
-                    let film = Film(context: context)
-                    film.id = Int64(2000 + i)
-                    film.title = filmTitles[i]
-                    film.posterPath = posterPaths[i]
-                    film.releaseDate = "200\(i)-01-01"
-                    film.collection = customCollection
-                }
-
-                // Create a smart collection (empty for now)
-                let smartCollection = FilmCollection(context: context)
-                smartCollection.id = UUID()
-                smartCollection.title = "Unwatched Sci-Fi"
-                smartCollection.dateCreated = Date()
-                smartCollection.type = .smart
+//                let posterPaths = [
+//                    "/jNsttCWZyPtW66MjhUozBzVsRb7.jpg",
+//                    "/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg",
+//                    "/d5NXSklXo0qyIYkgV94XAgMIckC.jpg",
+//                    "/rCzpDGLbOoPwLjy3OAm5NUPOTrC.jpg",
+//                    "/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg",
+//                    "/vpnVM9B6NMmQpWeZvzLvDESb2QY.jpg",
+//                    "/7WsyChQLEftFiDOVTGkv3hFpyyt.jpg",
+//                    "/nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg",
+//                    "/kqjL17yufvn9OVLyXYpvtyrFfak.jpg",
+//                    "/hZkgoQYus5vegHoetLkCJzb17zJ.jpg"
+//                ]
+//
+//                let filmTitles = [
+//                    "The Shawshank Redemption",
+//                    "The Godfather",
+//                    "The Dark Knight",
+//                    "Pulp Fiction",
+//                    "Fight Club",
+//                    "Inception",
+//                    "The Matrix",
+//                    "Goodfellas",
+//                    "Se7en",
+//                    "The Silence of the Lambs"
+//                ]
+//
+//                // Create a ranked collection with films
+//                let rankedCollection = FilmCollection(context: context)
+//                rankedCollection.id = UUID()
+//                rankedCollection.title = "Top 10 Films"
+//                rankedCollection.dateCreated = Date()
+//                rankedCollection.type = .ranked
+//
+//                for i in 0..<10 {
+//                    let film = Film(context: context)
+//                    film.id = Int64(1000 + i)
+//                    film.title = filmTitles[i]
+//                    film.posterPath = posterPaths[i]
+//                    film.releaseDate = "199\(i)-01-01"
+//                    film.collection = rankedCollection
+//                }
+//
+//                // Create a custom collection with films
+//                let customCollection = FilmCollection(context: context)
+//                customCollection.id = UUID()
+//                customCollection.title = "My Favorites"
+//                customCollection.dateCreated = Date()
+//                customCollection.type = .custom
+//
+//                for i in 0..<5 {
+//                    let film = Film(context: context)
+//                    film.id = Int64(2000 + i)
+//                    film.title = filmTitles[i]
+//                    film.posterPath = posterPaths[i]
+//                    film.releaseDate = "200\(i)-01-01"
+//                    film.collection = customCollection
+//                }
+//
+//                // Create a smart collection (empty for now)
+//                let smartCollection = FilmCollection(context: context)
+//                smartCollection.id = UUID()
+//                smartCollection.title = "Unwatched Sci-Fi"
+//                smartCollection.dateCreated = Date()
+//                smartCollection.type = .smart
 
                 try context.save()
 

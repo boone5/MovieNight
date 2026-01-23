@@ -112,9 +112,10 @@ struct AddCollectionSheet: View {
                     Button {
                         store.send(.tappedCreateButton)
                     } label: {
-                        Image(systemName: "checkmark")
+                        Image(systemName: "arrow.up")
                     }
-                    .disabled(store.collectionName.isEmpty)
+                    .buttonStyle(.glassProminent)
+                    .tint(.popRed)
                 }
             }
         }

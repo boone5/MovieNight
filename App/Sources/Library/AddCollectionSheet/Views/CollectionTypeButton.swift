@@ -13,20 +13,28 @@ struct CollectionTypeButton: View {
     let type: CollectionType
     var isSelected: Bool
 
+    var textColor: Color {
+        if isSelected {
+            .white
+        } else {
+            .gray
+        }
+    }
+
     var body: some View {
         ThreeColumnLayout(leadingWidth: 30, trailingWidth: 30, spacing: 25) {
             Image(systemName: type.icon)
                 .font(.largeTitle)
-                .foregroundStyle(.white)
+                .foregroundStyle(textColor)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(type.title)
                     .font(.openSans(size: 16, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(textColor)
 
                 Text(type.subtitle)
                     .font(.openSans(size: 14, weight: .regular))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(textColor)
             }
 
             Image(systemName: "checkmark")
@@ -37,8 +45,10 @@ struct CollectionTypeButton: View {
         .frame(maxWidth: .infinity)
         .padding(20)
         .background {
-            RoundedRectangle(cornerRadius: 12)
-                .foregroundStyle(type.buttonBackgroundGradient)
+            if isSelected {
+                RoundedRectangle(cornerRadius: 12)
+                    .foregroundStyle(Color.popRed)
+            }
         }
         .contentShape(Rectangle())
     }

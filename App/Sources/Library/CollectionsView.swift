@@ -30,7 +30,7 @@ struct CollectionsView: View {
                     Button {
                         send(.tappedCollection(collection))
                     } label: {
-                        CollectionTypeRow(collection: collection)
+                        Row(collection: collection)
                     }
                     .buttonStyle(.plain)
 
@@ -43,8 +43,12 @@ struct CollectionsView: View {
             }
         }
     }
+}
 
-    struct CollectionTypeRow: View {
+// MARK: Row
+
+extension CollectionsView {
+    struct Row: View {
         let collection: CollectionModel
 
         var body: some View {
@@ -56,9 +60,15 @@ struct CollectionsView: View {
                     Text(collection.title)
                         .font(.openSans(size: 16, weight: .medium))
 
-                    Text(String(collection.filmCount) + " films")
-                        .font(.openSans(size: 16))
-                        .foregroundStyle(.gray)
+                    HStack(spacing: 0) {
+                        Group {
+                            Text(collection.type.title)
+                            Text(" • ")
+                            Text(String(collection.filmCount) + " films")
+                        }
+                        .font(.openSans(size: 14))
+                        .foregroundStyle(.secondary)
+                    }
                 }
                 .padding(.leading, 20)
 
@@ -91,7 +101,7 @@ struct CollectionsView: View {
         CollectionModel(
             id: UUID(),
             title: "Unwatched Sci-Fi",
-            type: .smart,
+            type: .watchList,
             dateCreated: Date(),
             filmCount: 3
         )

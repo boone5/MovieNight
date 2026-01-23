@@ -28,9 +28,14 @@ struct LibraryFeature {
     struct State: Equatable {
         var path = StackState<Path.State>()
         var collections: [CollectionModel] = []
+        var recentlyWatchedCount: Int = 0
 
         @Presents var selectedFilm: SelectedFilm?
         @Presents var addCollection: AddCollectionFeature.State?
+
+        var shouldShowContent: Bool {
+            recentlyWatchedCount >= 1 || collections.count >= 1
+        }
     }
 
     enum Action: ViewAction, Equatable {
@@ -43,6 +48,7 @@ struct LibraryFeature {
     enum View: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case collectionsUpdated([FilmCollection])
+        case recentlyWatchedCountChanged(Int)
         case tappedAddCollectionButton
         case tappedCollection(CollectionModel)
     }
@@ -52,11 +58,12 @@ struct LibraryFeature {
 
         Reduce { state, action in
             switch action {
-            case .view(.binding), .addCollection, .path:
-                return .none
-
             case let .view(.collectionsUpdated(collections)):
                 state.collections = collections.map { CollectionModel(from: $0) }
+                return .none
+
+            case let .view(.recentlyWatchedCountChanged(count)):
+                state.recentlyWatchedCount = count
                 return .none
 
             case .view(.tappedAddCollectionButton):
@@ -69,6 +76,18 @@ struct LibraryFeature {
                     collection: collectionModel,
                     films: films
                 )))
+                return .none
+
+            case let .path(.element(id, action: .collectionDetail(.view(.confirmRename)))):
+                guard case let .collectionDetail(detailState) = state.path[id: id] else {
+                    return .none
+                }
+                if let index = state.collections.firstIndex(where: { $0.id == detailState.collection.id }) {
+                    state.collections[index].title = detailState.collection.title
+                }
+                return .none
+
+            case .view(.binding), .addCollection, .path:
                 return .none
             }
         }

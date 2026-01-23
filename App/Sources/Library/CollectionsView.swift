@@ -17,7 +17,14 @@ struct CollectionsView: View {
     @Bindable var store: StoreOf<LibraryFeature>
 
     private var visibleCollections: [CollectionModel] {
-        store.collections.filter { $0.id != FilmCollection.watchLaterID }
+        store.collections
+            .filter { $0.id != FilmCollection.watchLaterID }
+            .sorted { lhs, rhs in
+                // Recently Watched (movieID) always appears first
+                if lhs.id == FilmCollection.movieID { return true }
+                if rhs.id == FilmCollection.movieID { return false }
+                return lhs.dateCreated < rhs.dateCreated
+            }
     }
 
     var body: some View {

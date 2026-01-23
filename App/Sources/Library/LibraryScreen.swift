@@ -29,16 +29,26 @@ struct LibraryScreen: View {
     var body: some View {
         NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
             BackgroundColorView {
-                if recentlyWatchedFilms.isEmpty {
-                    VStack {
+                if !store.shouldShowContent {
+                    VStack(alignment: .leading) {
+                        NavigationHeader(
+                            title: "Library",
+                            trailingButtons: [
+                                NavigationHeaderButton(systemImage: "folder.badge.plus") {
+                                    send(.tappedAddCollectionButton)
+                                }
+                            ]
+                        )
+
                         Spacer()
-                        Text("Start watching films to build your library.")
+                        Text("Your recently watched movies, tv shows,\nand collections.")
                             .font(.system(size: 14, weight: .semibold))
                             .multilineTextAlignment(.center)
                             .frame(maxWidth: .infinity, alignment: .center)
                             .padding(.horizontal, PLayout.horizontalMarginPadding)
                         Spacer()
                     }
+                    .padding(.horizontal, PLayout.horizontalMarginPadding)
 
                 } else {
                     ScrollView(showsIndicators: false) {
@@ -52,11 +62,13 @@ struct LibraryScreen: View {
                                 ]
                             )
 
-                            RecentlyWatchedView(
-                                films: Array(recentlyWatchedFilms),
-                                selectedFilm: $store.selectedFilm,
-                                namespace: namespace
-                            )
+                            if !recentlyWatchedFilms.isEmpty {
+                                RecentlyWatchedView(
+                                    films: Array(recentlyWatchedFilms),
+                                    selectedFilm: $store.selectedFilm,
+                                    namespace: namespace
+                                )
+                            }
 
                             // TODO: In Progress TV Shows
                             InProgressView()
@@ -66,10 +78,14 @@ struct LibraryScreen: View {
                         .padding(.horizontal, PLayout.horizontalMarginPadding)
                         .padding(.bottom, PLayout.bottomMarginPadding)
                     }
-                    .onAppear {
-                        send(.collectionsUpdated(Array(collections)))
-                    }
                 }
+            }
+            .task(id: Array(collections)) {
+                send(.collectionsUpdated(Array(collections)))
+            }
+            .task(id: recentlyWatchedFilms.count) {
+                send(.recentlyWatchedCountChanged(recentlyWatchedFilms.count))
+                send(.collectionsUpdated(Array(collections)))
             }
             .fullScreenCover(item: $store.selectedFilm) { selectedFilm in
                 FilmDetailView(

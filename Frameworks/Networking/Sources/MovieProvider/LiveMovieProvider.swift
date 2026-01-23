@@ -81,21 +81,22 @@ public class MovieProvider: MovieProviderClient {
             movie.addToComments(comment)
         }
 
-        switch request.film.mediaType {
-        case .movie:
-            // add to movie collection
-            if let movieCollection = fetchCollection(FilmCollection.movieID) {
-                movieCollection.addToFilms(movie)
-                movie.collection = movieCollection
-            }
-
-        case .tvShow:
-            // add to tvshow collection
-            if let tvShowCollection = fetchCollection(FilmCollection.tvShowID) {
-                tvShowCollection.addToFilms(movie)
-                movie.collection = tvShowCollection
-            }
+        // Add to Recently Watched collection, creating it if it doesn't exist
+        let recentlyWatchedCollection: FilmCollection
+        if let existing = fetchCollection(FilmCollection.movieID) {
+            recentlyWatchedCollection = existing
+        } else {
+            recentlyWatchedCollection = FilmCollection(context: container.viewContext)
+            recentlyWatchedCollection.id = FilmCollection.movieID
+            recentlyWatchedCollection.title = "Recently Watched"
+            recentlyWatchedCollection.imageName = "movieclapper"
+            recentlyWatchedCollection.dateCreated = Date()
+            recentlyWatchedCollection.type = .custom
         }
+        recentlyWatchedCollection.addToFilms(movie)
+        movie.collection = recentlyWatchedCollection
+
+        // TODO: Also create Recently Watched collection when adding a film to a user collection
 
         if let context = movie.managedObjectContext {
             do {
@@ -180,7 +181,7 @@ public class MovieProvider: MovieProviderClient {
 
     // TODO: Change to Liked, Disliked, Loved as smart collections
 
-    /// Loads default Collections into Core Data
+    /// Loads default Collections into Core Data (for debugging purposes)
     public func prepareDefaultCollections() throws(MovieError) {
         // Get the managed object context from your Core Data stack
         let context = container.viewContext

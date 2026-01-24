@@ -6,6 +6,7 @@
 //
 
 import Dependencies
+import Combine
 import CoreData
 import Foundation
 import Models
@@ -26,7 +27,26 @@ public protocol MovieProviderClient {
     func removeFilmFromCollection(filmId: Film.ID, collectionId: UUID) throws(MovieError)
     func updateFilmOrder(filmIds: [Film.ID], inCollection collectionId: UUID) throws(MovieError)
 
+    var eventPublisher: AnyPublisher<MovieProviderEvent, Never> { get }
+
     var container: NSPersistentContainer { get }
+}
+
+extension MovieProviderClient {
+    /// Publisher that emits feedback updates only for a specific media ID,
+    /// delivered on the main thread.
+    public func feedbackPublisher(for id: MediaItem.ID) -> AnyPublisher<Feedback, Never> {
+        eventPublisher
+            .compactMap { event -> Feedback? in
+                if case let .filmSaved(film) = event, film.id == id {
+                    return film.feedback
+                }
+                return nil
+            }
+            .removeDuplicates() // if Feedback: Equatable
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
+    }
 }
 
 private enum MovieProviderClientKey: DependencyKey {

@@ -5,18 +5,38 @@
 //  Created by Ayren King on 12/5/25.
 //
 
+import Combine
 import CoreData
 import Dependencies
 import Foundation
 import Logger
 import Models
 
+public enum MovieProviderEvent {
+    case filmSaved(Film)
+    case filmDeleted(Film.ID)
+    case filmAddedToWatchLater(Film)
+}
+
 public class MovieProvider: MovieProviderClient {
+    /// Publishes events whenever the MovieProvider modifies data or the managed context changes.
+    public var eventPublisher: AnyPublisher<MovieProviderEvent, Never> {
+        eventSubject.eraseToAnyPublisher()
+    }
+
     @Dependency(\.logger.log) var log
     private let inMemory: Bool
+    private let eventSubject = PassthroughSubject<MovieProviderEvent, Never>()
+    private var cancellables = Set<AnyCancellable>()
 
     internal init(inMemory: Bool = false) {
         self.inMemory = inMemory
+        // Observe context changes to emit events for external modifications
+        NotificationCenter.default.publisher(for: NSNotification.Name.NSManagedObjectContextObjectsDidChange, object: container.viewContext)
+            .sink { [weak self] notification in
+                self?.handleContextChange(notification)
+            }
+            .store(in: &cancellables)
     }
 
     /// A persistent container to set up the Core Data stack.
@@ -29,6 +49,7 @@ public class MovieProvider: MovieProviderClient {
             do {
                 try container.viewContext.save()
                 log(.movieProvider, .info, "✅ Successfully saved new context.")
+                // Possibly send an event here if needed
             } catch {
                 log(.movieProvider, .error, "⛔️ Error saving context: \(error.localizedDescription)")
             }
@@ -97,6 +118,7 @@ public class MovieProvider: MovieProviderClient {
         if let context = movie.managedObjectContext {
             do {
                 try context.save()
+                eventSubject.send(MovieProviderEvent.filmSaved(movie))
             } catch {
                 log(.movieProvider, .error, "⛔️ Failed to save: \(error)")
                 throw MovieError.unableToSaveFilm
@@ -111,6 +133,7 @@ public class MovieProvider: MovieProviderClient {
         }
         container.viewContext.delete(movieToDelete)
         save()
+        eventSubject.send(MovieProviderEvent.filmDeleted(id))
     }
 
     public func deleteCollection(_ id: UUID) throws(MovieError) {
@@ -193,6 +216,31 @@ public class MovieProvider: MovieProviderClient {
         let orderedFilms = filmIds.compactMap { fetchFilm($0) }
         collection.films = NSOrderedSet(array: orderedFilms)
         save()
+    }
+    /// Handles context changes and emits events for inserted, updated, or deleted Film objects.
+    private func handleContextChange(_ notification: Notification) {
+        guard let userInfo = notification.userInfo else { return }
+        if let inserts = userInfo[NSInsertedObjectsKey] as? Set<NSManagedObject> {
+            for obj in inserts where obj is Film {
+                if let film = obj as? Film {
+                    eventSubject.send(MovieProviderEvent.filmSaved(film))
+                }
+            }
+        }
+        if let deletes = userInfo[NSDeletedObjectsKey] as? Set<NSManagedObject> {
+            for obj in deletes where obj is Film {
+                if let film = obj as? Film {
+                    eventSubject.send(MovieProviderEvent.filmDeleted(film.id))
+                }
+            }
+        }
+        if let updates = userInfo[NSUpdatedObjectsKey] as? Set<NSManagedObject> {
+            for obj in updates where obj is Film {
+                if let film = obj as? Film {
+                    eventSubject.send(MovieProviderEvent.filmSaved(film))
+                }
+            }
+        }
     }
 }
 

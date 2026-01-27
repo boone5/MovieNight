@@ -118,6 +118,7 @@ extension CollectionDetailView {
                             .onAppear {
                                 isTitleFieldFocused = true
                             }
+                            .minimumScaleFactor(0.5)
 
                         Button {
                             onConfirmRename?()

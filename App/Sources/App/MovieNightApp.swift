@@ -15,7 +15,11 @@ struct MovieNightApp: App {
 
     @MainActor
     static let store: StoreOf<AppFeature> = {
-        Store(initialState: AppFeature.State(), reducer: AppFeature.init)
+        // Uncomment to debug w/ preloaded collections
+        @Dependency(\.movieProvider) var movieProvider
+        try? movieProvider.prepareDefaultCollections()
+
+        return Store(initialState: AppFeature.State(), reducer: AppFeature.init)
     }()
 
     init() {

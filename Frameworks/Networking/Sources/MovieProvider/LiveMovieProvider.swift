@@ -185,90 +185,84 @@ public class MovieProvider: MovieProviderClient {
     public func prepareDefaultCollections() throws(MovieError) {
         // Get the managed object context from your Core Data stack
         let context = container.viewContext
-
-        let fetchRequest: NSFetchRequest<FilmCollection> = FilmCollection.fetchRequest()
+        let rankedListID = FilmCollection.rankedListID
+        let customListID = FilmCollection.customListID
+        var didAddCollections = false
 
         do {
-            let count = try context.count(for: fetchRequest)
+            let posterPaths = [
+                "/jNsttCWZyPtW66MjhUozBzVsRb7.jpg",
+                "/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg",
+                "/d5NXSklXo0qyIYkgV94XAgMIckC.jpg",
+                "/rCzpDGLbOoPwLjy3OAm5NUPOTrC.jpg",
+                "/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg",
+                "/vpnVM9B6NMmQpWeZvzLvDESb2QY.jpg",
+                "/7WsyChQLEftFiDOVTGkv3hFpyyt.jpg",
+                "/nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg",
+                "/kqjL17yufvn9OVLyXYpvtyrFfak.jpg",
+                "/hZkgoQYus5vegHoetLkCJzb17zJ.jpg"
+            ]
 
-            // If count is 0, the store is empty and we need to seed it
-            if count == 0 {
-                let movieCollection = FilmCollection(context: context)
-                movieCollection.id = FilmCollection.movieID
-                movieCollection.title = "Recently Watched"
-                movieCollection.imageName = "movieclapper"
-                movieCollection.dateCreated = Date()
-                movieCollection.type = .custom
+            let filmTitles = [
+                "The Shawshank Redemption",
+                "The Godfather",
+                "The Dark Knight",
+                "Pulp Fiction",
+                "Fight Club",
+                "Inception",
+                "The Matrix",
+                "Goodfellas",
+                "Se7en",
+                "The Silence of the Lambs"
+            ]
 
-//                let posterPaths = [
-//                    "/jNsttCWZyPtW66MjhUozBzVsRb7.jpg",
-//                    "/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg",
-//                    "/d5NXSklXo0qyIYkgV94XAgMIckC.jpg",
-//                    "/rCzpDGLbOoPwLjy3OAm5NUPOTrC.jpg",
-//                    "/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg",
-//                    "/vpnVM9B6NMmQpWeZvzLvDESb2QY.jpg",
-//                    "/7WsyChQLEftFiDOVTGkv3hFpyyt.jpg",
-//                    "/nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg",
-//                    "/kqjL17yufvn9OVLyXYpvtyrFfak.jpg",
-//                    "/hZkgoQYus5vegHoetLkCJzb17zJ.jpg"
-//                ]
-//
-//                let filmTitles = [
-//                    "The Shawshank Redemption",
-//                    "The Godfather",
-//                    "The Dark Knight",
-//                    "Pulp Fiction",
-//                    "Fight Club",
-//                    "Inception",
-//                    "The Matrix",
-//                    "Goodfellas",
-//                    "Se7en",
-//                    "The Silence of the Lambs"
-//                ]
-//
-//                // Create a ranked collection with films
-//                let rankedCollection = FilmCollection(context: context)
-//                rankedCollection.id = UUID()
-//                rankedCollection.title = "Top 10 Films"
-//                rankedCollection.dateCreated = Date()
-//                rankedCollection.type = .ranked
-//
-//                for i in 0..<10 {
-//                    let film = Film(context: context)
-//                    film.id = Int64(1000 + i)
-//                    film.title = filmTitles[i]
-//                    film.posterPath = posterPaths[i]
-//                    film.releaseDate = "199\(i)-01-01"
-//                    film.collection = rankedCollection
-//                }
-//
-//                // Create a custom collection with films
-//                let customCollection = FilmCollection(context: context)
-//                customCollection.id = UUID()
-//                customCollection.title = "My Favorites"
-//                customCollection.dateCreated = Date()
-//                customCollection.type = .custom
-//
-//                for i in 0..<5 {
-//                    let film = Film(context: context)
-//                    film.id = Int64(2000 + i)
-//                    film.title = filmTitles[i]
-//                    film.posterPath = posterPaths[i]
-//                    film.releaseDate = "200\(i)-01-01"
-//                    film.collection = customCollection
-//                }
-//
-//                // Create a smart collection (empty for now)
-//                let smartCollection = FilmCollection(context: context)
-//                smartCollection.id = UUID()
-//                smartCollection.title = "Unwatched Sci-Fi"
-//                smartCollection.dateCreated = Date()
-//                smartCollection.type = .smart
+            if self.fetchCollection(rankedListID) == nil {
+                // Create a ranked collection with films
+                let rankedCollection = FilmCollection(context: context)
+                rankedCollection.id = rankedListID
+                rankedCollection.title = "Top 10 Films"
+                rankedCollection.dateCreated = Date()
+                rankedCollection.type = .ranked
 
-                try context.save()
+                for i in 0..<10 {
+                    let film = Film(context: context)
+                    film.id = Int64(1000 + i)
+                    film.title = filmTitles[i]
+                    film.posterPath = posterPaths[i]
+                    film.releaseDate = "199\(i)-01-01"
+                    film.collection = rankedCollection
+                }
 
-                log(.movieProvider, .info, "✅ Default collections added!")
+                didAddCollections = true
             }
+
+            if self.fetchCollection(customListID) == nil {
+                // Create a custom collection with films
+                let customCollection = FilmCollection(context: context)
+                customCollection.id = customListID
+                customCollection.title = "My Favorites"
+                customCollection.dateCreated = Date()
+                customCollection.type = .custom
+
+                for i in 0..<5 {
+                    let film = Film(context: context)
+                    film.id = Int64(2000 + i)
+                    film.title = filmTitles[i]
+                    film.posterPath = posterPaths[i]
+                    film.releaseDate = "200\(i)-01-01"
+                    film.collection = customCollection
+                }
+
+                didAddCollections = true
+            }
+
+            if didAddCollections {
+                try context.save()
+                log(.movieProvider, .info, "✅ Default collections added!")
+            } else {
+                log(.movieProvider, .info, "🤝 Default collections already seeded.")
+            }
+
         } catch {
             log(.movieProvider, .error, "⛔️ Error preloading default data: \(error)")
         }

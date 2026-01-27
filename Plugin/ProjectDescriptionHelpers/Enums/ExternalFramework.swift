@@ -8,6 +8,7 @@
 public enum ExternalFramework: String {
     case composableArchitecture = "ComposableArchitecture"
     case fortuneWheel = "FortuneWheel"
+    case confettiSwiftUI = "ConfettiSwiftUI"
 
     var name: String {
         rawValue

@@ -31,7 +31,8 @@ import PackageDescription
             "UIKitNavigation": .framework,
             "DequeModule": .framework,
             "YouTubePlayerKit": .framework,
-            "FortuneWheel": .framework
+            "FortuneWheel": .framework,
+            "ConfettiSwiftUI": .framework
         ],
         targetSettings: [
             "ComposableArchitecture": .settings(base: [
@@ -51,5 +52,6 @@ let package = Package(
         .package(url: "https://github.com/pointfreeco/swift-composable-architecture.git", from: "1.20.2"),
         .package(url: "https://github.com/SvenTiigi/YouTubePlayerKit.git", from: "2.0.0"),
         .package(url: "https://github.com/aking618/FortuneWheel.git", branch: "master"),
+        .package(url: "https://github.com/simibac/ConfettiSwiftUI.git", from: "3.0.0")
     ],
 )

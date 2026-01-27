@@ -10,12 +10,21 @@
       }
     },
     {
+      "identity" : "confettiswiftui",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/simibac/ConfettiSwiftUI.git",
+      "state" : {
+        "revision" : "9ae5bc2ce2149980884d4612321c3a266d6bf82c",
+        "version" : "3.0.0"
+      }
+    },
+    {
       "identity" : "fortunewheel",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/aking618/FortuneWheel.git",
       "state" : {
         "branch" : "master",
-        "revision" : "a57afa5c03e31d09f112574f3e30fb88a3ed2769"
+        "revision" : "f300229f04e73015ab2a887a88ab93b55aa98a9f"
       }
     },
     {

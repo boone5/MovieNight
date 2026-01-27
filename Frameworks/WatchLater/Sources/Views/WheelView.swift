@@ -15,14 +15,19 @@ import UI
 import FortuneWheel
 
 struct WheelView: View {
-    @State private var chosenIndex: [MediaItem].Index? = 0
+    @State private var chosenIndex: [MediaItem].Index? = nil
 
     private let totalSpinDuration: Double = 5.0
 
     private let items: [MediaItem]
 
     var circleSize: CGFloat {
-        UIScreen.main.bounds.width * 1.25
+        let width = UIScreen.main.bounds.width
+        if width > 400 {
+            return width * 1.25
+        } else {
+            return width * 1.05
+        }
     }
 
     @State private var selectedCollection: String? = nil
@@ -84,11 +89,19 @@ struct WheelView: View {
                 }
                 .foregroundStyle(.blue)
             }
+            .padding(.bottom, 12)
 
             Spacer()
 
             FortuneWheel(model: wheelModel)
+                .overlay {
+                    if items.isEmpty {
+                        Circle()
+                            .fill(Color.primary.opacity(0.1))
+                    }
+                }
                 .frame(width: UIScreen.main.bounds.width - (PLayout.horizontalMarginPadding * 2))
+                .allowsHitTesting(!items.isEmpty)
 
             Spacer()
         }

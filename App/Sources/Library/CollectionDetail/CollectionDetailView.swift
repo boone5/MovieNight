@@ -11,7 +11,7 @@ import SwiftUI
 import UI
 import WatchLater
 
-// MARK: - CollectionDetailView 
+// MARK: - CollectionDetailView
 
 @ViewAction(for: CollectionDetailFeature.self)
 struct CollectionDetailView: View {
@@ -54,6 +54,17 @@ struct CollectionDetailView: View {
                         print("open search modal")
                     } label: {
                         Label("Add Films", systemImage: "rectangle.portrait.badge.plus")
+                    }
+
+                    if store.collection.type == .ranked {
+                        Button {
+                            send(.toggleReorderMode)
+                        } label: {
+                            Label(
+                                store.isEditing ? "Done Reordering" : "Reorder",
+                                systemImage: "arrow.up.arrow.down"
+                            )
+                        }
                     }
 
                     Button {

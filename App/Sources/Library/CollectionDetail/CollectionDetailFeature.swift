@@ -36,6 +36,7 @@ struct CollectionDetailFeature {
         case confirmRename
         case cancelRename
         case startRename
+        case toggleReorderMode
     }
 
     @Dependency(\.dismiss) var dismiss
@@ -77,6 +78,10 @@ struct CollectionDetailFeature {
                     try movieProvider.deleteCollection(collectionID)
                     await dismiss()
                 }
+
+            case .view(.toggleReorderMode):
+                state.isEditing.toggle()
+                return .none
             }
         }
     }

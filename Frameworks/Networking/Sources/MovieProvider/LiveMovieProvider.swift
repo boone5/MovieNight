@@ -179,8 +179,6 @@ public class MovieProvider: MovieProviderClient {
         }
     }
 
-    // TODO: Change to Liked, Disliked, Loved as smart collections
-
     /// Loads default Collections into Core Data (for debugging purposes)
     public func prepareDefaultCollections() throws(MovieError) {
         // Get the managed object context from your Core Data stack

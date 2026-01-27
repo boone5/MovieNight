@@ -22,6 +22,8 @@ public protocol MovieProviderClient {
     func renameCollection(_ id: UUID, to newTitle: String) throws(MovieError)
     func prepareDefaultCollections() throws(MovieError)
     func createCollection(name: String, type: CollectionType) throws(MovieError) -> FilmCollection
+    func fetchAllCollections() -> [FilmCollection]
+    func addFilmToCollection(filmId: Film.ID, collectionId: UUID) throws(MovieError)
 
     var container: NSPersistentContainer { get }
 }

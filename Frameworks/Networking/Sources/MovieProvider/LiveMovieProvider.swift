@@ -273,6 +273,31 @@ public class MovieProvider: MovieProviderClient {
             log(.movieProvider, .error, "⛔️ Error preloading default data: \(error)")
         }
     }
+
+    public func fetchAllCollections() -> [FilmCollection] {
+        let request: NSFetchRequest<FilmCollection> = FilmCollection.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \FilmCollection.dateCreated, ascending: true)]
+
+        do {
+            return try container.viewContext.fetch(request)
+        } catch {
+            log(.movieProvider, .error, "⛔️ Error fetching collections: \(error)")
+            return []
+        }
+    }
+
+    public func addFilmToCollection(filmId: Film.ID, collectionId: UUID) throws(MovieError) {
+        guard let film = fetchFilm(filmId) else {
+            throw MovieError.filmNotFound
+        }
+
+        guard let collection = fetchCollection(collectionId) else {
+            throw MovieError.collectionNotFound
+        }
+
+        collection.addToFilms(film)
+        save()
+    }
 }
 
 extension NSPersistentContainer {

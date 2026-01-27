@@ -38,6 +38,7 @@ public struct FilmDetailView: View {
 
     @State private var actionTapped: QuickAction?
     @State private var watchCount = 0
+    @State private var showAddToCollectionSheet = false
 
     public init(
         film: some DetailViewRepresentable,
@@ -57,10 +58,7 @@ public struct FilmDetailView: View {
     @State var postion: ScrollPosition = .init()
 
     public var body: some View {
-        ScrollView(
-            .vertical,
-            showsIndicators: true
-        ) {
+        ScrollView(.vertical, showsIndicators: true) {
             VStack(alignment: .center, spacing: 30) {
                 // MARK: TODO
                 // - Add gloss finish
@@ -279,8 +277,8 @@ public struct FilmDetailView: View {
             }
             .safeAreaPadding(.horizontal)
         }
-        .task(id: "loadData") {
-            await viewModel.loadInitialData()
+        .task {
+            viewModel.loadInitialData()
             if viewModel.filmDisplay.mediaType == .movie {
                 await viewModel.getAdditionalDetailsMovie()
             } else {
@@ -288,6 +286,11 @@ public struct FilmDetailView: View {
             }
         }
         .zoomTransition(configuration: navigationTransitionConfig)
+        // TODO: Add to Collection Sheet
+        // - This needs to be converted to TCA before this can work since AddCollectionSheet is TCA
+//        .sheet(isPresented: $showAddToCollectionSheet) {
+//            AddToCollectionSheet(viewModel: viewModel, averageColor: viewModel.averageColor)
+//        }
     }
 
     // MARK: SeasonsScrollView
@@ -342,6 +345,7 @@ extension FilmDetailView {
         @Published var genres: String?
         @Published var releaseYear: String?
         @Published var duration: String?
+        @Published var collections: [FilmCollection] = []
 
         @Dependency(\.date.now) var now
         @Dependency(\.movieProvider) var movieProvider
@@ -353,8 +357,7 @@ extension FilmDetailView {
             self.filmDisplay = FilmDisplay(from: film)
         }
 
-        @MainActor
-        func loadInitialData() async {
+        func loadInitialData() {
            if let existingFilm = movieProvider.fetchFilm(filmDisplay.id) {
                 isLiked = existingFilm.isLiked
                 isLoved = existingFilm.isLoved
@@ -362,6 +365,7 @@ extension FilmDetailView {
                 self.filmDisplay = FilmDisplay(from: existingFilm)
             }
 
+            self.collections = movieProvider.fetchAllCollections()
             setMenuActions()
         }
 
@@ -601,6 +605,20 @@ extension FilmDetailView {
             }
 
             menuSections = sections
+        }
+
+        func filmIsInCollection(_ collection: FilmCollection) -> Bool {
+            guard let films = collection.films?.array as? [Film] else { return false }
+            return films.contains { $0.id == filmDisplay.id }
+        }
+
+        func addToCollection(_ collectionId: UUID?) {
+            guard let collectionId else { return }
+            // Save to library first if not already saved
+            _ = saveToLibraryIfNecessary()
+            try? movieProvider.addFilmToCollection(filmId: filmDisplay.id, collectionId: collectionId)
+            // Refresh collections to update checkmarks
+            self.collections = movieProvider.fetchAllCollections()
         }
 
     }

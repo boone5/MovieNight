@@ -52,7 +52,7 @@ struct MediaCollectionPicker: View {
                 }
             }
             .recordViewHeight(for: $sheetHeight)
-            .presentationDetents([.height(sheetHeight)])
+            .presentationDetents(sheetHeight > 0 ? [.height(sheetHeight)] : [.medium])
         }
     }
 }

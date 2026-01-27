@@ -5,6 +5,7 @@
 //  Created by Ayren King on 1/27/26.
 //
 
+import ConfettiSwiftUI
 import Models
 import SwiftUI
 import UI
@@ -17,6 +18,7 @@ struct MediaModal: View {
     @Namespace var transition
 
     @State private var isVisible: Bool = false
+    @State private var triggerConfetti: Bool = false
     let posterSize: CGSize
 
     init(item: MediaItem, chosenIndex: Binding<[MediaItem].Index?>) {
@@ -24,8 +26,10 @@ struct MediaModal: View {
         self._chosenIndex = chosenIndex
 
         let size = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.screen.bounds.size ?? .zero
-        let scale: CGFloat = 0.8
-        self.posterSize = CGSize(width: (size.width / 1.5) * scale, height: (size.height / 2.4) * scale)
+
+        let width = (size.width / 1.5).scaled(by: 0.8)
+        let height = width * 1.5 // 2:3 aspect ratio
+        self.posterSize = CGSize(width: width, height: height)
     }
 
     var body: some View {
@@ -41,6 +45,7 @@ struct MediaModal: View {
                 }
                 .onAppear {
                     isVisible = true
+                    triggerConfetti = true
                 }
 
             VStack {
@@ -68,8 +73,8 @@ struct MediaModal: View {
                             // Then dismiss
                         } label: {
                             Text("Watch Now")
-                                .font(.openSans(size: 20, weight: .medium))
-                                .padding()
+                                .font(.openSans(size: 16, weight: .medium))
+                                .padding(12)
                                 .frame(maxWidth: .infinity, alignment: .center)
                                 .background(Color.popRed, in: .rect(cornerRadius: 15))
                         }
@@ -82,8 +87,8 @@ struct MediaModal: View {
                             }
                         } label: {
                             Text("Skip")
-                                .font(.openSans(size: 20, weight: .medium))
-                                .padding()
+                                .font(.openSans(size: 16, weight: .medium))
+                                .padding(12)
                                 .frame(maxWidth: .infinity, alignment: .center)
                                 .background(Color.deepRed, in: .rect(cornerRadius: 15))
                         }
@@ -104,6 +109,26 @@ struct MediaModal: View {
                 }
             }
             .padding(.horizontal)
+            .overlay(alignment: .centerFirstTextBaseline) {
+                Color.clear.frame(height: 1)
+                    .confettiCannon(
+                        trigger: $triggerConfetti,
+                        num: 50,
+                        rainHeight: 600,
+                        openingAngle: .degrees(45),
+                        closingAngle: .degrees(135),
+                        hapticFeedback: true
+                    )
+                    .zIndex(100)
+            }
+            .confettiCannon(
+                trigger: $triggerConfetti,
+                num: 100,
+                rainHeight: 600,
+                openingAngle: .degrees(45),
+                closingAngle: .degrees(135),
+                hapticFeedback: true
+            )
         }
         .animation(.default, value: isVisible)
     }

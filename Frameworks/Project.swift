@@ -72,7 +72,8 @@ let project = Project(
                 .target(.networking),
                 .target(.ui),
                 .external(.composableArchitecture),
-                .external(.fortuneWheel)
+                .external(.fortuneWheel),
+                .external(.confettiSwiftUI)
             ]
         ),
     ],

@@ -36,7 +36,7 @@ public struct WatchList: View {
             ForEach(Array(watchList.enumerated()), id: \.element.id) { index, media in
                 ThumbnailView(
                     media: media,
-                    size: CGSize(width: 175, height: 225),
+                    size: CGSize(width: 175, height: 263),
                     transitionConfig: .init(namespace: namespace, source: media)
                 )
                 .onTapGesture {

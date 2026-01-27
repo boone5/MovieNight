@@ -15,11 +15,18 @@ import UI
 import FortuneWheel
 
 struct WheelView: View {
-    @State private var chosenIndex: [MediaItem].Index? = nil
+    @State private var chosenIndex: [MediaItem].Index? = 0
 
     private let totalSpinDuration: Double = 5.0
 
     private let items: [MediaItem]
+
+    var circleSize: CGFloat {
+        UIScreen.main.bounds.width * 1.25
+    }
+
+    @State private var selectedCollection: String? = nil
+    @State private var isPresentingCollectionPicker: Bool = false
 
     @Namespace var transition
 
@@ -30,12 +37,13 @@ struct WheelView: View {
     private var wheelModel: FortuneWheelModel {
         FortuneWheelModel(
             titles: items.compactMap(\.title),
-            size: 350,
+            size: circleSize,
             colors: nil,
             sliceConfig: .init(strokeWidth: 10),
             pointerConfig: .init(pointerColor: .green),
             middleBoltConfig: .init(outerSize: 25, innerSize: 16),
-            spinButtonPlacement: .bottom,
+            spinButtonPlacement: .center,
+            spinButtonTint: .popRed,
             spinButtonSpacing: 48,
             animationConfig: .init(duration: totalSpinDuration),
             onSpinStateChange: {
@@ -56,119 +64,45 @@ struct WheelView: View {
     }
 
     var body: some View {
-        BackgroundColorView {
-            VStack(spacing: 0) {
-                Text("Spin the wheel!")
-                    .font(.system(size: 30, weight: .bold))
+        VStack(alignment: .leading, spacing: 0) {
+            Text("Watch Next")
+                .font(.montserrat(size: 34, weight: .semibold))
 
-                Text("Swipe to spin the wheel and let fate decide your next movie night pick.")
-                    .font(.system(size: 16, weight: .medium))
-                    .multilineTextAlignment(.center)
-                    .padding(.top, 5)
+            Text("Select a collection")
+                .font(.openSans(size: 16, weight: .regular))
+                .foregroundStyle(.secondary)
+                .padding(.top, 5)
 
-                Spacer()
+            Button {
+                isPresentingCollectionPicker = true
+            } label: {
+                HStack(spacing: 4) {
+                    Text(selectedCollection ?? "No collection selected")
+                        .font(.openSans(size: 16, weight: .semibold))
 
-                FortuneWheel(model: wheelModel)
-
-                Spacer()
+                    Image(systemName: "chevron.down")
+                }
+                .foregroundStyle(.blue)
             }
-            .padding(.horizontal, PLayout.horizontalMarginPadding)
+
+            Spacer()
+
+            FortuneWheel(model: wheelModel)
+                .frame(width: UIScreen.main.bounds.width - (PLayout.horizontalMarginPadding * 2))
+
+            Spacer()
         }
+        .padding(.horizontal, PLayout.horizontalMarginPadding)
         .safeAreaPadding(.bottom)
         .overlay {
             if let chosenIndex, let item = items[safe: chosenIndex] {
                 MediaModal(item: item, chosenIndex: $chosenIndex)
             }
         }
-        .toolbarVisibility(.hidden, for: .tabBar)
         .animation(.default, value: chosenIndex)
-    }
-}
-
-private struct MediaModal: View {
-    let item: MediaItem
-    @Binding var chosenIndex: [MediaItem].Index?
-
-    // Needed if we want to transition to the media detail view
-    @Namespace var transition
-
-    @State private var isVisible: Bool = false
-    let posterSize: CGSize
-
-    init(item: MediaItem, chosenIndex: Binding<[MediaItem].Index?>) {
-        self.item = item
-        self._chosenIndex = chosenIndex
-
-        let size = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.screen.bounds.size ?? .zero
-        self.posterSize = CGSize(width: size.width / 1.5, height: size.height / 2.4)
-    }
-
-    var body: some View {
-        ZStack {
-            Color.black
-                .opacity(0.5)
-                .ignoresSafeArea()
-                .onTapGesture {
-                    withAnimation {
-                        isVisible = false
-                        chosenIndex = nil
-                    }
-                }
-                .onAppear {
-                    isVisible = true
-                }
-
-            VStack {
-                if isVisible {
-                    ThumbnailView(
-                        media: item,
-                        size: posterSize,
-                        transitionConfig: .init(namespace: transition, source: item)
-                    )
-                    .shadow(radius: 6, y: 3)
-                    .shimmyingEffect()
-                    .transition(.scale.combined(with: .opacity) )
-                    .padding(.bottom, 16)
-
-                    Text(item.title)
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundStyle(.primary)
-                        .transition(.scale.combined(with: .opacity) )
-
-                    HStack {
-                        Button("Watch", role: .confirm) {
-                            // TODO: Definitely remove from watch later list, and update watch history
-                            // TODO: Possibly display a detail view here?
-                            // or just a small rating modal?
-                            // Then dismiss
-                        }
-                        .buttonBorderShape(.roundedRectangle(radius: 8))
-                        .buttonStyle(.glass)
-
-                        Button("Skip", role: .cancel) {
-                            withAnimation(.interactiveSpring) {
-                                isVisible = false
-                                chosenIndex = nil
-                            }
-                        }
-                        .buttonBorderShape(.roundedRectangle(radius: 8))
-                        .buttonStyle(.glass)
-                    }
-                    .transition(.scale.combined(with: .opacity) )
-                }
-            }
-            .padding(.vertical, 24)
-            .padding(.horizontal, 32)
-            .background {
-                if isVisible {
-                    RoundedRectangle(cornerRadius: 15)
-                        .foregroundStyle(.ultraThinMaterial)
-                        .shadow(radius: 10)
-                        .transition(.scale.combined(with: .opacity).animation(.bouncy) )
-                }
-            }
+        .sheet(isPresented: $isPresentingCollectionPicker) {
+            MediaCollectionPicker(selectedCollection: $selectedCollection)
         }
-        .animation(.default, value: isVisible)
     }
 }
 
@@ -180,13 +114,15 @@ extension Collection {
     }
 }
 
+// MARK: - Preview
+
 #Preview {
     @Previewable @State var path: NavigationPath = NavigationPath()
 
     TabView {
         NavigationStack(path: $path) {
             WheelViewPreview()
-                .onAppear { path.append(1) }
+                // .onAppear { path.append(1) }
                 .navigationDestination(for: Int.self ) { _ in
                     WheelViewPreview()
                 }
@@ -194,10 +130,20 @@ extension Collection {
         .tabItem {
             Label("Wheel", systemImage: "circle.grid.3x3.fill")
         }
+
+        Text("Test")
+            .tabItem {
+                Label("Other", systemImage: "star.fill")
+            }
     }
 }
 
 struct WheelViewPreview: View {
+    init() {
+        _ = prepareDependencies {
+            $0.imageLoader = .liveValue
+        }
+    }
     let films: [MediaItem] = {
         @Dependency(\.movieProvider) var movieProvider
         let context = movieProvider.container.viewContext
@@ -216,5 +162,7 @@ struct WheelViewPreview: View {
 
     var body: some View {
         WheelView(items: films)
+            .loadCustomFonts()
     }
 }
+

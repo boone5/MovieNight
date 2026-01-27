@@ -36,3 +36,38 @@ public enum CollectionType: String, Equatable, CaseIterable, Sendable {
         }
     }
 }
+
+extension CollectionType {
+    public enum Action {
+        case addFilm
+        case reorder
+        case rename
+
+        var title: String {
+            switch self {
+            case .addFilm: "Add"
+            case .reorder: "Reorder"
+            case .rename:  "Rename"
+            }
+        }
+
+        public var icon: String {
+            switch self {
+            case .addFilm: "plus"
+            case .reorder: "arrow.trianglehead.swap"
+            case .rename:  "pencil"
+            }
+        }
+    }
+
+    public var actions: [Action] {
+        switch self {
+        case .custom:
+            [.addFilm, .rename]
+        case .ranked:
+            [.addFilm, .rename, .reorder]
+        case .watchList:
+            [.addFilm, .rename]
+        }
+    }
+}

@@ -35,18 +35,18 @@ public protocol MovieProviderClient {
 extension MovieProviderClient {
     /// Publisher that emits feedback updates only for a specific media ID,
     /// delivered on the main thread.
-    public func feedbackPublisher(for id: MediaItem.ID) -> AnyPublisher<Feedback, Never> {
+    public func feedbackPublisher(for id: MediaItem.ID) -> AnyPublisher<FeedbackEvent, Never> {
         eventPublisher
-            .compactMap { event -> Feedback? in
+            .compactMap { event -> FeedbackEvent? in
                 if case let .filmSaved(film) = event, film.id == id {
-                    return film.feedback
+                    return .updated(film.feedback)
                 }
                 if case let .filmDeleted(deletedID) = event, deletedID == id {
-                    return nil
+                    return .deleted
                 }
                 return nil
             }
-            .removeDuplicates() // if Feedback: Equatable
+            .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }

@@ -18,6 +18,11 @@ public enum MovieProviderEvent {
     case filmAddedToWatchLater(Film)
 }
 
+public enum FeedbackEvent: Equatable {
+    case updated(Feedback?)
+    case deleted
+}
+
 public class MovieProvider: MovieProviderClient {
     /// Publishes events whenever the MovieProvider modifies data or the managed context changes.
     public var eventPublisher: AnyPublisher<MovieProviderEvent, Never> {
@@ -118,7 +123,6 @@ public class MovieProvider: MovieProviderClient {
         if let context = movie.managedObjectContext {
             do {
                 try context.save()
-                eventSubject.send(MovieProviderEvent.filmSaved(movie))
             } catch {
                 log(.movieProvider, .error, "⛔️ Failed to save: \(error)")
                 throw MovieError.unableToSaveFilm

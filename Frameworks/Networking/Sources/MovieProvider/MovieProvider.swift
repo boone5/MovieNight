@@ -41,6 +41,9 @@ extension MovieProviderClient {
                 if case let .filmSaved(film) = event, film.id == id {
                     return film.feedback
                 }
+                if case let .filmDeleted(deletedID) = event, deletedID == id {
+                    return nil
+                }
                 return nil
             }
             .removeDuplicates() // if Feedback: Equatable

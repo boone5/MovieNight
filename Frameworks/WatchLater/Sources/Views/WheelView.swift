@@ -70,8 +70,7 @@ struct WheelView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("Watch Next")
-                .font(.montserrat(size: 34, weight: .semibold))
+            NavigationHeader(title: "Watch Next")
 
             Text("Select a collection")
                 .font(.openSans(size: 16, weight: .regular))
@@ -100,6 +99,7 @@ struct WheelView: View {
                             .fill(Color.primary.opacity(0.1))
                     }
                 }
+                .disabled(items.isEmpty)
                 .frame(width: UIScreen.main.bounds.width - (PLayout.horizontalMarginPadding * 2))
                 .allowsHitTesting(!items.isEmpty)
 

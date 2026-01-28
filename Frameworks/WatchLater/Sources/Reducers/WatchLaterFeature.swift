@@ -18,6 +18,8 @@ public struct WatchLaterFeature {
     public struct State: Equatable {
         public init() {}
 
+        // TODO: Update functionality to match collection-based design
+
         var navigationPath = NavigationPath()
         var searchText: String = ""
         var isSearchFieldFocused: Bool = false

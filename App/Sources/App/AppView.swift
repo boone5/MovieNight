@@ -39,7 +39,7 @@ struct AppView: View {
         }
     }
 }
-
+ 
 enum AppTab: Hashable {
     case home
     case library
@@ -50,7 +50,7 @@ enum AppTab: Hashable {
         switch self {
         case .home: "Home"
         case .library: "Library"
-        case .watchLater: "Watch Later"
+        case .watchLater: "Wheel"
         case .search: "Search"
         }
     }
@@ -58,7 +58,7 @@ enum AppTab: Hashable {
     var icon: String {
         switch self {
         case .home: "house"
-        case .library: "film.stack" // TODO: Would be cool to use a rolling film image
+        case .library: "rectangle.stack.fill" // TODO: Would be cool to use a rolling film image
         case .watchLater: "chart.pie"
         case .search: "magnifyingglass"
         }

@@ -8,17 +8,20 @@
 import ComposableArchitecture
 import Models
 import SwiftUI
-import UI
 
 @Reducer
-struct AddCollectionFeature {
+public struct AddCollectionFeature {
+    public init() { }
+
     @ObservableState
-    struct State: Equatable {
+    public struct State: Equatable {
         var collectionName: String = ""
         var selectedCollectionType: CollectionType = .custom
+
+        public init() { }
     }
 
-    enum Action: BindableAction, Equatable {
+    public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case tappedCreateButton
         case tappedXButton
@@ -28,7 +31,7 @@ struct AddCollectionFeature {
     @Dependency(\.movieProvider) var movieProvider
     @Dependency(\.dismiss) var dismiss
 
-    var body: some ReducerOf<Self> {
+    public var body: some ReducerOf<Self> {
         BindingReducer()
         Reduce { state, action in
             switch action {
@@ -56,10 +59,14 @@ struct AddCollectionFeature {
     }
 }
 
-struct AddCollectionSheet: View {
+public struct AddCollectionSheet: View {
     @Bindable var store: StoreOf<AddCollectionFeature>
 
-    var body: some View {
+    public init(store: StoreOf<AddCollectionFeature>) {
+        self.store = store
+    }
+
+    public var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 24) {
                 Text("Choose a name")

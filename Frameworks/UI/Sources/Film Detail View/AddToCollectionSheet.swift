@@ -34,7 +34,7 @@ struct AddToCollectionSheet: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
                     ForEach(Array(sortedCollections.enumerated()), id: \.element.id) { idx, collection in
-                        VStack(spacing: 10) {
+                        VStack(spacing: 15) {
                             Button {
                                 viewModel.addToCollection(collection.id)
                             } label: {
@@ -77,6 +77,9 @@ struct AddToCollectionSheet: View {
                     }
 
                 }
+            }
+            .sheet(isPresented: $showAddCollectionSheet) {
+                AddCollectionSheet(store: .init(initialState: AddCollectionFeature.State(), reducer: { AddCollectionFeature() }))
             }
         }
     }

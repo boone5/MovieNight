@@ -38,7 +38,6 @@ public struct FilmDetailView: View {
 
     @State private var actionTapped: QuickAction?
     @State private var watchCount = 0
-    @State private var showAddToCollectionSheet = false
 
     public init(
         film: some DetailViewRepresentable,
@@ -286,11 +285,9 @@ public struct FilmDetailView: View {
             }
         }
         .zoomTransition(configuration: navigationTransitionConfig)
-        // TODO: Add to Collection Sheet
-        // - This needs to be converted to TCA before this can work since AddCollectionSheet is TCA
-//        .sheet(isPresented: $showAddToCollectionSheet) {
-//            AddToCollectionSheet(viewModel: viewModel, averageColor: viewModel.averageColor)
-//        }
+        .sheet(isPresented: $viewModel.showAddToCollectionSheet) {
+            AddToCollectionSheet(viewModel: viewModel, averageColor: viewModel.averageColor)
+        }
     }
 
     // MARK: SeasonsScrollView
@@ -336,6 +333,7 @@ extension FilmDetailView {
         @Published var isLiked: Bool = false
         @Published var isLoved: Bool = false
         @Published var isDisliked: Bool = false
+        @Published var showAddToCollectionSheet = false
 
         @Published var menuSections: [MenuSection] = []
         @Published var cast: [ActorResponse.Actor]?
@@ -580,7 +578,7 @@ extension FilmDetailView {
                 )
             }
 
-            // Share section
+            // Share
             sections.append(
                 MenuSection(
                     actions: [
@@ -589,6 +587,22 @@ extension FilmDetailView {
                             systemImage: "square.and.arrow.up",
                             role: .normal,
                             handler: { print("User action was tapped") }
+                        )
+                    ]
+                )
+            )
+
+            // Collections
+            sections.append(
+                MenuSection(
+                    actions: [
+                        MenuAction(
+                            title: "Add to Collection",
+                            systemImage: "folder.badge.plus",
+                            role: .normal,
+                            handler: { [weak self] in
+                                self?.showAddToCollectionSheet = true
+                            }
                         )
                     ]
                 )

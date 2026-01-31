@@ -60,8 +60,7 @@ extension CollectionsView {
 
         var body: some View {
             HStack(spacing: 15) {
-                // TODO: Pass in poster paths of collection
-                PosterFanView(items: ["1", "2", "3"])
+                PosterFanView(posterPaths: collection.posterPaths)
 
                 VStack(alignment: .leading, spacing: 5) {
                     Text(collection.title)

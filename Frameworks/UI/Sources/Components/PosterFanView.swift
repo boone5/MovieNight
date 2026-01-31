@@ -8,7 +8,7 @@
 import SwiftUI
 
 public struct PosterFanView: View {
-    let items: [String] // Array of image names or identifiers
+    let posterPaths: [String?]
     @State private var currentIndex: Int
     @GestureState private var dragOffset: CGSize = .zero
 
@@ -18,8 +18,8 @@ public struct PosterFanView: View {
     private let maxVisibleCards: Int = 4
     private let rotationAngle: Double = 8
 
-    public init(items: [String]) {
-        self.items = items
+    public init(posterPaths: [String?]) {
+        self.posterPaths = posterPaths
         self.currentIndex = 0
     }
 
@@ -27,7 +27,7 @@ public struct PosterFanView: View {
         ZStack {
             ForEach(visibleIndices, id: \.self) { index in
                 PosterCardView(
-                    item: items[index],
+                    posterPath: posterPaths[index],
                     index: index,
                     currentIndex: currentIndex,
                     cardWidth: cardWidth,
@@ -57,7 +57,7 @@ public struct PosterFanView: View {
                     } else if value.translation.width < -threshold {
                         // Swipe left - go to next
                         withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                            currentIndex = min(items.count - 1, currentIndex + 1)
+                            currentIndex = min(posterPaths.count - 1, currentIndex + 1)
                         }
                     }
                 }
@@ -65,8 +65,9 @@ public struct PosterFanView: View {
     }
 
     private var visibleIndices: [Int] {
+        guard !posterPaths.isEmpty else { return [] }
         let startIndex = max(0, currentIndex - maxVisibleCards)
-        let endIndex = min(items.count - 1, currentIndex + maxVisibleCards)
+        let endIndex = min(posterPaths.count - 1, currentIndex + maxVisibleCards)
         return Array(startIndex...endIndex)
     }
 
@@ -131,40 +132,41 @@ public struct PosterFanView: View {
     private func zIndexForIndex(_ index: Int) -> Double {
         // Current card has highest z-index
         if index == currentIndex {
-            return Double(items.count)
+            return Double(posterPaths.count)
         }
 
         // Cards further from current have lower z-index
-        return Double(items.count - abs(index - currentIndex))
+        return Double(posterPaths.count - abs(index - currentIndex))
     }
 
     struct PosterCardView: View {
-        let item: String
+        let posterPath: String?
         let index: Int
         let currentIndex: Int
         let cardWidth: CGFloat
         let cardHeight: CGFloat
 
+        private let cardShape = RoundedRectangle(cornerRadius: 8)
+
         var body: some View {
-            RoundedRectangle(cornerRadius: 12)
-                .fill(
-                    LinearGradient(
-                        gradient: Gradient(colors: [
-                            Color(hue: Double(index) * 0.1, saturation: 0.8, brightness: 0.9),
-                            Color(hue: Double(index) * 0.1, saturation: 0.6, brightness: 0.7)
-                        ]),
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .frame(width: cardWidth, height: cardHeight)
-                .shadow(
-                    color: Color.black.opacity(index == currentIndex ? 0.3 : 0.15),
-                    radius: index == currentIndex ? 15 : 8,
-                    x: 0,
-                    y: index == currentIndex ? 8 : 4
-                )
-                .opacity(opacityForIndex(index))
+            CachedAsyncImage(posterPath) { image in
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: cardWidth, height: cardHeight)
+                    .clipShape(cardShape)
+            } placeholder: {
+                cardShape
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(width: cardWidth, height: cardHeight)
+            }
+            .shadow(
+                color: Color.black.opacity(index == currentIndex ? 0.3 : 0.15),
+                radius: index == currentIndex ? 15 : 8,
+                x: 0,
+                y: index == currentIndex ? 8 : 4
+            )
+            .opacity(opacityForIndex(index))
         }
 
         private func opacityForIndex(_ index: Int) -> Double {

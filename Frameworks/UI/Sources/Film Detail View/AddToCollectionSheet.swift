@@ -89,9 +89,14 @@ extension AddToCollectionSheet {
         let collection: FilmCollection
         let isInCollection: Bool
 
+        private var posterPaths: [String?] {
+            let films = collection.films?.array as? [Film] ?? []
+            return films.prefix(3).map { $0.posterPath }
+        }
+
         var body: some View {
             HStack(spacing: 15) {
-                PosterFanView(items: ["1", "2", "3"])
+                PosterFanView(posterPaths: posterPaths)
 
                 VStack(alignment: .leading, spacing: 5) {
                     Text(collection.title ?? "Untitled")

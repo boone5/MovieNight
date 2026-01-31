@@ -107,7 +107,6 @@ struct AddCollectionSheet: View {
                     }
                 }
 
-                // TODO: apply coloring from design system
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         store.send(.tappedCreateButton)

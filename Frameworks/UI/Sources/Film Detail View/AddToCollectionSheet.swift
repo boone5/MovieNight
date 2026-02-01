@@ -13,19 +13,12 @@ import Models
 struct AddToCollectionSheet: View {
     @ObservedObject var viewModel: FilmDetailView.ViewModel
     @Environment(\.dismiss) var dismiss
-    let averageColor: Color
 
     @State private var showAddCollectionSheet = false
 
-    /// Collections sorted with already-added ones at the top
     private var sortedCollections: [FilmCollection] {
-        viewModel.collections.sorted { lhs, rhs in
-            let lhsContains = viewModel.filmIsInCollection(lhs)
-            let rhsContains = viewModel.filmIsInCollection(rhs)
-            if lhsContains != rhsContains {
-                return lhsContains // Already-added collections first
-            }
-            return (lhs.dateCreated ?? .distantPast) < (rhs.dateCreated ?? .distantPast)
+        viewModel.collections.filter {
+            $0.title != "Recently Watched"
         }
     }
 
@@ -33,10 +26,10 @@ struct AddToCollectionSheet: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
-                    ForEach(Array(sortedCollections.enumerated()), id: \.element.id) { idx, collection in
-                        VStack(spacing: 15) {
+                    ForEach(Array(viewModel.collections.enumerated()), id: \.element.id) { idx, collection in
+                        VStack(spacing: 10) {
                             Button {
-                                viewModel.addToCollection(collection.id)
+                                viewModel.toggleCollection(collection.id)
                             } label: {
                                 Row(
                                     collection: collection,
@@ -45,19 +38,19 @@ struct AddToCollectionSheet: View {
                             }
                             .buttonStyle(.plain)
 
-                            if idx != sortedCollections.count - 1 {
+                            if idx != viewModel.collections.count - 1 {
                                 Rectangle()
                                     .foregroundStyle(.gray.opacity(0.3))
                                     .frame(height: 1)
                             }
                         }
-                        .padding(.vertical, 5)
+                        .padding(.vertical, 10)
                     }
                 }
                 .padding(PLayout.horizontalMarginPadding)
             }
             .background {
-                averageColor
+                viewModel.averageColor
                 .ignoresSafeArea()
             }
             .navigationTitle("Add to Collection")
@@ -122,8 +115,8 @@ extension AddToCollectionSheet {
 
                 if isInCollection {
                     Image(systemName: "checkmark")
-                        .foregroundStyle(.green)
-                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .font(.system(size: 18, weight: .semibold))
                 }
             }
         }

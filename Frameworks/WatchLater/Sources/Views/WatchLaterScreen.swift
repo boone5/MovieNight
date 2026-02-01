@@ -20,7 +20,7 @@ public struct WatchLaterScreen: View {
     @FetchRequest(
         entity: Film.entity(),
         sortDescriptors: [NSSortDescriptor(keyPath: \Film.dateWatched, ascending: true)],
-        predicate: NSPredicate(format: "collection.id == %@", FilmCollection.watchLaterID as CVarArg)
+        predicate: NSPredicate(format: "ANY collections.id == %@", FilmCollection.watchLaterID as CVarArg)
     )
     private var watchList: FetchedResults<Film>
     private var filteredWatchList: [Film] {
@@ -227,7 +227,7 @@ import CoreData
                 let film = Film(context: context)
                 film.id = Int64(i)
                 film.title = "Mock Film \(i)"
-                film.collection =  watchList
+                film.addToCollections(watchList)
                 film.posterPath = "/dKL78O9zxczVgjtNcQ9UkbYLzqX.jpg"
             }
             return context

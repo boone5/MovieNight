@@ -286,7 +286,7 @@ public struct FilmDetailView: View {
         }
         .zoomTransition(configuration: navigationTransitionConfig)
         .sheet(isPresented: $viewModel.showAddToCollectionSheet) {
-            AddToCollectionSheet(viewModel: viewModel, averageColor: viewModel.averageColor)
+            AddToCollectionSheet(viewModel: viewModel)
         }
     }
 
@@ -626,12 +626,16 @@ extension FilmDetailView {
             return films.contains { $0.id == filmDisplay.id }
         }
 
-        func addToCollection(_ collectionId: UUID?) {
+        func toggleCollection(_ collectionId: UUID?) {
             guard let collectionId else { return }
-            // Save to library first if not already saved
-            _ = saveToLibraryIfNecessary()
-            try? movieProvider.addFilmToCollection(filmId: filmDisplay.id, collectionId: collectionId)
-            // Refresh collections to update checkmarks
+            guard let collection = movieProvider.fetchCollection(collectionId) else { return }
+
+            if filmIsInCollection(collection) {
+                try? movieProvider.removeFilmFromCollection(filmId: filmDisplay.id, collectionId: collectionId)
+            } else {
+                _ = saveToLibraryIfNecessary()
+                try? movieProvider.addFilmToCollection(filmId: filmDisplay.id, collectionId: collectionId)
+            }
             self.collections = movieProvider.fetchAllCollections()
         }
 

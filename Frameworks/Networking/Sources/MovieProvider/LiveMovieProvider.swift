@@ -94,7 +94,7 @@ public class MovieProvider: MovieProviderClient {
             recentlyWatchedCollection.type = .custom
         }
         recentlyWatchedCollection.addToFilms(movie)
-        movie.collection = recentlyWatchedCollection
+        movie.addToCollections(recentlyWatchedCollection)
 
         // TODO: Also create Recently Watched collection when adding a film to a user collection
 
@@ -122,7 +122,7 @@ public class MovieProvider: MovieProviderClient {
 
         if let watchLaterCollection = fetchCollection(FilmCollection.watchLaterID) {
             watchLaterCollection.addToFilms(filmCD)
-            filmCD.collection = watchLaterCollection
+            filmCD.addToCollections(watchLaterCollection)
         }
 
         if let context = filmCD.managedObjectContext {
@@ -228,7 +228,7 @@ public class MovieProvider: MovieProviderClient {
                     film.title = filmTitles[i]
                     film.posterPath = posterPaths[i]
                     film.releaseDate = "199\(i)-01-01"
-                    film.collection = rankedCollection
+                    film.addToCollections(rankedCollection)
                 }
 
                 didAddCollections = true
@@ -248,7 +248,7 @@ public class MovieProvider: MovieProviderClient {
                     film.title = filmTitles[i]
                     film.posterPath = posterPaths[i]
                     film.releaseDate = "200\(i)-01-01"
-                    film.collection = customCollection
+                    film.addToCollections(customCollection)
                 }
 
                 didAddCollections = true
@@ -287,7 +287,20 @@ public class MovieProvider: MovieProviderClient {
             throw MovieError.collectionNotFound
         }
 
-        collection.addToFilms(film)
+        film.addToCollections(collection)
+        save()
+    }
+
+    public func removeFilmFromCollection(filmId: Film.ID, collectionId: UUID) throws(MovieError) {
+        guard let film = fetchFilm(filmId) else {
+            throw MovieError.filmNotFound
+        }
+
+        guard let collection = fetchCollection(collectionId) else {
+            throw MovieError.collectionNotFound
+        }
+
+        film.removeFromCollections(collection)
         save()
     }
 }

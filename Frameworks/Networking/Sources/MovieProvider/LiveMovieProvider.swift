@@ -83,11 +83,11 @@ public class MovieProvider: MovieProviderClient {
 
         // Add to Recently Watched collection, creating it if it doesn't exist
         let recentlyWatchedCollection: FilmCollection
-        if let existing = fetchCollection(FilmCollection.movieID) {
+        if let existing = fetchCollection(FilmCollection.recentlyWatchedID) {
             recentlyWatchedCollection = existing
         } else {
             recentlyWatchedCollection = FilmCollection(context: container.viewContext)
-            recentlyWatchedCollection.id = FilmCollection.movieID
+            recentlyWatchedCollection.id = FilmCollection.recentlyWatchedID
             recentlyWatchedCollection.title = "Recently Watched"
             recentlyWatchedCollection.imageName = "movieclapper"
             recentlyWatchedCollection.dateCreated = Date()

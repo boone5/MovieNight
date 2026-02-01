@@ -21,8 +21,8 @@ struct CollectionsView: View {
             .filter { $0.id != FilmCollection.watchLaterID }
             .sorted { lhs, rhs in
                 // Recently Watched (movieID) always appears first
-                if lhs.id == FilmCollection.movieID { return true }
-                if rhs.id == FilmCollection.movieID { return false }
+                if lhs.id == FilmCollection.recentlyWatchedID { return true }
+                if rhs.id == FilmCollection.recentlyWatchedID { return false }
                 return lhs.dateCreated < rhs.dateCreated
             }
     }

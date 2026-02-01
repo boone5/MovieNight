@@ -8,7 +8,7 @@
 import Foundation
 
 extension FilmCollection {
-    public static let movieID = UUID(uuidString: "00000000-0000-0000-0000-000000000001")!
+    public static let recentlyWatchedID = UUID(uuidString: "00000000-0000-0000-0000-000000000001")!
     public static let watchLaterID = UUID(uuidString: "00000000-0000-0000-0000-000000000003")!
 
     #if DEBUG

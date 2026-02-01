@@ -14,11 +14,9 @@ struct AddToCollectionSheet: View {
     @ObservedObject var viewModel: FilmDetailView.ViewModel
     @Environment(\.dismiss) var dismiss
 
-    @State private var showAddCollectionSheet = false
-
     private var sortedCollections: [FilmCollection] {
         viewModel.collections.filter {
-            $0.title != "Recently Watched"
+            $0.id != FilmCollection.recentlyWatchedID
         }
     }
 
@@ -26,7 +24,7 @@ struct AddToCollectionSheet: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
-                    ForEach(Array(viewModel.collections.enumerated()), id: \.element.id) { idx, collection in
+                    ForEach(Array(sortedCollections.enumerated()), id: \.element.id) { idx, collection in
                         VStack(spacing: 10) {
                             Button {
                                 viewModel.toggleCollection(collection.id)
@@ -38,7 +36,7 @@ struct AddToCollectionSheet: View {
                             }
                             .buttonStyle(.plain)
 
-                            if idx != viewModel.collections.count - 1 {
+                            if idx != sortedCollections.count - 1 {
                                 Rectangle()
                                     .foregroundStyle(.gray.opacity(0.3))
                                     .frame(height: 1)
@@ -61,18 +59,6 @@ struct AddToCollectionSheet: View {
                         dismiss()
                     }
                 }
-
-                ToolbarItem(placement: .primaryAction) {
-                    Button {
-                        showAddCollectionSheet.toggle()
-                    } label: {
-                        Image(systemName: "plus")
-                    }
-
-                }
-            }
-            .sheet(isPresented: $showAddCollectionSheet) {
-                AddCollectionSheet(store: .init(initialState: AddCollectionFeature.State(), reducer: { AddCollectionFeature() }))
             }
         }
     }

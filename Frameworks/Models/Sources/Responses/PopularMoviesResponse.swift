@@ -7,5 +7,5 @@
 
 public struct TrendingMoviesResponse: Codable {
     public let page: Int
-    public let results: [MovieResponse]
+    public let results: [MediaResult]
 }

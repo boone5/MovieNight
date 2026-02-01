@@ -21,7 +21,7 @@ struct CollectionDetailFeature {
         var isEditingTitle: Bool = false
         var originalTitle: String = ""
 
-        @Presents var selectedFilm: SelectedFilm?
+        @Presents var selectedFilm: MediaItem?
     }
 
     enum Action: ViewAction, Equatable {
@@ -51,7 +51,7 @@ struct CollectionDetailFeature {
                 return .none
 
             case .view(.rowTapped(let film)):
-                state.selectedFilm = SelectedFilm(film: film)
+                state.selectedFilm = MediaItem(from: film)
                 return .none
 
             case .view(.startRename):

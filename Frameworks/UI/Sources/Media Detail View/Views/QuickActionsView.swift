@@ -29,10 +29,13 @@ struct QuickActionsView: View {
                     ForEach(movieActions, id: \.self) { action in
                         ActionButton(action: action, averageColor: averageColor, actionTapped: $actionTapped)
                     }
-                case .tvShow:
+                case .tv:
                     ForEach(tvShowActions, id: \.self) { action in
                         ActionButton(action: action, averageColor: averageColor, actionTapped: $actionTapped)
                     }
+                case .person:
+                    // TODO: Handle person case
+                    EmptyView()
                 }
             }
         }

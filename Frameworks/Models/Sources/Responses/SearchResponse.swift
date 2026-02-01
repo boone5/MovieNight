@@ -9,7 +9,7 @@ import UIKit
 
 public struct SearchResponse: Equatable, Decodable {
     public let page: Int
-    public let results: [ResponseType]
+    public let results: [MediaResult]
     public let totalPages, totalResults: Int
 
     enum CodingKeys: String, CodingKey {
@@ -20,24 +20,23 @@ public struct SearchResponse: Equatable, Decodable {
 }
 
 public enum MediaType: String, Codable {
-    case movie = "movie"
-    case tvShow = "tv"
+    case movie
+    case tv
+    case person
 
     public var title: String {
         switch self {
-        case .movie:
-            "Movie"
-        case .tvShow:
-            "TV Show"
+        case .movie: "Movie"
+        case .tv: "Tv"
+        case .person: "Person"
         }
     }
 }
 
-public enum ResponseType: Decodable, Hashable {
+public enum MediaResult: Codable, Hashable {
     case movie(MovieResponse)
-    case tvShow(TVShowResponse)
-//    case people(ActorResponse)
-    case empty
+    case tv(TVShowResponse)
+    case person(PersonResponse)
 
     enum CodingKeys: String, CodingKey {
         case mediaType = "media_type"
@@ -45,104 +44,76 @@ public enum ResponseType: Decodable, Hashable {
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let type = try? container.decode(MediaType?.self, forKey: .mediaType)
-        let singleContainer = try decoder.singleValueContainer()
+        let mediaType = try container.decode(MediaType.self, forKey: .mediaType)
 
-
-        switch type {
+        switch mediaType {
         case .movie:
-            let movieResponse = try singleContainer.decode(MovieResponse.self)
-            self = movieResponse.isValid() ? .movie(movieResponse) : .empty
+            self = .movie(try MovieResponse(from: decoder))
+        case .tv:
+            self = .tv(try TVShowResponse(from: decoder))
+        case .person:
+            self = .person(try PersonResponse(from: decoder))
+        }
+    }
 
-        case .tvShow:
-            let tvShowResponse = try singleContainer.decode(TVShowResponse.self)
-            self = tvShowResponse.isValid() ? .tvShow(tvShowResponse) : .empty
-
-        default:
-            self = .empty
+    public func encode(to encoder: Encoder) throws {
+        switch self {
+        case .movie(let m):
+            try m.encode(to: encoder)
+        case .tv(let t):
+            try t.encode(to: encoder)
+        case .person(let p):
+            try p.encode(to: encoder)
         }
     }
 }
 
-extension ResponseType: Identifiable, DetailViewRepresentable {
-    public var releaseDate: String? {
-        ""
-    }
-    
+extension MediaResult: Identifiable {
     public var id: Int64 {
         switch self {
-        case .movie(let movieResponse):
-            movieResponse.id
-        case .tvShow(let tvShowResponse):
-            tvShowResponse.id
-        case .empty:
-            0
+        case .movie(let m): m.id
+        case .tv(let t): t.id
+        case .person(let p): p.id
         }
     }
 
     public var posterPath: String? {
         switch self {
-        case .movie(let movieResponse):
-            movieResponse.posterPath
-        case .tvShow(let tVShowResponse):
-            tVShowResponse.posterPath
-        case .empty:
-            nil
+        case .movie(let m): m.posterPath
+        case .tv(let t): t.posterPath
+        case .person(let p): p.posterPath
         }
     }
 
     var averageColor: UIColor? {
         switch self {
-        case .movie(let movieResponse):
-            movieResponse.averageColor
-        case .tvShow(let tVShowResponse):
-            tVShowResponse.averageColor
-        case .empty:
-            nil
+        case .movie(let m): m.averageColor
+        case .tv(let t): t.averageColor
+        case .person: nil
         }
     }
 
-    public var title: String? {
+    public var title: String {
         switch self {
-        case .movie(let movieResponse):
-            movieResponse.title ?? "No title"
-        case .tvShow(let tVShowResponse):
-            tVShowResponse.title ?? "No title"
-        case .empty:
-            ""
+        case .movie(let m): m.title
+        case .tv(let t): t.title
+        case .person(let p): p.title
         }
     }
 
     public var overview: String? {
         switch self {
-        case .movie(let movieResponse):
-            movieResponse.overview ?? "No summary"
-        case .tvShow(let tVShowResponse):
-            tVShowResponse.overview ?? "No summary"
-        case .empty:
-            ""
+        case .movie(let m): m.overview
+        case .tv(let t): t.overview
+        case .person: nil
         }
     }
 
     public var mediaType: MediaType {
         switch self {
-        case .movie:
-                .movie
-        case .tvShow:
-                .tvShow
-        case .empty:
-                .movie
-        }
-    }
-
-    public var posterData: Data? {
-        switch self {
-        case .movie(let movieResponse):
-            movieResponse.posterData
-        case .tvShow(let tVShowResponse):
-            tVShowResponse.posterData
-        case .empty:
-            nil
+        case .movie: .movie
+        case .tv: .tv
+        case .person: .person
         }
     }
 }

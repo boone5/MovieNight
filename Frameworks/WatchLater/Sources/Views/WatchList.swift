@@ -11,9 +11,10 @@ import SwiftUI
 import UI
 
 public struct WatchList: View {
-    let watchList: [Film]
+    let watchList: [MediaItem]
     let namespace: Namespace.ID
-    @Binding var selectedFilm: SelectedFilm?
+
+    @Binding var selectedItem: MediaItem?
 
     let gridItems: [GridItem] = [
         GridItem(.flexible(), spacing: 15, alignment: .center),
@@ -21,27 +22,26 @@ public struct WatchList: View {
     ]
 
     public init(
-        watchList: [Film],
+        watchList: [MediaItem],
         namespace: Namespace.ID,
-        selectedFilm: Binding<SelectedFilm?>
+        selectedItem: Binding<MediaItem?>
     ) {
         self.watchList = watchList
         self.namespace = namespace
-        self._selectedFilm = selectedFilm
+        _selectedItem = selectedItem
     }
 
     public var body: some View {
         LazyVGrid(columns: gridItems, spacing: 20) {
-            ForEach(Array(watchList.enumerated()), id: \.element.id) { index, film in
+            ForEach(Array(watchList.enumerated()), id: \.element.id) { index, media in
                 ThumbnailView(
-                    filmID: film.id,
-                    posterPath: film.posterPath,
+                    media: media,
                     size: CGSize(width: 175, height: 225),
-                    transitionConfig: .init(namespace: namespace, source: film)
+                    transitionConfig: .init(namespace: namespace, source: media)
                 )
                 .onTapGesture {
                     withAnimation(.spring()) {
-                        selectedFilm = SelectedFilm(film: film)
+                        selectedItem = media
                     }
                 }
             }
@@ -50,8 +50,8 @@ public struct WatchList: View {
 }
 
 #Preview {
-    @Previewable @State var selectedFilm: SelectedFilm? = nil
+    @Previewable @State var selectedItem: MediaItem? = nil
     @Previewable @Namespace var namespace
 
-    WatchList(watchList: [], namespace: namespace, selectedFilm: $selectedFilm)
+    WatchList(watchList: [], namespace: namespace, selectedItem: $selectedItem)
 }

@@ -23,12 +23,15 @@ public struct WatchLaterScreen: View {
         predicate: NSPredicate(format: "ANY collections.id == %@", FilmCollection.watchLaterID as CVarArg)
     )
     private var watchList: FetchedResults<Film>
-    private var filteredWatchList: [Film] {
+
+    private var items: [MediaItem] { watchList.map(MediaItem.init) }
+
+    private var filteredWatchList: [MediaItem] {
         guard store.searchText.isEmpty == false else {
-            return Array(watchList)
+            return items
         }
-        return watchList.filter { film in
-            film.title?.localizedCaseInsensitiveContains(store.searchText) == true
+        return items.filter {
+            $0.title.localizedCaseInsensitiveContains(store.searchText) == true
         }
     }
 
@@ -50,7 +53,8 @@ public struct WatchLaterScreen: View {
                             if watchList.count == 1 {
                                 singleItemCTA
                                     .onTapGesture {
-                                        send(.readyToWatchFilmButtonTapped(watchList.first))
+                                        guard let first = watchList.first else { return }
+                                        send(.readyToWatchFilmButtonTapped(.init(from: first)))
                                     }
                             } else {
                                 wheelSpinCTA
@@ -64,7 +68,7 @@ public struct WatchLaterScreen: View {
                             WatchList(
                                 watchList: filteredWatchList,
                                 namespace: namespace,
-                                selectedFilm: $store.selectedFilm
+                                selectedItem: $store.selectedItem
                             )
                             .animation(.default, value: filteredWatchList.count)
                         } else {
@@ -80,13 +84,13 @@ public struct WatchLaterScreen: View {
             .navigationDestination(for: WatchLaterPath.self) { path in
                 switch path {
                 case .wheel:
-                    WheelView(films: Array(watchList))
+                    WheelView(items: items)
                 }
             }
-            .fullScreenCover(item: $store.selectedFilm) { selectedFilm in
-                FilmDetailView(
-                    film: selectedFilm.film,
-                    navigationTransitionConfig: .init(namespace: namespace, source: selectedFilm.film)
+            .fullScreenCover(item: $store.selectedItem) { selectedItem in
+                MediaDetailView(
+                    media: selectedItem,
+                    navigationTransitionConfig: .init(namespace: namespace, source: selectedItem)
                 )
             }
         }

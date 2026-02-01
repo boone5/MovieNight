@@ -11,7 +11,7 @@ import Models
 // MARK: - Add to Collection Sheet
 
 struct AddToCollectionSheet: View {
-    @ObservedObject var viewModel: FilmDetailView.ViewModel
+    let viewModel: MediaDetailViewModel
     @Environment(\.dismiss) var dismiss
 
     private var sortedCollections: [FilmCollection] {

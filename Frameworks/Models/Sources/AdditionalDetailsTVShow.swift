@@ -30,6 +30,8 @@ public struct AdditionalDetailsTVShow: Codable {
     public let voteAverage: Double
     public let voteCount: Int
 
+    public let credits: CreditsResponse?
+
     // Not using from API
     //    let episodeRunTime: [Int]
     //    let lastAirDate: String
@@ -40,6 +42,7 @@ public struct AdditionalDetailsTVShow: Codable {
     enum CodingKeys: String, CodingKey {
         case adult
         case backdropPath = "backdrop_path"
+        case credits
         case createdBy = "created_by"
         case firstAirDate = "first_air_date"
         case genres, id
@@ -117,7 +120,7 @@ public struct AdditionalDetailsTVShow: Codable {
     }
 
     // MARK: - Season
-    public struct SeasonResponse: Codable {
+    public struct SeasonResponse: Codable, Identifiable {
         public let airDate: String?
         public let episodeCount, id: Int
         public let name, overview: String

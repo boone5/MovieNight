@@ -22,9 +22,9 @@ public struct SearchFeature {
         var searchText: String = ""
         var loadingState: LoadingState = .idle
 
-        var queryResults: [ResponseType] = []
+        var queryResults: [MediaItem] = []
 
-        @Presents var selectedFilm: SelectedFilm?
+        @Presents var selectedItem: MediaItem?
     }
 
     public enum Action: ViewAction, Equatable {
@@ -40,7 +40,7 @@ public struct SearchFeature {
     @CasePathable
     public enum View: BindableAction, Equatable {
         case binding(BindingAction<State>)
-        case rowTapped(ResponseType)
+        case rowTapped(MediaItem)
     }
 
     public enum CancelID: Hashable {
@@ -92,18 +92,14 @@ public struct SearchFeature {
 
             case let .api(.fetchResponse(response)):
                 state.loadingState = .paginated(currentPage: response.page, totalPages: response.totalPages)
-                // NOTE: This sorta breaks pagination since a page of results could contain only empty items.
-                // NOTE: Nothing new would be added to the UI, so another `onAppear` wouldn't trigger.
-                // NOTE: This should be handled when we parse people results properly.
-                let cleanResults = response.results.filter { $0 != .empty }
-                state.queryResults.append(contentsOf: cleanResults)
+                state.queryResults.append(contentsOf: response.results.map(MediaItem.init))
                 return .none
 
             case .view(.binding):
                 return .none
 
             case let .view(.rowTapped(item)):
-                state.selectedFilm = SelectedFilm(film: item)
+                state.selectedItem = item
                 return .none
             }
         }

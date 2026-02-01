@@ -72,10 +72,8 @@ public class MovieProvider: MovieProviderClient {
         movie.dateWatched = Date()
         movie.posterPath = request.film.posterPath
         movie.overview = request.film.overview
-        movie.releaseDate = request.film.releaseDate
-        movie.isLiked = request.isLiked
-        movie.isDisliked = request.isDisliked
-        movie.isLoved = request.isLoved
+//        movie.releaseDate = request.film.releaseDate
+        movie.feedback = request.film.feedback
 
         if let comment = request.comment {
             movie.addToComments(comment)
@@ -110,7 +108,7 @@ public class MovieProvider: MovieProviderClient {
     }
 
     @discardableResult
-    public func saveFilmToWatchLater(_ film: DetailViewRepresentable) throws(MovieError) -> Film {
+    public func saveFilmToWatchLater(_ film: MediaItem) throws(MovieError) -> Film {
         let filmCD = Film(context: container.viewContext)
         filmCD.title = film.title
         filmCD.id = film.id
@@ -119,6 +117,8 @@ public class MovieProvider: MovieProviderClient {
         filmCD.overview = film.overview
         filmCD.releaseDate = film.releaseDate
         filmCD.isOnWatchList = true
+        filmCD.feedback = film.feedback
+        filmCD.comments = .init(array: film.comments ?? [])
 
         if let watchLaterCollection = fetchCollection(FilmCollection.watchLaterID) {
             watchLaterCollection.addToFilms(filmCD)

@@ -64,8 +64,8 @@ struct LibraryScreen: View {
 
                             if !recentlyWatchedFilms.isEmpty {
                                 RecentlyWatchedView(
-                                    films: Array(recentlyWatchedFilms),
-                                    selectedFilm: $store.selectedFilm,
+                                    films: recentlyWatchedFilms.map(MediaItem.init),
+                                    selectedItem: $store.selectedItem,
                                     namespace: namespace
                                 )
                             }
@@ -87,10 +87,10 @@ struct LibraryScreen: View {
                 send(.recentlyWatchedCountChanged(recentlyWatchedFilms.count))
                 send(.collectionsUpdated(Array(collections)))
             }
-            .fullScreenCover(item: $store.selectedFilm) { selectedFilm in
-                FilmDetailView(
-                    film: selectedFilm.film,
-                    navigationTransitionConfig: .init(namespace: namespace, source: selectedFilm.film)
+            .fullScreenCover(item: $store.selectedItem) { selectedFilm in
+                MediaDetailView(
+                    media: selectedFilm,
+                    navigationTransitionConfig: .init(namespace: namespace, source: selectedFilm)
                 )
             }
             .sheet(item: $store.scope(state: \.addCollection, action: \.addCollection)) { store in
@@ -105,8 +105,8 @@ struct LibraryScreen: View {
     }
 
     struct RecentlyWatchedView: View {
-        let films: [Film]
-        @Binding var selectedFilm: SelectedFilm?
+        let films: [MediaItem]
+        @Binding var selectedItem: MediaItem?
         let namespace: Namespace.ID
 
         var body: some View {
@@ -116,7 +116,7 @@ struct LibraryScreen: View {
 
                 FilmRow(
                     items: films,
-                    selectedFilm: $selectedFilm,
+                    selectedItem: $selectedItem,
                     namespace: namespace
                 )
             }

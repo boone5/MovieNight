@@ -9,6 +9,7 @@ import Dependencies
 import Networking
 import SwiftUI
 
+/// A lightweight, declarative image loader with cache support.
 public struct CachedAsyncImage<Content: View, Placeholder: View>: View {
     @Dependency(\.imageLoader) private var loader
 
@@ -18,6 +19,12 @@ public struct CachedAsyncImage<Content: View, Placeholder: View>: View {
 
     @State private var phase: Phase = .loading
 
+    /// Creates a cached async image view.
+    ///
+    /// - Parameters:
+    ///   - path: The remote or cache key path for the image resource.
+    ///   - content: A closure that builds the success view from the loaded UIImage.
+    ///   - placeholder: A closure that builds the placeholder view shown during loading or failure.
     public init(
         _ path: String?,
         @ViewBuilder content: @escaping (UIImage) -> Content,
@@ -28,12 +35,15 @@ public struct CachedAsyncImage<Content: View, Placeholder: View>: View {
         self.placeholder = placeholder
     }
 
+    /// Loading phase of the async image.
     private enum Phase {
         case loading
         case success(UIImage)
         case failure
     }
 
+    /// Renders the appropriate view based on the current loading phase.
+    /// Uses `.task(id:)` to kick off a load when `path` changes.
     public var body: some View {
         Group {
             switch phase {
@@ -52,6 +62,8 @@ public struct CachedAsyncImage<Content: View, Placeholder: View>: View {
         }
     }
 
+    /// Loads an image using the injected `imageLoader` dependency.
+    /// Ensures state updates occur on the main actor.
     @MainActor
     private func load() async {
         guard let path else {

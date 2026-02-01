@@ -30,7 +30,7 @@ struct LibraryFeature {
         var collections: [CollectionModel] = []
         var recentlyWatchedCount: Int = 0
 
-        @Presents var selectedFilm: SelectedFilm?
+        @Presents var selectedItem: MediaItem?
         @Presents var addCollection: AddCollectionFeature.State?
 
         var shouldShowContent: Bool {

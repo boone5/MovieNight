@@ -10,10 +10,10 @@ import SwiftUI
 import UI
 
 struct ExploreView: View {
-    var trendingMovies: [MovieResponse] = []
-    var trendingTVShows: [TVShowResponse] = []
+    var trendingMovies: [MediaItem] = []
+    var trendingTVShows: [MediaItem] = []
     var namespace: Namespace.ID
-    var selectedFilm: Binding<SelectedFilm?>
+    var selectedItem: Binding<MediaItem?>
 
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
@@ -23,7 +23,7 @@ struct ExploreView: View {
 
             FilmRow(
                 items: trendingMovies,
-                selectedFilm: selectedFilm,
+                selectedItem: selectedItem,
                 namespace: namespace
             )
 
@@ -34,7 +34,7 @@ struct ExploreView: View {
 
             FilmRow(
                 items: trendingTVShows,
-                selectedFilm: selectedFilm,
+                selectedItem: selectedItem,
                 namespace: namespace
             )
 

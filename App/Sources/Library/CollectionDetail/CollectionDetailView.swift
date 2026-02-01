@@ -84,9 +84,9 @@ struct CollectionDetailView: View {
             }
         }
         .fullScreenCover(item: $store.selectedFilm) { selectedFilm in
-            FilmDetailView(
-                film: selectedFilm.film,
-                navigationTransitionConfig: .init(namespace: namespace, source: selectedFilm.film)
+            MediaDetailView(
+                media: selectedFilm,
+                navigationTransitionConfig: .init(namespace: namespace, source: selectedFilm)
             )
         }
     }
@@ -206,10 +206,9 @@ extension CollectionDetailView {
                         ForEach(Array(store.films.enumerated()), id: \.element.id) { index, film in
                             VStack(spacing: 10) {
                                 ThumbnailView(
-                                    filmID: film.id,
-                                    posterPath: film.posterPath,
+                                    media: MediaItem(from: film),
                                     size: CGSize(width: 175, height: 225),
-                                    transitionConfig: .init(namespace: namespace, source: film)
+                                    transitionConfig: .init(namespace: namespace, source: MediaItem(from: film))
                                 )
                                 .onTapGesture {
                                     send(.rowTapped(film))
@@ -306,10 +305,9 @@ extension CollectionDetailView {
                         .foregroundStyle(.secondary)
 
                     ThumbnailView(
-                        filmID: film.id,
-                        posterPath: film.posterPath,
+                        media: MediaItem(from: film),
                         size: .init(width: 80, height: 120),
-                        transitionConfig: .init(namespace: namespace, source: film)
+                        transitionConfig: .init(namespace: namespace, source: MediaItem(from: film))
                     )
 
                     VStack(alignment: .leading, spacing: 5) {

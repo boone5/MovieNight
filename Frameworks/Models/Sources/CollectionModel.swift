@@ -17,7 +17,7 @@ public struct CollectionModel: Equatable, Identifiable, Sendable {
     public var title: String
     public let type: CollectionType
     public let dateCreated: Date
-    public let filmCount: Int
+    public var filmCount: Int
     public let posterPaths: [String?]
 
     public init(

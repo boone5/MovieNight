@@ -16,30 +16,33 @@ public struct ThumbnailView: View {
     let media: MediaItem
     let size: CGSize
     let transitionConfig: NavigationTransitionConfiguration<MediaItem.ID>
+    let showFeedbackOverlay: Bool
 
     @State private var feedback: Feedback? = nil
 
     public init(
         media: MediaItem,
         size: CGSize,
-        transitionConfig: NavigationTransitionConfiguration<MediaItem.ID>
+        transitionConfig: NavigationTransitionConfiguration<MediaItem.ID>,
+        showFeedbackOverlay: Bool = true
     ) {
         self.media = media
         self.size = size
         self.transitionConfig = transitionConfig
+        self.showFeedbackOverlay = showFeedbackOverlay
     }
 
     public var body: some View {
         PosterView(imagePath: media.posterPath, size: size)
             .overlay(alignment: .bottomLeading) {
-                if let feedback {
+                if showFeedbackOverlay, let feedback {
                     FeedbackOverlayView(feedback: feedback)
                 }
             }
             .zoomSource(configuration: transitionConfig)
             .shadow(radius: 3, y: 4)
             .task(id: "loadFeedback") {
-                guard media.mediaType != .person else { return }
+                guard showFeedbackOverlay, media.mediaType != .person else { return }
 
                 guard media.feedback == nil else {
                     feedback = media.feedback

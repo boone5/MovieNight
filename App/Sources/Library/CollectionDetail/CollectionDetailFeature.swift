@@ -17,11 +17,19 @@ struct CollectionDetailFeature {
     struct State: Equatable {
         var collection: CollectionModel
         var films: [Film]
+        var title: String
+
         var isEditing: Bool = false
         var isEditingTitle: Bool = false
         var originalTitle: String = ""
 
         @Presents var selectedFilm: MediaItem?
+
+        init(collection: CollectionModel, films: [Film]) {
+            self.collection = collection
+            self.title = collection.title
+            self.films = films
+        }
     }
 
     enum Action: ViewAction, Equatable {
@@ -34,9 +42,12 @@ struct CollectionDetailFeature {
         case tappedDeleteCollection
         case rowTapped(Film)
         case confirmRename
+        case finishRename
         case cancelRename
         case startRename
         case toggleReorderMode
+        case moveFilms(IndexSet, Int)
+        case deleteFilms(IndexSet)
     }
 
     @Dependency(\.dismiss) var dismiss
@@ -61,13 +72,20 @@ struct CollectionDetailFeature {
 
             case .view(.confirmRename):
                 let collectionID = state.collection.id
-                let newTitle = state.collection.title
-                state.isEditingTitle = false
-                return .run { _ in
+                let newTitle = state.title
+
+                return .run { send in
                     try movieProvider.renameCollection(collectionID, to: newTitle)
+                    await send(.view(.finishRename))
                 }
 
+            case .view(.finishRename):
+                state.isEditingTitle = false
+                state.collection.title = state.title
+                return .none
+
             case .view(.cancelRename):
+                state.title = state.originalTitle
                 state.collection.title = state.originalTitle
                 state.isEditingTitle = false
                 return .none
@@ -82,6 +100,21 @@ struct CollectionDetailFeature {
             case .view(.toggleReorderMode):
                 state.isEditing.toggle()
                 return .none
+
+            case .view(.moveFilms(let source, let destination)):
+                state.films.move(fromOffsets: source, toOffset: destination)
+                return .none
+
+            case .view(.deleteFilms(let offsets)):
+                let filmsToDelete = offsets.map { state.films[$0] }
+                let collectionId = state.collection.id
+                state.films.remove(atOffsets: offsets)
+                state.collection.filmCount = state.films.count
+                return .run { _ in
+                    for film in filmsToDelete {
+                        try movieProvider.removeFilmFromCollection(filmId: film.id, collectionId: collectionId)
+                    }
+                }
             }
         }
     }

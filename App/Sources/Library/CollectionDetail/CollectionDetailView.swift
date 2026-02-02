@@ -47,39 +47,41 @@ struct CollectionDetailView: View {
                     .opacity(1 - headerOpacity)
             }
 
-            ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    Button {
-                        // TODO: Search Modal
-                        print("open search modal")
-                    } label: {
-                        Label("Add Films", systemImage: "rectangle.portrait.badge.plus")
-                    }
-
-                    if store.collection.type == .ranked {
+            if store.collection.id != FilmCollection.recentlyWatchedID {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
                         Button {
-                            send(.toggleReorderMode)
+                            // TODO: Search Modal
+                            print("open search modal")
                         } label: {
-                            Label(
-                                store.isEditing ? "Done Reordering" : "Reorder",
-                                systemImage: "arrow.up.arrow.down"
-                            )
+                            Label("Add Films", systemImage: "rectangle.portrait.badge.plus")
                         }
-                    }
 
-                    Button {
-                        send(.startRename)
-                    } label: {
-                        Label("Rename Collection", systemImage: "pencil")
-                    }
+                        if store.collection.type == .ranked {
+                            Button {
+                                send(.toggleReorderMode)
+                            } label: {
+                                Label(
+                                    store.isEditing ? "Done Reordering" : "Reorder",
+                                    systemImage: "arrow.up.arrow.down"
+                                )
+                            }
+                        }
 
-                    Button(role: .destructive) {
-                        send(.tappedDeleteCollection)
+                        Button {
+                            send(.startRename)
+                        } label: {
+                            Label("Rename Collection", systemImage: "pencil")
+                        }
+
+                        Button(role: .destructive) {
+                            send(.tappedDeleteCollection)
+                        } label: {
+                            Label("Delete Collection", systemImage: "trash")
+                        }
                     } label: {
-                        Label("Delete Collection", systemImage: "trash")
+                        Image(systemName: "ellipsis")
                     }
-                } label: {
-                    Image(systemName: "ellipsis")
                 }
             }
         }
@@ -120,21 +122,20 @@ extension CollectionDetailView {
                             }
                             .minimumScaleFactor(0.5)
 
-                        Button {
-                            onConfirmRename?()
-                        } label: {
-                            Image(systemName: "checkmark.circle.fill")
-                                .font(.system(size: 24))
-                                .foregroundStyle(.green)
-                        }
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 24))
+                            .foregroundStyle(.green)
+                            .onTapGesture {
+                                onConfirmRename?()
+                            }
 
-                        Button {
-                            onCancelRename?()
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.system(size: 24))
-                                .foregroundStyle(.red)
-                        }
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 24))
+                            .foregroundStyle(.red)
+                            .onTapGesture {
+                                onCancelRename?()
+                            }
+
                     } else {
                         Text(title)
                             .font(.montserrat(size: 34, weight: .bold))
@@ -188,7 +189,7 @@ extension CollectionDetailView {
             ScrollView {
                 VStack(spacing: 25) {
                     Header(
-                        title: $store.collection.title,
+                        title: $store.title,
                         type: store.collection.type,
                         filmCount: store.collection.filmCount,
                         headerOpacity: $headerOpacity,
@@ -225,8 +226,7 @@ extension CollectionDetailView {
 
                                     Menu {
                                         Button(role: .destructive) {
-                                            // TODO: Delete Film from collection
-                                            print("delete movie from collection")
+                                            send(.deleteFilms(IndexSet(integer: index)))
                                         } label: {
                                             Label("Delete", systemImage: "trash")
                                         }
@@ -258,7 +258,7 @@ extension CollectionDetailView {
         var body: some View {
             List {
                 Header(
-                    title: $store.collection.title,
+                    title: $store.title,
                     type: store.collection.type,
                     filmCount: store.collection.filmCount,
                     headerOpacity: $headerOpacity,
@@ -277,7 +277,8 @@ extension CollectionDetailView {
                     Row(
                         rank: idx + 1,
                         film: film,
-                        namespace: namespace
+                        namespace: namespace,
+                        isEditMode: $store.isEditing
                     )
                     .onTapGesture {
                         send(.rowTapped(film))
@@ -286,8 +287,8 @@ extension CollectionDetailView {
                     .listRowSeparator(.visible, edges: .bottom)
                     .listRowSeparator(.hidden, edges: .top)
                 }
-                .onMove { store.films.move(fromOffsets: $0, toOffset: $1) }
-                .onDelete(perform: { store.films.remove(atOffsets: $0) })
+                .onMove { send(.moveFilms($0, $1)) }
+                .onDelete { send(.deleteFilms($0)) }
             }
             .listStyle(.plain)
             .environment(\.editMode, .constant(store.isEditing ? .active : .inactive))
@@ -297,6 +298,7 @@ extension CollectionDetailView {
             let rank: Int
             let film: Film
             let namespace: Namespace.ID
+            @Binding var isEditMode: Bool
 
             var body: some View {
                 HStack(spacing: 20) {
@@ -307,7 +309,8 @@ extension CollectionDetailView {
                     ThumbnailView(
                         media: MediaItem(from: film),
                         size: .init(width: 80, height: 120),
-                        transitionConfig: .init(namespace: namespace, source: MediaItem(from: film))
+                        transitionConfig: .init(namespace: namespace, source: MediaItem(from: film)),
+                        showFeedbackOverlay: false
                     )
 
                     VStack(alignment: .leading, spacing: 5) {
@@ -329,6 +332,8 @@ extension CollectionDetailView {
 
                         if let overview = film.overview {
                             Text(overview)
+                                .font(.openSans(size: 14))
+                                .foregroundStyle(.secondary)
                                 .lineLimit(2)
                                 .truncationMode(.tail)
                         }
@@ -336,8 +341,10 @@ extension CollectionDetailView {
 
                     Spacer()
 
-                    Image(systemName: "chevron.right")
-                        .foregroundColor(.gray)
+                    if !isEditMode {
+                        Image(systemName: "chevron.right")
+                            .foregroundColor(.gray)
+                    }
                 }
                 .contentShape(Rectangle())
             }

@@ -11,32 +11,23 @@ import Models
 // MARK: - Add to Collection Sheet
 
 struct AddToCollectionSheet: View {
-    let viewModel: MediaDetailViewModel
+    @Bindable var viewModel: MediaDetailViewModel
     @Environment(\.dismiss) var dismiss
-
-    private var sortedCollections: [FilmCollection] {
-        viewModel.collections.filter {
-            $0.id != FilmCollection.recentlyWatchedID
-        }
-    }
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
-                    ForEach(Array(sortedCollections.enumerated()), id: \.element.id) { idx, collection in
+                    ForEach(viewModel.collectionModels.enumerated(), id: \.element.id) { idx, model in
                         VStack(spacing: 10) {
                             Button {
-                                viewModel.toggleCollection(collection.id)
+                                viewModel.toggleCollection(model)
                             } label: {
-                                Row(
-                                    collection: collection,
-                                    isInCollection: viewModel.filmIsInCollection(collection)
-                                )
+                                Row(viewModel: viewModel, model: model)
                             }
                             .buttonStyle(.plain)
 
-                            if idx != sortedCollections.count - 1 {
+                            if idx != viewModel.collectionModels.count - 1 {
                                 Rectangle()
                                     .foregroundStyle(.gray.opacity(0.3))
                                     .frame(height: 1)
@@ -46,6 +37,7 @@ struct AddToCollectionSheet: View {
                     }
                 }
                 .padding(PLayout.horizontalMarginPadding)
+                .frame(maxWidth: .infinity)
             }
             .background {
                 viewModel.averageColor
@@ -68,28 +60,23 @@ struct AddToCollectionSheet: View {
 
 extension AddToCollectionSheet {
     struct Row: View {
-        let collection: FilmCollection
-        let isInCollection: Bool
-
-        private var posterPaths: [String?] {
-            let films = collection.films?.array as? [Film] ?? []
-            return films.prefix(3).map { $0.posterPath }
-        }
+        @Bindable var viewModel: MediaDetailViewModel
+        let model: CollectionModel
 
         var body: some View {
             HStack(spacing: 15) {
-                PosterFanView(posterPaths: posterPaths)
+                PosterFanView(posterPaths: model.posterPaths)
 
                 VStack(alignment: .leading, spacing: 5) {
-                    Text(collection.title ?? "Untitled")
+                    Text(model.title)
                         .font(.openSans(size: 16, weight: .medium))
                         .foregroundStyle(.white)
 
                     HStack(spacing: 0) {
                         Group {
-                            Text(collection.type.title)
+                            Text(model.type.title)
                             Text(" \u{2022} ")
-                            Text("\(collection.films?.count ?? 0) films")
+                            Text("\(model.filmCount) films")
                         }
                         .font(.openSans(size: 14))
                         .foregroundStyle(Color(uiColor: .systemGray2))
@@ -99,7 +86,7 @@ extension AddToCollectionSheet {
 
                 Spacer()
 
-                if isInCollection {
+                if viewModel.isFilmInCollection(model) {
                     Image(systemName: "checkmark")
                         .foregroundStyle(.white)
                         .font(.system(size: 18, weight: .semibold))

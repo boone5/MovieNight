@@ -19,7 +19,7 @@ class MediaDetailViewModel {
     var showFullSummary: Bool = false
     var actionTapped: QuickAction? = nil
     var watchCount: Int = 0
-    var collections: [FilmCollection] = []
+    var collectionModels: [CollectionModel] = []
 
     var menuSections: [MenuSection] = []
 
@@ -41,7 +41,6 @@ class MediaDetailViewModel {
         self.media = media
     }
 
-    @MainActor
     func loadInitialData() async {
         guard loadingState == .idle else { return }
         loadingState = .loading
@@ -58,9 +57,15 @@ class MediaDetailViewModel {
             await getAdditionDetailsPerson()
         }
 
-        self.collections = movieProvider.fetchAllCollections()
+        self.collectionModels = buildCollectionModels()
         setMenuActions()
         loadingState = .loaded
+    }
+
+    private func buildCollectionModels() -> [CollectionModel] {
+        movieProvider.fetchAllCollections()
+            .filter { $0.id != FilmCollection.recentlyWatchedID }
+            .map { CollectionModel(from: $0) }
     }
 
     /// Hydrates the `media` snapshot from the saved library if present.
@@ -338,22 +343,20 @@ class MediaDetailViewModel {
         menuSections = sections
     }
 
-    func filmIsInCollection(_ collection: FilmCollection) -> Bool {
-        guard let films = collection.films?.array as? [Film] else { return false }
-        return films.contains { $0.id == media.id }
-    }
-
-    func toggleCollection(_ collectionId: UUID?) {
-        guard let collectionId else { return }
-        guard let collection = movieProvider.fetchCollection(collectionId) else { return }
-
-        if filmIsInCollection(collection) {
-            try? movieProvider.removeFilmFromCollection(filmId: media.id, collectionId: collectionId)
+    func toggleCollection(_ model: CollectionModel) {
+        if isFilmInCollection(model) {
+            try? movieProvider.removeFilmFromCollection(filmId: media.id, collectionId: model.id)
         } else {
             _ = saveToLibraryIfNecessary()
-            try? movieProvider.addFilmToCollection(filmId: media.id, collectionId: collectionId)
+            try? movieProvider.addFilmToCollection(filmId: media.id, collectionId: model.id)
         }
-        self.collections = movieProvider.fetchAllCollections()
+
+        self.collectionModels = buildCollectionModels()
+    }
+
+    func isFilmInCollection(_ collection: CollectionModel) -> Bool {
+        let films = collection.posterPaths
+        return films.contains { $0 == media.posterPath }
     }
 }
 

@@ -31,7 +31,7 @@ struct LibraryFeature {
         var recentlyWatchedCount: Int = 0
 
         @Presents var selectedItem: MediaItem?
-        @Presents var addCollection: AddCollectionFeature.State?
+        @Presents var addCollection: CreateCollectionFeature.State?
 
         var shouldShowContent: Bool {
             recentlyWatchedCount >= 1 || collections.count >= 1
@@ -41,7 +41,7 @@ struct LibraryFeature {
     enum Action: ViewAction, Equatable {
         case path(StackActionOf<Path>)
         case view(View)
-        case addCollection(PresentationAction<AddCollectionFeature.Action>)
+        case addCollection(PresentationAction<CreateCollectionFeature.Action>)
     }
 
     @CasePathable
@@ -67,7 +67,7 @@ struct LibraryFeature {
                 return .none
 
             case .view(.tappedAddCollectionButton):
-                state.addCollection = AddCollectionFeature.State()
+                state.addCollection = CreateCollectionFeature.State()
                 return .none
 
             case let .view(.tappedCollection(collectionModel)):
@@ -78,7 +78,7 @@ struct LibraryFeature {
                 )))
                 return .none
 
-            case let .path(.element(id, action: .collectionDetail(.view(.confirmRename)))):
+            case let .path(.element(id, action: .collectionDetail(.view(.finishRename)))):
                 guard case let .collectionDetail(detailState) = state.path[id: id] else {
                     return .none
                 }
@@ -92,7 +92,7 @@ struct LibraryFeature {
             }
         }
         .ifLet(\.$addCollection, action: \.addCollection) {
-            AddCollectionFeature()
+            CreateCollectionFeature()
         }
         .forEach(\.path, action: \.path)
     }

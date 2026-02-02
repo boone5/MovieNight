@@ -19,7 +19,7 @@ struct CollectionDetailFeature {
         var films: [Film]
         var title: String
 
-        var isEditing: Bool = false
+        var isReordering: Bool = false
         var isEditingTitle: Bool = false
         var originalTitle: String = ""
 
@@ -41,7 +41,6 @@ struct CollectionDetailFeature {
         case binding(BindingAction<State>)
         case tappedDeleteCollection
         case rowTapped(Film)
-        case confirmRename
         case finishRename
         case cancelRename
         case startRename
@@ -70,19 +69,16 @@ struct CollectionDetailFeature {
                 state.isEditingTitle = true
                 return .none
 
-            case .view(.confirmRename):
+            case .view(.finishRename):
                 let collectionID = state.collection.id
                 let newTitle = state.title
 
-                return .run { send in
-                    try movieProvider.renameCollection(collectionID, to: newTitle)
-                    await send(.view(.finishRename))
-                }
-
-            case .view(.finishRename):
                 state.isEditingTitle = false
                 state.collection.title = state.title
-                return .none
+
+                return .run { send in
+                    try movieProvider.renameCollection(collectionID, to: newTitle)
+                }
 
             case .view(.cancelRename):
                 state.title = state.originalTitle
@@ -98,7 +94,7 @@ struct CollectionDetailFeature {
                 }
 
             case .view(.toggleReorderMode):
-                state.isEditing.toggle()
+                state.isReordering.toggle()
                 return .none
 
             case .view(.moveFilms(let source, let destination)):

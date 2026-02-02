@@ -28,9 +28,9 @@ public class MovieProvider: MovieProviderClient {
         if container.viewContext.hasChanges {
             do {
                 try container.viewContext.save()
-                log(.movieProvider, .info, "✅ Successfully saved Movie into Core Data")
+                log(.movieProvider, .info, "✅ Successfully saved new context.")
             } catch {
-                log(.movieProvider, .error, "⛔️ Error saving Movie into Core Data: \(error.localizedDescription)")
+                log(.movieProvider, .error, "⛔️ Error saving context: \(error.localizedDescription)")
             }
         }
     }
@@ -93,8 +93,6 @@ public class MovieProvider: MovieProviderClient {
         }
         recentlyWatchedCollection.addToFilms(movie)
         movie.addToCollections(recentlyWatchedCollection)
-
-        // TODO: Also create Recently Watched collection when adding a film to a user collection
 
         if let context = movie.managedObjectContext {
             do {

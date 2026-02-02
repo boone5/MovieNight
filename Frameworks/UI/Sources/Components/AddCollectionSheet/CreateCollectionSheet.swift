@@ -1,5 +1,5 @@
 //
-//  AddCollectionSheet.swift
+//  CreateCollectionSheet.swift
 //  App
 //
 //  Created by Boone on 12/10/25.
@@ -10,7 +10,7 @@ import Models
 import SwiftUI
 
 @Reducer
-public struct AddCollectionFeature {
+public struct CreateCollectionFeature {
     public init() { }
 
     @ObservableState
@@ -59,10 +59,10 @@ public struct AddCollectionFeature {
     }
 }
 
-public struct AddCollectionSheet: View {
-    @Bindable var store: StoreOf<AddCollectionFeature>
+public struct CreateCollectionSheet: View {
+    @Bindable var store: StoreOf<CreateCollectionFeature>
 
-    public init(store: StoreOf<AddCollectionFeature>) {
+    public init(store: StoreOf<CreateCollectionFeature>) {
         self.store = store
     }
 
@@ -129,10 +129,10 @@ public struct AddCollectionSheet: View {
 }
 
 #Preview {
-    AddCollectionSheet(
+    CreateCollectionSheet(
         store: Store(
-            initialState: AddCollectionFeature.State(),
-            reducer: { AddCollectionFeature() }
+            initialState: CreateCollectionFeature.State(),
+            reducer: { CreateCollectionFeature() }
         )
     )
 }

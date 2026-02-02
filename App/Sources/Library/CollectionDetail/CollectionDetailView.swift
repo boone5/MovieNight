@@ -62,7 +62,7 @@ struct CollectionDetailView: View {
                                 send(.toggleReorderMode)
                             } label: {
                                 Label(
-                                    store.isEditing ? "Done Reordering" : "Reorder",
+                                    store.isReordering ? "Done Reordering" : "Reorder",
                                     systemImage: "arrow.up.arrow.down"
                                 )
                             }
@@ -103,7 +103,7 @@ extension CollectionDetailView {
         public let filmCount: Int
         @Binding public var headerOpacity: CGFloat
         @Binding public var isEditingTitle: Bool
-        public var onConfirmRename: (() -> Void)? = nil
+        public var onFinishRename: (() -> Void)? = nil
         public var onCancelRename: (() -> Void)? = nil
 
         @State private var initialMinY: CGFloat?
@@ -126,7 +126,7 @@ extension CollectionDetailView {
                             .font(.system(size: 24))
                             .foregroundStyle(.green)
                             .onTapGesture {
-                                onConfirmRename?()
+                                onFinishRename?()
                             }
 
                         Image(systemName: "xmark.circle.fill")
@@ -194,8 +194,8 @@ extension CollectionDetailView {
                         filmCount: store.collection.filmCount,
                         headerOpacity: $headerOpacity,
                         isEditingTitle: $store.isEditingTitle,
-                        onConfirmRename: {
-                            send(.confirmRename)
+                        onFinishRename: {
+                            send(.finishRename)
                         },
                         onCancelRename: {
                             send(.cancelRename)
@@ -263,8 +263,8 @@ extension CollectionDetailView {
                     filmCount: store.collection.filmCount,
                     headerOpacity: $headerOpacity,
                     isEditingTitle: $store.isEditingTitle,
-                    onConfirmRename: {
-                        send(.confirmRename)
+                    onFinishRename: {
+                        send(.finishRename)
                     },
                     onCancelRename: {
                         send(.cancelRename)
@@ -278,7 +278,7 @@ extension CollectionDetailView {
                         rank: idx + 1,
                         film: film,
                         namespace: namespace,
-                        isEditMode: $store.isEditing
+                        isEditMode: $store.isReordering
                     )
                     .onTapGesture {
                         send(.rowTapped(film))
@@ -291,7 +291,7 @@ extension CollectionDetailView {
                 .onDelete { send(.deleteFilms($0)) }
             }
             .listStyle(.plain)
-            .environment(\.editMode, .constant(store.isEditing ? .active : .inactive))
+            .environment(\.editMode, .constant(store.isReordering ? .active : .inactive))
         }
 
         struct Row: View {

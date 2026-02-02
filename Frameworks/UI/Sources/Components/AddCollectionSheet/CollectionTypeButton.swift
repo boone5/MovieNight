@@ -9,7 +9,7 @@ import Models
 import SwiftUI
 import UI
 
-extension AddCollectionSheet {
+extension CreateCollectionSheet {
     struct CollectionTypeButton: View {
         let type: CollectionType
         var isSelected: Bool

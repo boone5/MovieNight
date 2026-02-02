@@ -18,7 +18,6 @@ struct CollectionsView: View {
 
     private var visibleCollections: [CollectionModel] {
         store.collections
-            .filter { $0.id != FilmCollection.watchLaterID }
             .sorted { lhs, rhs in
                 // Recently Watched (movieID) always appears first
                 if lhs.id == FilmCollection.recentlyWatchedID { return true }

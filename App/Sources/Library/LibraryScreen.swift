@@ -94,7 +94,7 @@ struct LibraryScreen: View {
                 )
             }
             .sheet(item: $store.scope(state: \.addCollection, action: \.addCollection)) { store in
-                AddCollectionSheet(store: store)
+                CreateCollectionSheet(store: store)
             }
         } destination: { store in
             switch store.case {

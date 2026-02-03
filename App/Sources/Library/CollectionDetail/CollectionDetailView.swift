@@ -304,7 +304,7 @@ extension CollectionDetailView {
                 HStack(spacing: 20) {
                     Text("\(rank)")
                         .font(.openSans(size: 24, weight: .bold))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.primary)
 
                     ThumbnailView(
                         media: MediaItem(from: film),

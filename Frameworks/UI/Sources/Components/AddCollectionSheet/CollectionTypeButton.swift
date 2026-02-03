@@ -7,7 +7,6 @@
 
 import Models
 import SwiftUI
-import UI
 
 extension CreateCollectionSheet {
     struct CollectionTypeButton: View {
@@ -18,7 +17,7 @@ extension CreateCollectionSheet {
             if isSelected {
                 .white
             } else {
-                .gray
+                .primary
             }
         }
 

@@ -106,9 +106,17 @@ struct CollectionDetailFeature {
                 let collectionId = state.collection.id
                 state.films.remove(atOffsets: offsets)
                 state.collection.filmCount = state.films.count
-                return .run { _ in
-                    for film in filmsToDelete {
-                        try movieProvider.removeFilmFromCollection(filmId: film.id, collectionId: collectionId)
+                return .run { [collection = state.collection] _ in
+                    if collection.id == FilmCollection.recentlyWatchedID {
+                        // remove from library
+                        for film in filmsToDelete {
+                            try movieProvider.deleteFilm(film.id)
+                        }
+                    } else {
+                        // remove from collection
+                        for film in filmsToDelete {
+                            try movieProvider.removeFilmFromCollection(filmId: film.id, collectionId: collectionId)
+                        }
                     }
                 }
             }

@@ -208,24 +208,9 @@ class MediaDetailViewModel {
         setMenuActions()
     }
 
-    private func markAsWatched() {
-        media.feedback = nil
-
-        _ = try? movieProvider.saveFilmToLibrary(.init(media))
-        setMenuActions()
-    }
-
-    private func addToWatchList() {
-        media.feedback = nil
-
-        _ = try? movieProvider.saveFilmToWatchLater(self.media)
-        setMenuActions()
-    }
-
     public func setMenuActions() {
         var sections: [MenuSection] = []
 
-        var primaryActions: [MenuAction] = []
         var destructiveActions: [MenuAction] = []
 
         // Person-specific actions
@@ -260,42 +245,13 @@ class MediaDetailViewModel {
         }
 
         // Film/TV actions
-        if let existingFilm = movieProvider.fetchFilm(media.id) {
-            if existingFilm.isOnWatchList {
-                primaryActions.append(
-                    MenuAction(
-                        title: "Remove from Watch List",
-                        systemImage: "rectangle.stack.badge.minus",
-                        role: .normal,
-                        handler: { [weak self] in self?.removeFromLibrary() }
-                    )
-                )
-            } else {
-                destructiveActions.append(
-                    MenuAction(
-                        title: "Remove from Library",
-                        systemImage: "trash",
-                        role: .destructive,
-                        handler: { [weak self] in self?.removeFromLibrary() }
-                    )
-                )
-            }
-        } else {
-            primaryActions.append(
+        if movieProvider.fetchFilm(media.id) != nil {
+            destructiveActions.append(
                 MenuAction(
-                    title: "Mark as Watched",
-                    systemImage: "checkmark.circle",
-                    role: .normal,
-                    handler: { [weak self] in self?.markAsWatched() }
-                )
-            )
-
-            primaryActions.append(
-                MenuAction(
-                    title: "Add to Watch List",
-                    systemImage: "rectangle.stack.badge.plus",
-                    role: .normal,
-                    handler: { [weak self] in self?.addToWatchList() }
+                    title: "Remove from Library",
+                    systemImage: "trash",
+                    role: .destructive,
+                    handler: { [weak self] in self?.removeFromLibrary() }
                 )
             )
         }
@@ -329,11 +285,6 @@ class MediaDetailViewModel {
                 ]
             )
         )
-
-        // Primary actions
-        if !primaryActions.isEmpty {
-            sections.append(MenuSection(actions: primaryActions))
-        }
 
         // Destructive actions
         if !destructiveActions.isEmpty {

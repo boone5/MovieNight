@@ -105,35 +105,6 @@ public class MovieProvider: MovieProviderClient {
         return movie
     }
 
-    @discardableResult
-    public func saveFilmToWatchLater(_ film: MediaItem) throws(MovieError) -> Film {
-        let filmCD = Film(context: container.viewContext)
-        filmCD.title = film.title
-        filmCD.id = film.id
-        filmCD.dateWatched = nil
-        filmCD.posterPath = film.posterPath
-        filmCD.overview = film.overview
-        filmCD.releaseDate = film.releaseDate
-        filmCD.isOnWatchList = true
-        filmCD.feedback = film.feedback
-        filmCD.comments = .init(array: film.comments ?? [])
-
-        if let watchLaterCollection = fetchCollection(FilmCollection.watchLaterID) {
-            watchLaterCollection.addToFilms(filmCD)
-            filmCD.addToCollections(watchLaterCollection)
-        }
-
-        if let context = filmCD.managedObjectContext {
-            do {
-                try context.save()
-            } catch {
-                log(.movieProvider, .error, "⛔️ Failed to save: \(error)")
-                throw MovieError.unableToSaveFilm
-            }
-        }
-        return filmCD
-    }
-
     public func deleteFilm(_ id: Film.ID) throws(MovieError) {
         guard let movieToDelete = fetchFilm(id) else {
             throw MovieError.filmNotFound

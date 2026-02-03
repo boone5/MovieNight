@@ -5,10 +5,13 @@
 //  Created by Boone on 12/10/25.
 //
 
+import Models
 import SwiftUI
 
 public struct PosterFanView: View {
     let posterPaths: [String?]
+    let collectionType: CollectionType
+
     @State private var currentIndex = 0
     @GestureState private var dragOffset: CGSize = .zero
 
@@ -23,8 +26,15 @@ public struct PosterFanView: View {
     private let cardAnimation: Animation = .spring(response: 0.4, dampingFraction: 0.8)
     private let dragAnimation: Animation = .spring(response: 0.3, dampingFraction: 0.8)
 
-    public init(posterPaths: [String?]) {
+    public init(posterPaths: [String?], collectionType: CollectionType) {
+        var posterPaths = posterPaths
+
+        if collectionType == .custom || collectionType == .watchList {
+            posterPaths.reverse()
+        }
+
         self.posterPaths = posterPaths
+        self.collectionType = collectionType
     }
 
     public var body: some View {

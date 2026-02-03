@@ -65,7 +65,7 @@ extension AddToCollectionSheet {
 
         var body: some View {
             HStack(spacing: 15) {
-                PosterFanView(posterPaths: model.posterPaths)
+                PosterFanView(posterPaths: model.posterPaths, collectionType: model.type)
 
                 VStack(alignment: .leading, spacing: 5) {
                     Text(model.title)

@@ -59,7 +59,7 @@ extension CollectionsView {
 
         var body: some View {
             HStack(spacing: 15) {
-                PosterFanView(posterPaths: collection.posterPaths)
+                PosterFanView(posterPaths: collection.posterPaths, collectionType: collection.type)
 
                 VStack(alignment: .leading, spacing: 5) {
                     Text(collection.title)

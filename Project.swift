@@ -22,6 +22,7 @@ let project = Project(
             sources: ["App/Sources/**"],
             resources: ["App/Resources/**"],
             dependencies: [
+                .project(.account, from: .frameworks),
                 .project(.logger, from: .frameworks),
                 .project(.models, from: .frameworks),
                 .project(.networking, from: .frameworks),

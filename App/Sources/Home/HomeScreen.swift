@@ -5,6 +5,7 @@
 //  Created by Boone on 11/26/25.
 //
 
+import Account
 import Dependencies
 import Models
 import Networking
@@ -18,6 +19,8 @@ struct HomeScreen: View {
     @State private var trendingMovies: [MediaItem] = []
     @State private var trendingTVShows: [MediaItem] = []
     @State private var shouldLoad = true
+
+    @State private var showingAccountScreen: Bool = false
 
     // Film Detail View Properties
     @State private var selectedItem: MediaItem?
@@ -34,6 +37,7 @@ struct HomeScreen: View {
                     trailingButtons: [
                         NavigationHeaderButton(systemImage: "person") {
                             // TODO: Implement profile button action (e.g., navigate to profile screen).
+                            showingAccountScreen = true
                         }
                     ]
                 )
@@ -92,6 +96,9 @@ struct HomeScreen: View {
                 media: item,
                 navigationTransitionConfig: .init(namespace: namespace, source: item)
             )
+        }
+        .fullScreenCover(isPresented: $showingAccountScreen) {
+            AccountLandingScreen()
         }
     }
 }

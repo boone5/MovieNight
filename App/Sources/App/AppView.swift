@@ -5,6 +5,7 @@
 //  Created by Boone on 9/4/23.
 //
 
+import Account
 import ComposableArchitecture
 import Networking
 import Search
@@ -15,6 +16,11 @@ struct AppView: View {
     @Bindable var store: StoreOf<AppFeature>
 
     @Dependency(\.movieProvider.container.viewContext) var context
+
+    @AppStorage("app.themeMode") private var themeModeRaw: String = ThemeMode.system.rawValue
+    private var themeMode: ThemeMode {
+        ThemeMode(rawValue: themeModeRaw) ?? .system
+    }
 
     var body: some View {
         TabView(selection: $store.selectedTab) {
@@ -37,6 +43,7 @@ struct AppView: View {
                 SearchScreen(store: store.scope(state: \.search, action: \.search))
             }
         }
+        .preferredColorScheme(themeMode == .system ? nil : (themeMode == .dark ? .dark : .light))
     }
 }
  

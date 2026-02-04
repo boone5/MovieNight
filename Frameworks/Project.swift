@@ -76,6 +76,15 @@ let project = Project(
                 .external(.confettiSwiftUI)
             ]
         ),
+        .target(
+            framework: .account,
+            dependencies: [
+                .target(.logger),
+                .target(.networking),
+                .target(.ui),
+                .external(.composableArchitecture)
+            ]
+        )
     ],
     resourceSynthesizers: .default.filter { $0 != .fonts() }
 )

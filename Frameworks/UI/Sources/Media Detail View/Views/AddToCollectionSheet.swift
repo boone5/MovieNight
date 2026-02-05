@@ -17,7 +17,7 @@ struct AddToCollectionSheet: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 0) {
+                VStack(alignment: .leading, spacing: 10) {
                     ForEach(viewModel.collectionModels.enumerated(), id: \.element.id) { idx, model in
                         VStack(spacing: 10) {
                             Button {
@@ -33,7 +33,6 @@ struct AddToCollectionSheet: View {
                                     .frame(height: 1)
                             }
                         }
-                        .padding(.vertical, 10)
                     }
                 }
                 .padding(PLayout.horizontalMarginPadding)
@@ -41,11 +40,16 @@ struct AddToCollectionSheet: View {
             }
             .background {
                 viewModel.averageColor
-                .ignoresSafeArea()
+                    .overlay(Color.black.opacity(0.5))
+                    .ignoresSafeArea()
             }
-            .navigationTitle("Add to Collection")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Add to Collection")
+                        .foregroundStyle(.white)
+                }
+
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") {
                         dismiss()
@@ -68,10 +72,11 @@ extension AddToCollectionSheet {
         var body: some View {
             HStack(spacing: 15) {
                 PosterFanView(posterPaths: model.posterPaths, collectionType: model.type)
+                    .animation(.default, value: viewModel.isFilmInCollection(model))
 
                 VStack(alignment: .leading, spacing: 5) {
                     Text(model.title)
-                        .font(.openSans(size: 16, weight: .medium))
+                        .font(.openSans(size: 18, weight: .semibold))
                         .foregroundStyle(.white)
 
                     HStack(spacing: 0) {
@@ -79,8 +84,9 @@ extension AddToCollectionSheet {
                             Text(model.type.title)
                             Text(" \u{2022} ")
                             Text("\(model.filmCount) films")
+                                .contentTransition(.numericText())
                         }
-                        .font(.openSans(size: 14))
+                        .font(.openSans(size: 16))
                         .foregroundStyle(Color(uiColor: .systemGray2))
                     }
                 }
@@ -92,9 +98,11 @@ extension AddToCollectionSheet {
                     Image(systemName: "checkmark")
                         .foregroundStyle(.white)
                         .font(.system(size: 18, weight: .semibold))
+                        .transition(.scale)
                 }
             }
             .contentShape(.rect)
+            .animation(.interactiveSpring, value: viewModel.isFilmInCollection(model))
         }
     }
 }

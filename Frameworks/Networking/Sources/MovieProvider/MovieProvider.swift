@@ -29,8 +29,6 @@ public protocol MovieProviderClient {
 
     var eventPublisher: AnyPublisher<MovieProviderEvent, Never> { get }
 
-    var eventPublisher: AnyPublisher<MovieProviderEvent, Never> { get }
-
     var container: NSPersistentContainer { get }
 }
 

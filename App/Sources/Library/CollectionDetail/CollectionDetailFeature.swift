@@ -48,6 +48,7 @@ struct CollectionDetailFeature {
         case moveFilms(IndexSet, Int)
         case moveFilmsSuccess(IndexSet, Int)
         case deleteFilms(IndexSet)
+        case deleteFilmsSuccess(IndexSet)
     }
 
     @Dependency(\.dismiss) var dismiss
@@ -77,11 +78,14 @@ struct CollectionDetailFeature {
                 state.isEditingTitle = false
                 state.collection.title = state.title
 
-                // TODO: Add error handling for renameCollection failure (PR #13)
-                // - Catch errors and revert state.title and state.collection.title to originalTitle
-                // - Display user-facing alert with error message
                 return .run { send in
                     try movieProvider.renameCollection(collectionID, to: newTitle)
+                } catch: { error, send in
+                    print(error.localizedDescription)
+                    // TODO: Add error handling for renameCollection failure (PR #13)
+                    // - Catch errors and revert state.title and state.collection.title to originalTitle
+                    // - Display user-facing alert with error message
+                    // await send(.displayErrorToast(.renameError))
                 }
 
             case .view(.cancelRename):
@@ -92,12 +96,14 @@ struct CollectionDetailFeature {
 
             case .view(.tappedDeleteCollection):
                 let collectionID = state.collection.id
-                // TODO: Add error handling for deleteCollection failure (PR #13)
-                // - Catch errors and display user-facing alert
-                // - Do not dismiss if deletion fails
                 return .run { _ in
                     try movieProvider.deleteCollection(collectionID)
                     await dismiss()
+                } catch: { error, send in
+                    // TODO: Add error handling for deleteCollection failure (PR #13)
+                    // - Catch errors and display user-facing alert
+                    // - Do not dismiss if deletion fails
+                    // await send(.displayErrorToast(.deleteError))
                 }
 
             case .view(.toggleReorderMode):
@@ -114,7 +120,7 @@ struct CollectionDetailFeature {
                     await send(.view(.moveFilmsSuccess(source, destination)))
                 } catch: { error, send in
                     print(error.localizedDescription)
-                    // TODO: Handle error - show toast to user
+                    // TODO: Add error handling (PR #13)
                 }
 
             case .view(.moveFilmsSuccess(let source, let destination)):
@@ -124,9 +130,7 @@ struct CollectionDetailFeature {
             case .view(.deleteFilms(let offsets)):
                 let filmsToDelete = offsets.map { state.films[$0] }
                 let collectionId = state.collection.id
-                state.films.remove(atOffsets: offsets)
-                state.collection.filmCount = state.films.count
-                return .run { [collection = state.collection] _ in
+                return .run { [collection = state.collection] send in
                     if collection.id == FilmCollection.recentlyWatchedID {
                         // remove from library
                         for film in filmsToDelete {
@@ -138,7 +142,16 @@ struct CollectionDetailFeature {
                             try movieProvider.removeFilmFromCollection(filmId: film.id, collectionId: collectionId)
                         }
                     }
+                    await send(.view(.deleteFilmsSuccess(offsets)))
+                } catch: { error, send in
+                    print(error.localizedDescription)
+                    // TODO: Add error handling (PR #13)
                 }
+
+            case .view(.deleteFilmsSuccess(let offsets)):
+                state.films.remove(atOffsets: offsets)
+                state.collection.filmCount = state.films.count
+                return .none
             }
         }
     }

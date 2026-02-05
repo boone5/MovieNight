@@ -169,7 +169,7 @@ private struct FeedbackRatingButton: View {
     @Binding var selectedRating: FeedbackRating
 
     @State private var isPulsing: Bool = false
-    @State private var pulseTask: Task<Void, Never>? = nil
+    @State private var pulseTask: Task<Void, Never>?
 
     var isSelected: Bool { selectedRating == rating }
 

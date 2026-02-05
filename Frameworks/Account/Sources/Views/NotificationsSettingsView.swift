@@ -167,7 +167,7 @@ fileprivate extension NotificationsSettingsView {
         }
 
         func requestPermission() {
-            UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { [weak self] granted, error in
+            UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { [weak self] _, _ in
                 DispatchQueue.main.async {
                     self?.refreshPermissionsSilently()
                 }

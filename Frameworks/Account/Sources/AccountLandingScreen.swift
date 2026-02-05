@@ -115,7 +115,7 @@ public struct AccountLandingScreen: View {
     }
 }
 
-private struct AccountRow<Destination:View>: View {
+private struct AccountRow<Destination: View>: View {
     var icon: String
     var title: String
     var isFirst: Bool
@@ -127,7 +127,7 @@ private struct AccountRow<Destination:View>: View {
         title: String,
         isFirst: Bool = false,
         isLast: Bool = false,
-        @ViewBuilder destination:  @escaping () -> Destination
+        @ViewBuilder destination: @escaping () -> Destination
     ) {
         self.icon = icon
         self.title = title
@@ -174,4 +174,3 @@ private struct AccountRow<Destination:View>: View {
     AccountLandingScreen()
         .loadCustomFonts()
 }
-

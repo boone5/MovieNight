@@ -92,6 +92,7 @@ extension AddToCollectionSheet {
                         .font(.system(size: 18, weight: .semibold))
                 }
             }
+            .contentShape(.rect)
         }
     }
 }

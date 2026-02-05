@@ -19,7 +19,7 @@ struct CollectionsView: View {
     private var visibleCollections: [CollectionModel] {
         store.collections
             .sorted { lhs, rhs in
-                // Recently Watched (movieID) always appears first
+                // Recently Watched always appears first
                 if lhs.id == FilmCollection.recentlyWatchedID { return true }
                 if rhs.id == FilmCollection.recentlyWatchedID { return false }
                 return lhs.dateCreated < rhs.dateCreated
@@ -39,6 +39,7 @@ struct CollectionsView: View {
                         Row(collection: collection)
                     }
                     .buttonStyle(.plain)
+                    .contentShape(.rect)
 
                     if idx != visibleCollections.endIndex-1 {
                         Rectangle()

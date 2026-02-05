@@ -81,8 +81,8 @@ public struct AccountLandingScreen: View {
                             
                         }
                         
-                        AccountRow(icon: "lock.shield", title: "Privacy & Security", isLast: true) {
-
+                        AccountRow(icon: "lock.shield", title: "Privacy & Legal", isLast: true) {
+                            PrivacyLegalView()
                         }
                         .padding(.bottom, 24)
 

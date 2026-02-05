@@ -109,7 +109,7 @@ public struct CreateCollectionSheet: View {
             .navigationTitle("New Collection")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button {
                         store.send(.tappedXButton)
                     } label: {
@@ -118,7 +118,7 @@ public struct CreateCollectionSheet: View {
                     .accessibilityLabel("Close")
                 }
 
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button {
                         store.send(.tappedCreateButton)
                     } label: {

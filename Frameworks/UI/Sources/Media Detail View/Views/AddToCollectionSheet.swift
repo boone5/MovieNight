@@ -46,12 +46,14 @@ struct AddToCollectionSheet: View {
             .navigationTitle("Add to Collection")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Done") {
                         dismiss()
                     }
+                    .accessibilityLabel("Done")
                 }
             }
+            .interactiveDismissDisabled()
         }
     }
 }

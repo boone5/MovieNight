@@ -17,11 +17,6 @@ struct AppView: View {
 
     @Dependency(\.movieProvider.container.viewContext) var context
 
-    @AppStorage("app.themeMode") private var themeModeRaw: String = ThemeMode.system.rawValue
-    private var themeMode: ThemeMode {
-        ThemeMode(rawValue: themeModeRaw) ?? .system
-    }
-
     var body: some View {
         TabView(selection: $store.selectedTab) {
             Tab(AppTab.home.label, systemImage: AppTab.home.icon, value: .home) {
@@ -43,7 +38,6 @@ struct AppView: View {
                 SearchScreen(store: store.scope(state: \.search, action: \.search))
             }
         }
-        .preferredColorScheme(themeMode == .system ? nil : (themeMode == .dark ? .dark : .light))
     }
 }
  

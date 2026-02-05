@@ -11,16 +11,7 @@ import SwiftUI
 public struct AccountLandingScreen: View {
     @Environment(\.dismiss) var dismiss
     @AppStorage("account.selectedAvatar") private var selectedAvatar: String = "person.fill"
-    @AppStorage("app.themeMode") private var themeModeRaw: String = ThemeMode.system.rawValue
-    private var themeMode: ThemeMode {
-        ThemeMode(rawValue: themeModeRaw) ?? .system
-    }
-    private var themeBinding: Binding<ThemeMode> {
-        Binding(
-            get: { themeMode },
-            set: { themeModeRaw = $0.rawValue }
-        )
-    }
+
     @State private var isShowingAvatarSheet = false
     @State private var tempSelectedAvatar: String = "person.fill"
 
@@ -90,11 +81,9 @@ public struct AccountLandingScreen: View {
                             
                         }
                         
-                        AccountRow(icon: "lock.shield", title: "Privacy & Security") {
-                            
+                        AccountRow(icon: "lock.shield", title: "Privacy & Security", isLast: true) {
+
                         }
-                        
-                        AccountThemeRow(icon: "paintbrush", title: "Theme", isLast: true, selection: themeBinding)
                         .padding(.bottom, 24)
 
                         AccountRow(icon: "info.circle", title: "About Us", isFirst: true) {
@@ -110,11 +99,11 @@ public struct AccountLandingScreen: View {
                 .padding(.horizontal, PLayout.horizontalMarginPadding)
             }
             .scrollBounceBehavior(.basedOnSize)
-        }
-        .safeAreaInset(edge: .bottom, spacing: 8) {
-            Text("App Version \(appVersion)")
-                .foregroundStyle(.secondary)
-                .font(.openSans(size: 12, weight: .medium))
+            .safeAreaInset(edge: .bottom, spacing: 8) {
+                Text("App Version \(appVersion)")
+                    .foregroundStyle(.secondary)
+                    .font(.openSans(size: 12, weight: .medium))
+            }
         }
         .sheet(isPresented: $isShowingAvatarSheet) {
             AvatarPickerSheet(selection: $tempSelectedAvatar) {
@@ -176,68 +165,6 @@ private struct AccountRow<Destination:View>: View {
             .contentShape(.rect)
         }
         .buttonStyle(.plain)
-    }
-}
-
-public enum ThemeMode: String, CaseIterable, Identifiable {
-    case system = "system"
-    case light = "light"
-    case dark = "dark"
-
-    public var id: String { rawValue }
-
-    var displayName: String {
-        switch self {
-        case .system: return "System"
-        case .light: return "Light"
-        case .dark: return "Dark"
-        }
-    }
-}
-
-private struct AccountThemeRow: View {
-    var icon: String
-    var title: String
-    var isFirst: Bool = false
-    var isLast: Bool = false
-    @Binding var selection: ThemeMode
-
-    var body: some View {
-        HStack(alignment: .center, spacing: 12) {
-            Image(systemName: icon)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 12)
-                .padding(6)
-                .background(.secondary.opacity(0.1), in: .circle)
-                .foregroundStyle(.secondary)
-            Text(title)
-                .font(.openSans(size: 16, weight: .regular))
-            Spacer()
-            Picker("", selection: $selection) {
-                ForEach(ThemeMode.allCases) { mode in
-                    Text(mode.displayName).tag(mode)
-                }
-            } currentValueLabel: {
-                Text(selection.displayName)
-                    .font(.openSans(size: 16))
-                    .foregroundStyle(.secondary)
-            }
-            .padding(.trailing, -10)
-            .tint(.secondary)
-        }
-        .foregroundStyle(.primary)
-        .padding()
-        .background {
-            UnevenRoundedRectangle(
-                topLeadingRadius: isFirst ? 12 : 0,
-                bottomLeadingRadius: isLast ? 12 : 0,
-                bottomTrailingRadius: isLast ? 12 : 0,
-                topTrailingRadius: isFirst ? 12 : 0
-            )
-            .fill(.thinMaterial)
-        }
-        .contentShape(.rect)
     }
 }
 

@@ -20,6 +20,7 @@ public struct ContactSupportView: View {
                         UIPasteboard.general.string = supportEmail
                     }
                     .buttonStyle(.bordered)
+                    .tint(.primary)
                 }
 
                 Button {
@@ -28,15 +29,20 @@ public struct ContactSupportView: View {
                     }
                 } label: {
                     Label("Email Us", systemImage: "paperplane")
+                        .font(.openSans(size: 16))
+                        .foregroundStyle(.primary)
                 }
+                .buttonStyle(.plain)
             }
+            .font(.openSans(size: 16, weight: .semibold))
 
             Section {
                 NavigationLink {
                     FeedbackFormView()
                 } label: {
                     Label("Write Feedback", systemImage: "square.and.pencil")
-                        .font(.openSans(size: 16, weight: .medium))
+                        .font(.openSans(size: 16))
+                        .foregroundStyle(.primary)
                 }
             }
         }
@@ -46,7 +52,7 @@ public struct ContactSupportView: View {
 }
 
 private enum FeedbackRating: String, CaseIterable, Identifiable {
-    case good = "Good"
+    case great = "Great"
     case okay = "Okay"
     case bad = "Bad"
 
@@ -54,7 +60,7 @@ private enum FeedbackRating: String, CaseIterable, Identifiable {
 
     var icon: String {
         switch self {
-        case .good: "hand.thumbsup"
+        case .great: "hand.thumbsup"
         case .okay: "face.smiling"
         case .bad: "hand.thumbsdown"
         }
@@ -62,7 +68,7 @@ private enum FeedbackRating: String, CaseIterable, Identifiable {
 
     var color: Color {
         switch self {
-        case .good: .goldPopcorn
+        case .great: .goldPopcorn
         case .okay: .gray
         case .bad: .popRed
         }
@@ -70,12 +76,12 @@ private enum FeedbackRating: String, CaseIterable, Identifiable {
 }
 
 private enum FeedbackCategory: String, CaseIterable, Identifiable {
-    case ui = "UI"
+    case ui = "UI & Design"
     case features = "Features"
     case content = "Content"
     case performance = "Performance"
     case featureRequest = "Feature Request"
-    case bug = "Bug"
+    case bug = "Bug Report"
 
     var id: String { rawValue }
 }
@@ -83,7 +89,7 @@ private enum FeedbackCategory: String, CaseIterable, Identifiable {
 private struct FeedbackFormView: View {
     @Environment(\.dismiss) private var dismiss
 
-    @State private var rating: FeedbackRating = .good
+    @State private var rating: FeedbackRating = .great
     @State private var category: FeedbackCategory = .ui
     @State private var note: String = ""
     @State private var showSubmittedAlert = false
@@ -92,11 +98,12 @@ private struct FeedbackFormView: View {
         Form {
             Section("Your Experience") {
                 HStack {
-                    FeedbackRatingButton(rating: .good, selectedRating: $rating)
+                    FeedbackRatingButton(rating: .great, selectedRating: $rating)
                     FeedbackRatingButton(rating: .okay, selectedRating: $rating)
                     FeedbackRatingButton(rating: .bad, selectedRating: $rating)
                 }
             }
+            .font(.openSans(size: 16, weight: .semibold))
 
             Section("Category") {
                 Picker("Category", selection: $category) {
@@ -104,7 +111,9 @@ private struct FeedbackFormView: View {
                         Text(cat.rawValue).tag(cat)
                     }
                 }
+                .font(.openSans(size: 16))
             }
+            .font(.openSans(size: 16, weight: .semibold))
 
             Section("Notes") {
                 ZStack(alignment: .topLeading) {
@@ -117,7 +126,9 @@ private struct FeedbackFormView: View {
                         .frame(minHeight: 120)
                         .font(.openSans(size: 16))
                 }
+                .font(.openSans(size: 16))
             }
+            .font(.openSans(size: 16, weight: .semibold))
 
             Section {
                 Button {
@@ -125,6 +136,7 @@ private struct FeedbackFormView: View {
                     showSubmittedAlert = true
                 } label: {
                     Text("Submit Feedback")
+                        .font(.openSans(size: 16))
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)

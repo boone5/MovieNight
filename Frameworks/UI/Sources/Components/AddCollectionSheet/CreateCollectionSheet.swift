@@ -46,6 +46,9 @@ public struct CreateCollectionFeature {
             case .tappedCreateButton:
                 let name = state.collectionName
                 let type = state.selectedCollectionType
+                // TODO: Add error handling for createCollection failure (PR #13)
+                // - Catch errors and display user-facing alert
+                // - Consider adding an `error` state property and corresponding alert
                 return .run { _ in
                     try movieProvider.createCollection(name: name, type: type)
                     await dismiss()

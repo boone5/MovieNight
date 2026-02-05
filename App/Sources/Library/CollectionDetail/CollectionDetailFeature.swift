@@ -76,6 +76,9 @@ struct CollectionDetailFeature {
                 state.isEditingTitle = false
                 state.collection.title = state.title
 
+                // TODO: Add error handling for renameCollection failure (PR #13)
+                // - Catch errors and revert state.title and state.collection.title to originalTitle
+                // - Display user-facing alert with error message
                 return .run { send in
                     try movieProvider.renameCollection(collectionID, to: newTitle)
                 }
@@ -88,6 +91,9 @@ struct CollectionDetailFeature {
 
             case .view(.tappedDeleteCollection):
                 let collectionID = state.collection.id
+                // TODO: Add error handling for deleteCollection failure (PR #13)
+                // - Catch errors and display user-facing alert
+                // - Do not dismiss if deletion fails
                 return .run { _ in
                     try movieProvider.deleteCollection(collectionID)
                     await dismiss()

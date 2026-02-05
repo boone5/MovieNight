@@ -8,43 +8,54 @@ public struct ContactSupportView: View {
     public init() {}
 
     public var body: some View {
-        List {
-            Section("Contact Info") {
-                HStack {
-                    Image(systemName: "envelope")
-                        .foregroundStyle(.secondary)
-                    Text(supportEmail)
-                        .font(.openSans(size: 16))
-                    Spacer()
-                    Button("Copy") {
-                        UIPasteboard.general.string = supportEmail
-                    }
-                    .buttonStyle(.bordered)
-                    .tint(.primary)
-                }
+        BackgroundColorView {
+            List {
+                Group {
+                    Section("Contact Info") {
+                        HStack {
+                            Image(systemName: "envelope")
+                                .foregroundStyle(.secondary)
+                            Text(supportEmail)
+                                .font(.openSans(size: 16))
+                            Spacer()
+                            Button("Copy") {
+                                UIPasteboard.general.string = supportEmail
+                            }
+                            .buttonStyle(.bordered)
+                            .tint(.primary)
+                        }
+                        .listRow(isFirst: true)
 
-                Button {
-                    if let url = URL(string: "mailto:\(supportEmail)") {
-                        openURL(url)
+                        Button {
+                            if let url = URL(string: "mailto:\(supportEmail)") {
+                                openURL(url)
+                            }
+                        } label: {
+                            Label("Email Us", systemImage: "paperplane")
+                                .font(.openSans(size: 16))
+                                .foregroundStyle(.primary)
+                        }
+                        .buttonStyle(.plain)
+                        .listRow(isLast: true)
                     }
-                } label: {
-                    Label("Email Us", systemImage: "paperplane")
-                        .font(.openSans(size: 16))
-                        .foregroundStyle(.primary)
-                }
-                .buttonStyle(.plain)
-            }
-            .font(.openSans(size: 16, weight: .semibold))
+                    .font(.openSans(size: 16, weight: .semibold))
 
-            Section {
-                NavigationLink {
-                    FeedbackFormView()
-                } label: {
-                    Label("Write Feedback", systemImage: "square.and.pencil")
-                        .font(.openSans(size: 16))
-                        .foregroundStyle(.primary)
+                    Section("") {
+                        NavigationLink {
+                            FeedbackFormView()
+                        } label: {
+                            Label("Write Feedback", systemImage: "square.and.pencil")
+                                .font(.openSans(size: 16))
+                                .foregroundStyle(.primary)
+                        }
+                        .listRow(isFirst: true, isLast: true)
+                    }
                 }
+                .listRowBackground(Color.background)
+                .listRowSeparator(.hidden)
+                .listRowInsets(.init(top: 0, leading: PLayout.horizontalMarginPadding, bottom: 0, trailing: PLayout.horizontalMarginPadding))
             }
+            .listStyle(.plain)
         }
         .navigationTitle("Contact Support")
         .navigationBarTitleDisplayMode(.inline)

@@ -23,86 +23,88 @@ public struct AccountLandingScreen: View {
 
     public var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack {
-                    NavigationHeader(
-                        title: "Account",
-                        trailingButtons: [
-                            .init(systemImage: "xmark", action: {
-                                dismiss()
-                            })
-                        ]
-                    )
+            BackgroundColorView {
+                ScrollView {
+                    VStack {
+                        NavigationHeader(
+                            title: "Account",
+                            trailingButtons: [
+                                .init(systemImage: "xmark", action: {
+                                    dismiss()
+                                })
+                            ]
+                        )
 
-                    // Predefined avatar options, similar to GitHub or StackOverflow
-                    Circle()
-                        .fill(.thinMaterial)
-                        .stroke(.primary)
-                        .frame(width: 100, height: 100)
-                        .overlay {
-                            Image(systemName: selectedAvatar)
-                                .font(.system(size: 40, weight: .regular))
-                                .foregroundStyle(.primary)
-                        }
-                        .overlay(alignment: .bottomTrailing) {
-                            Button {
-                                tempSelectedAvatar = selectedAvatar
-                                isShowingAvatarSheet = true
-                            } label: {
-                                Image(systemName: "arrow.trianglehead.2.counterclockwise")
-                                    .padding(4)
-                                    .background {
-                                        Circle()
-                                            .fill(Color.background)
-                                            .stroke(.primary.opacity(0.5))
-                                    }
+                        // Predefined avatar options, similar to GitHub or StackOverflow
+                        Circle()
+                            .fill(.thinMaterial)
+                            .stroke(.primary)
+                            .frame(width: 100, height: 100)
+                            .overlay {
+                                Image(systemName: selectedAvatar)
+                                    .font(.system(size: 40, weight: .regular))
+                                    .foregroundStyle(.primary)
                             }
-                            .buttonStyle(.plain)
-                        }
-                    
-                    // User's display name, editable (can be used to search for friends besides unique username)
-                    Text("Display Name")
-                        .font(.montserrat(size: 24, weight: .medium))
-                        .foregroundStyle(.primary)
+                            .overlay(alignment: .bottomTrailing) {
+                                Button {
+                                    tempSelectedAvatar = selectedAvatar
+                                    isShowingAvatarSheet = true
+                                } label: {
+                                    Image(systemName: "arrow.trianglehead.2.counterclockwise")
+                                        .padding(4)
+                                        .background {
+                                            Circle()
+                                                .fill(Color.background)
+                                                .stroke(.primary.opacity(0.5))
+                                        }
+                                }
+                                .buttonStyle(.plain)
+                            }
 
-                    // User's unique username (non-editable)
-                    Text("@username")
-                        .font(.openSans(size: 16))
-                        .foregroundStyle(.secondary)
-                    
-                    Divider()
-                    
-                    VStack(spacing: 0) {
-                        AccountRow(icon: "pencil", title: "Edit Profile", isFirst: true) {
+                        // User's display name, editable (can be used to search for friends besides unique username)
+                        Text("Display Name")
+                            .font(.montserrat(size: 24, weight: .medium))
+                            .foregroundStyle(.primary)
 
-                        }
-                        
-                        AccountRow(icon: "bell", title: "Notifications") {
-                            
-                        }
-                        
-                        AccountRow(icon: "lock.shield", title: "Privacy & Legal", isLast: true) {
-                            PrivacyLegalView()
-                        }
-                        .padding(.bottom, 24)
+                        // User's unique username (non-editable)
+                        Text("@username")
+                            .font(.openSans(size: 16))
+                            .foregroundStyle(.secondary)
 
-                        AccountRow(icon: "info.circle", title: "About Us", isFirst: true) {
-                            AboutUsView()
+                        Divider()
+
+                        VStack(spacing: 0) {
+                            AccountRow(icon: "pencil", title: "Edit Profile", isFirst: true) {
+
+                            }
+
+                            AccountRow(icon: "bell", title: "Notifications") {
+
+                            }
+
+                            AccountRow(icon: "lock.shield", title: "Privacy & Legal", isLast: true) {
+                                PrivacyLegalView()
+                            }
+                            .padding(.bottom, 24)
+
+                            AccountRow(icon: "info.circle", title: "About Us", isFirst: true) {
+                                AboutUsView()
+                            }
+
+                            AccountRow(icon: "questionmark.circle", title: "Contact Support", isLast: true) {
+                                ContactSupportView()
+                            }
                         }
-                        
-                        AccountRow(icon: "questionmark.circle", title: "Contact Support", isLast: true) {
-                            ContactSupportView()
-                        }
+                        .padding()
                     }
-                    .padding()
+                    .padding(.horizontal, PLayout.horizontalMarginPadding)
                 }
-                .padding(.horizontal, PLayout.horizontalMarginPadding)
-            }
-            .scrollBounceBehavior(.basedOnSize)
-            .safeAreaInset(edge: .bottom, spacing: 8) {
-                Text("App Version \(appVersion)")
-                    .foregroundStyle(.secondary)
-                    .font(.openSans(size: 12, weight: .medium))
+                .scrollBounceBehavior(.basedOnSize)
+                .safeAreaInset(edge: .bottom, spacing: 8) {
+                    Text("App Version \(appVersion)")
+                        .foregroundStyle(.secondary)
+                        .font(.openSans(size: 12, weight: .medium))
+                }
             }
         }
         .sheet(isPresented: $isShowingAvatarSheet) {

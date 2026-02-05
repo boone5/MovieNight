@@ -57,7 +57,7 @@ public struct SearchFeature {
     public var body: some ReducerOf<Self> {
         BindingReducer(action: \.view)
             .onChange(of: \.searchText) { oldValue, newValue in
-                Reduce { state, action in
+                Reduce { state, _ in
                     guard newValue != oldValue, !newValue.isEmpty else {
                         state.loadingState = newValue.isEmpty ? .idle : state.loadingState
                         return .none

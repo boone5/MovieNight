@@ -79,7 +79,7 @@ public struct AccountLandingScreen: View {
                             }
 
                             AccountRow(icon: "bell", title: "Notifications") {
-
+                                NotificationsSettingsView()
                             }
 
                             AccountRow(icon: "lock.shield", title: "Privacy & Legal", isLast: true) {

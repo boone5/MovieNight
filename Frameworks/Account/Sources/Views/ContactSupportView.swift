@@ -55,6 +55,7 @@ public struct ContactSupportView: View {
                 .listRowSeparator(.hidden)
                 .listRowInsets(.init(top: 0, leading: PLayout.horizontalMarginPadding, bottom: 0, trailing: PLayout.horizontalMarginPadding))
             }
+            .foregroundStyle(.primary)
             .listStyle(.plain)
         }
         .navigationTitle("Contact Support")

@@ -185,6 +185,15 @@ public class MovieProvider: MovieProviderClient {
         film.removeFromCollections(collection)
         save()
     }
+
+    public func updateFilmOrder(filmIds: [Film.ID], inCollection collectionId: UUID) throws(MovieError) {
+        guard let collection = fetchCollection(collectionId) else {
+            throw MovieError.collectionNotFound
+        }
+        let orderedFilms = filmIds.compactMap { fetchFilm($0) }
+        collection.films = NSOrderedSet(array: orderedFilms)
+        save()
+    }
 }
 
 extension NSPersistentContainer {

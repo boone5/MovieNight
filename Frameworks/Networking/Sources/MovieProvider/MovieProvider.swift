@@ -24,6 +24,7 @@ public protocol MovieProviderClient {
     func fetchAllCollections() -> [FilmCollection]
     func addFilmToCollection(filmId: Film.ID, collectionId: UUID) throws(MovieError)
     func removeFilmFromCollection(filmId: Film.ID, collectionId: UUID) throws(MovieError)
+    func updateFilmOrder(filmIds: [Film.ID], inCollection collectionId: UUID) throws(MovieError)
 
     var container: NSPersistentContainer { get }
 }

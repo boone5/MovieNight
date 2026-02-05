@@ -46,6 +46,7 @@ struct CollectionDetailFeature {
         case startRename
         case toggleReorderMode
         case moveFilms(IndexSet, Int)
+        case moveFilmsSuccess(IndexSet, Int)
         case deleteFilms(IndexSet)
     }
 
@@ -104,6 +105,19 @@ struct CollectionDetailFeature {
                 return .none
 
             case .view(.moveFilms(let source, let destination)):
+                let collectionId = state.collection.id
+                var reorderedFilms = state.films
+                reorderedFilms.move(fromOffsets: source, toOffset: destination)
+                let filmIds = reorderedFilms.map(\.id)
+                return .run { send in
+                    try movieProvider.updateFilmOrder(filmIds: filmIds, inCollection: collectionId)
+                    await send(.view(.moveFilmsSuccess(source, destination)))
+                } catch: { error, send in
+                    print(error.localizedDescription)
+                    // TODO: Handle error - show toast to user
+                }
+
+            case .view(.moveFilmsSuccess(let source, let destination)):
                 state.films.move(fromOffsets: source, toOffset: destination)
                 return .none
 

@@ -125,6 +125,7 @@ extension CollectionDetailView {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.system(size: 24))
                             .foregroundStyle(.green)
+                            .accessibilityLabel("Confirm rename")
                             .onTapGesture {
                                 onFinishRename?()
                             }
@@ -132,6 +133,7 @@ extension CollectionDetailView {
                         Image(systemName: "xmark.circle.fill")
                             .font(.system(size: 24))
                             .foregroundStyle(.red)
+                            .accessibilityLabel("Cancel rename")
                             .onTapGesture {
                                 onCancelRename?()
                             }

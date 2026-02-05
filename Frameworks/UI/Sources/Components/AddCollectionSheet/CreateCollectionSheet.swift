@@ -74,7 +74,7 @@ public struct CreateCollectionSheet: View {
                     .foregroundStyle(.secondary)
 
                 VStack(spacing: 5) {
-                    TextField("", text: $store.collectionName)
+                    TextField("Collection Name", text: $store.collectionName)
                         .textFieldStyle(.plain)
                         .font(.openSans(size: 28))
 
@@ -112,6 +112,7 @@ public struct CreateCollectionSheet: View {
                     } label: {
                         Image(systemName: "xmark")
                     }
+                    .accessibilityLabel("Close")
                 }
 
                 ToolbarItem(placement: .topBarTrailing) {
@@ -120,6 +121,7 @@ public struct CreateCollectionSheet: View {
                     } label: {
                         Image(systemName: "arrow.up")
                     }
+                    .accessibilityLabel("Create Collection")
                     .buttonStyle(.glassProminent)
                     .tint(.popRed)
                 }

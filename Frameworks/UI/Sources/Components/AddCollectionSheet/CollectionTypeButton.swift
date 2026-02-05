@@ -1,5 +1,5 @@
 //
-//  CollectionTypeRow.swift
+//  CollectionTypeButton.swift
 //  App
 //
 //  Created by Boone on 12/17/25.

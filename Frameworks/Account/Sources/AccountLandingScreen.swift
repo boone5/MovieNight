@@ -87,7 +87,7 @@ public struct AccountLandingScreen: View {
                         .padding(.bottom, 24)
 
                         AccountRow(icon: "info.circle", title: "About Us", isFirst: true) {
-
+                            AboutUsView()
                         }
                         
                         AccountRow(icon: "questionmark.circle", title: "Contact Support", isLast: true) {

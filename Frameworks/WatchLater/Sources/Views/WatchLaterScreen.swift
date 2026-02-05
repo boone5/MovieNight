@@ -93,7 +93,7 @@ import CoreData
             WatchLaterScreenPreviews()
         }
 
-        Tab("test", systemImage:"magnifyingglass", role: .search) {
+        Tab("test", systemImage: "magnifyingglass", role: .search) {
             Text("Test")
         }
     }

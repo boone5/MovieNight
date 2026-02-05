@@ -33,7 +33,7 @@ public struct WatchList: View {
 
     public var body: some View {
         LazyVGrid(columns: gridItems, spacing: 20) {
-            ForEach(Array(watchList.enumerated()), id: \.element.id) { index, media in
+            ForEach(Array(watchList.enumerated()), id: \.element.id) { _, media in
                 ThumbnailView(
                     media: media,
                     size: CGSize(width: 175, height: 263),
@@ -50,7 +50,7 @@ public struct WatchList: View {
 }
 
 #Preview {
-    @Previewable @State var selectedItem: MediaItem? = nil
+    @Previewable @State var selectedItem: MediaItem?
     @Previewable @Namespace var namespace
 
     WatchList(watchList: [], namespace: namespace, selectedItem: $selectedItem)

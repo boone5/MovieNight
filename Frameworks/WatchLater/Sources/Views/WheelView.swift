@@ -15,7 +15,7 @@ import UI
 import FortuneWheel
 
 struct WheelView: View {
-    @State private var chosenIndex: [MediaItem].Index? = nil
+    @State private var chosenIndex: [MediaItem].Index?
 
     private let totalSpinDuration: Double = 5.0
 
@@ -30,7 +30,7 @@ struct WheelView: View {
         }
     }
 
-    @State private var selectedCollection: String? = nil
+    @State private var selectedCollection: String?
     @State private var isPresentingCollectionPicker: Bool = false
 
     @Namespace var transition
@@ -178,4 +178,3 @@ struct WheelViewPreview: View {
             .loadCustomFonts()
     }
 }
-

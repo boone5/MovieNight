@@ -246,6 +246,32 @@ public class MovieProvider: MovieProviderClient {
             }
         }
     }
+
+    /// Handles context changes and emits events for inserted, updated, or deleted Film objects.
+    private func handleContextChange(_ notification: Notification) {
+        guard let userInfo = notification.userInfo else { return }
+        if let inserts = userInfo[NSInsertedObjectsKey] as? Set<NSManagedObject> {
+            for obj in inserts where obj is Film {
+                if let film = obj as? Film {
+                    eventSubject.send(MovieProviderEvent.filmSaved(film))
+                }
+            }
+        }
+        if let deletes = userInfo[NSDeletedObjectsKey] as? Set<NSManagedObject> {
+            for obj in deletes where obj is Film {
+                if let film = obj as? Film {
+                    eventSubject.send(MovieProviderEvent.filmDeleted(film.id))
+                }
+            }
+        }
+        if let updates = userInfo[NSUpdatedObjectsKey] as? Set<NSManagedObject> {
+            for obj in updates where obj is Film {
+                if let film = obj as? Film {
+                    eventSubject.send(MovieProviderEvent.filmSaved(film))
+                }
+            }
+        }
+    }
 }
 
 extension NSPersistentContainer {

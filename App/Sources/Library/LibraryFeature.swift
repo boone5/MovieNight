@@ -71,7 +71,8 @@ struct LibraryFeature {
                 return .none
 
             case let .view(.tappedCollection(collectionModel)):
-                let films = movieProvider.fetchCollection(collectionModel.id)?.films?.array as? [Film] ?? []
+                let films = (movieProvider.fetchCollection(collectionModel.id)?.films?.array as? [Film] ?? [])
+                    .map(MediaItem.init)
                 state.path.append(.collectionDetail(CollectionDetailFeature.State(
                     collection: collectionModel,
                     films: films

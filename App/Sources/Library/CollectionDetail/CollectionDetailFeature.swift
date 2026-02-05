@@ -16,7 +16,7 @@ struct CollectionDetailFeature {
     @ObservableState
     struct State: Equatable {
         var collection: CollectionModel
-        var films: [Film]
+        var films: [MediaItem]
         var title: String
 
         var isReordering: Bool = false
@@ -25,7 +25,7 @@ struct CollectionDetailFeature {
 
         @Presents var selectedFilm: MediaItem?
 
-        init(collection: CollectionModel, films: [Film]) {
+        init(collection: CollectionModel, films: [MediaItem]) {
             self.collection = collection
             self.title = collection.title
             self.films = films
@@ -40,7 +40,7 @@ struct CollectionDetailFeature {
     enum View: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case tappedDeleteCollection
-        case rowTapped(Film)
+        case rowTapped(MediaItem)
         case finishRename
         case cancelRename
         case startRename
@@ -63,7 +63,7 @@ struct CollectionDetailFeature {
                 return .none
 
             case .view(.rowTapped(let film)):
-                state.selectedFilm = MediaItem(from: film)
+                state.selectedFilm = film
                 return .none
 
             case .view(.startRename):

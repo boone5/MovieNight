@@ -209,16 +209,16 @@ extension CollectionDetailView {
                         ForEach(Array(store.films.enumerated()), id: \.element.id) { index, film in
                             VStack(spacing: 10) {
                                 ThumbnailView(
-                                    media: MediaItem(from: film),
+                                    media: film,
                                     size: CGSize(width: 175, height: 225),
-                                    transitionConfig: .init(namespace: namespace, source: MediaItem(from: film))
+                                    transitionConfig: .init(namespace: namespace, source: film)
                                 )
                                 .onTapGesture {
                                     send(.rowTapped(film))
                                 }
 
                                 HStack {
-                                    Text(film.title ?? "")
+                                    Text(film.title)
                                         .font(.system(size: 12))
                                         .lineLimit(1)
                                         .truncationMode(.tail)
@@ -298,7 +298,7 @@ extension CollectionDetailView {
 
         struct Row: View {
             let rank: Int
-            let film: Film
+            let film: MediaItem
             let namespace: Namespace.ID
             @Binding var isEditMode: Bool
 
@@ -309,14 +309,14 @@ extension CollectionDetailView {
                         .foregroundStyle(.primary)
 
                     ThumbnailView(
-                        media: MediaItem(from: film),
+                        media: film,
                         size: .init(width: 80, height: 120),
-                        transitionConfig: .init(namespace: namespace, source: MediaItem(from: film)),
+                        transitionConfig: .init(namespace: namespace, source: film),
                         showFeedbackOverlay: false
                     )
 
                     VStack(alignment: .leading, spacing: 5) {
-                        Text(film.title ?? "")
+                        Text(film.title)
                             .font(.system(size: 16, weight: .medium))
 
                         HStack(spacing: 0) {
@@ -366,7 +366,7 @@ extension CollectionDetailView {
         filmCount: 10
     )
 
-    var films = [Film]()
+    var films = [MediaItem]()
     let titles = ["The Shawshank Redemption", "The Godfather", "The Dark Knight", "Pulp Fiction", "Fight Club", "Inception", "The Matrix", "Goodfellas", "Se7en", "The Silence of the Lambs"]
     for i in 0..<10 {
         let film = Film(context: context)
@@ -374,7 +374,7 @@ extension CollectionDetailView {
         film.title = titles[i]
         film.posterPath = "/jNsttCWZyPtW66MjhUozBzVsRb7.jpg"
         film.releaseDate = "199\(i)-01-01"
-        films.append(film)
+        films.append(MediaItem(from: film))
     }
 
     return NavigationStack {

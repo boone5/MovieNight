@@ -148,6 +148,92 @@ public class MovieProvider: MovieProviderClient {
         }
     }
 
+    public func fetchAllCollections() -> [FilmCollection] {
+        let request: NSFetchRequest<FilmCollection> = FilmCollection.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \FilmCollection.dateCreated, ascending: true)]
+
+        do {
+            return try container.viewContext.fetch(request)
+        } catch {
+            log(.movieProvider, .error, "⛔️ Error fetching collections: \(error)")
+            return []
+        }
+    }
+
+    public func addFilmToCollection(filmId: Film.ID, collectionId: UUID) throws(MovieError) {
+        guard let film = fetchFilm(filmId) else {
+            throw MovieError.filmNotFound
+        }
+
+        guard let collection = fetchCollection(collectionId) else {
+            throw MovieError.collectionNotFound
+        }
+
+        film.addToCollections(collection)
+        save()
+    }
+
+    public func removeFilmFromCollection(filmId: Film.ID, collectionId: UUID) throws(MovieError) {
+        guard let film = fetchFilm(filmId) else {
+            throw MovieError.filmNotFound
+        }
+
+        guard let collection = fetchCollection(collectionId) else {
+            throw MovieError.collectionNotFound
+        }
+
+        film.removeFromCollections(collection)
+        save()
+    }
+}
+
+extension NSPersistentContainer {
+    static func filmContainer(inMemory: Bool) -> NSPersistentContainer {
+        guard let modelURL = CoreDataInfo.modelURL, let managedObjectModel = NSManagedObjectModel(contentsOf: modelURL) else {
+            fatalError("Unable to load the managed object model.")
+        }
+
+        let container = NSPersistentContainer(name: CoreDataInfo.modelName, managedObjectModel: managedObjectModel)
+        let movieStoreURL = NSPersistentContainer.defaultDirectoryURL().appendingPathComponent(CoreDataInfo.fileName)
+        let movieStoreDescription = NSPersistentStoreDescription(url: movieStoreURL)
+        movieStoreDescription.configuration = "Default"
+
+        container.persistentStoreDescriptions = [movieStoreDescription]
+
+        guard let description = container.persistentStoreDescriptions.first else {
+            fatalError("Failed to retrieve a persistent store description.")
+        }
+
+        if inMemory {
+            description.url = URL(fileURLWithPath: "/dev/null")
+        }
+
+        container.loadPersistentStores { storeDescription, error in
+            if let error = error as NSError? {
+                fatalError("Unresolved error \(error), \(error.userInfo)")
+            }
+        }
+
+        // This sample refreshes UI by consuming store changes via persistent history tracking.
+        /// - Tag: viewContextMergeParentChanges
+        container.viewContext.automaticallyMergesChangesFromParent = false
+        container.viewContext.name = "viewContext"
+
+        return container
+    }
+}
+
+public enum MovieError: Error {
+    case unableToSaveFilm
+    case unableToSaveCollection
+    case filmNotFound
+    case collectionNotFound
+}
+
+// MARK: Debug Methods
+
+#if DEBUG
+extension MovieProvider {
     /// Loads default Collections into Core Data (for debugging purposes)
     public func prepareDefaultCollections() throws(MovieError) {
         // Get the managed object context from your Core Data stack
@@ -234,85 +320,5 @@ public class MovieProvider: MovieProviderClient {
             log(.movieProvider, .error, "⛔️ Error preloading default data: \(error)")
         }
     }
-
-    public func fetchAllCollections() -> [FilmCollection] {
-        let request: NSFetchRequest<FilmCollection> = FilmCollection.fetchRequest()
-        request.sortDescriptors = [NSSortDescriptor(keyPath: \FilmCollection.dateCreated, ascending: true)]
-
-        do {
-            return try container.viewContext.fetch(request)
-        } catch {
-            log(.movieProvider, .error, "⛔️ Error fetching collections: \(error)")
-            return []
-        }
-    }
-
-    public func addFilmToCollection(filmId: Film.ID, collectionId: UUID) throws(MovieError) {
-        guard let film = fetchFilm(filmId) else {
-            throw MovieError.filmNotFound
-        }
-
-        guard let collection = fetchCollection(collectionId) else {
-            throw MovieError.collectionNotFound
-        }
-
-        film.addToCollections(collection)
-        save()
-    }
-
-    public func removeFilmFromCollection(filmId: Film.ID, collectionId: UUID) throws(MovieError) {
-        guard let film = fetchFilm(filmId) else {
-            throw MovieError.filmNotFound
-        }
-
-        guard let collection = fetchCollection(collectionId) else {
-            throw MovieError.collectionNotFound
-        }
-
-        film.removeFromCollections(collection)
-        save()
-    }
 }
-
-extension NSPersistentContainer {
-    static func filmContainer(inMemory: Bool) -> NSPersistentContainer {
-        guard let modelURL = CoreDataInfo.modelURL, let managedObjectModel = NSManagedObjectModel(contentsOf: modelURL) else {
-            fatalError("Unable to load the managed object model.")
-        }
-
-        let container = NSPersistentContainer(name: CoreDataInfo.modelName, managedObjectModel: managedObjectModel)
-        let movieStoreURL = NSPersistentContainer.defaultDirectoryURL().appendingPathComponent(CoreDataInfo.fileName)
-        let movieStoreDescription = NSPersistentStoreDescription(url: movieStoreURL)
-        movieStoreDescription.configuration = "Default"
-
-        container.persistentStoreDescriptions = [movieStoreDescription]
-
-        guard let description = container.persistentStoreDescriptions.first else {
-            fatalError("Failed to retrieve a persistent store description.")
-        }
-
-        if inMemory {
-            description.url = URL(fileURLWithPath: "/dev/null")
-        }
-
-        container.loadPersistentStores { storeDescription, error in
-            if let error = error as NSError? {
-                fatalError("Unresolved error \(error), \(error.userInfo)")
-            }
-        }
-
-        // This sample refreshes UI by consuming store changes via persistent history tracking.
-        /// - Tag: viewContextMergeParentChanges
-        container.viewContext.automaticallyMergesChangesFromParent = false
-        container.viewContext.name = "viewContext"
-
-        return container
-    }
-}
-
-public enum MovieError: Error {
-    case unableToSaveFilm
-    case unableToSaveCollection
-    case filmNotFound
-    case collectionNotFound
-}
+#endif

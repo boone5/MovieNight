@@ -72,7 +72,7 @@ public struct CreateCollectionSheet: View {
     public var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 24) {
-                Text("Choose a name")
+                Text("Enter a title")
                     .font(.openSans(size: 16, weight: .medium))
                     .foregroundStyle(.secondary)
 

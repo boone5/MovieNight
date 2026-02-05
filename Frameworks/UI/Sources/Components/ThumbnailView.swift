@@ -50,6 +50,15 @@ public struct ThumbnailView: View {
                     feedback = film.feedback
                 }
             }
+            // Listen for film saved events to update feedback
+            .onReceive(movieProvider.feedbackPublisher(for: media.id)) { event in
+                switch event {
+                case .updated(let feedback):
+                    self.feedback = feedback
+                case .deleted:
+                    self.feedback = nil
+                }
+            }
     }
 }
 

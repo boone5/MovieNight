@@ -20,7 +20,7 @@ public struct FilmRow: View {
         items: [MediaItem],
         selectedItem: Binding<MediaItem?>,
         namespace: Namespace.ID,
-        thumbnailSize: CGSize = CGSize(width: 175, height: 250)
+        thumbnailSize: CGSize = CGSize(width: 175, height: 263)
     ) {
         self.items = items
         self._selectedItem = selectedItem

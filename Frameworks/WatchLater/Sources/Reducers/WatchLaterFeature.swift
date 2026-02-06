@@ -21,7 +21,7 @@ public struct WatchLaterFeature {
 
         var navigationPath = NavigationPath()
 
-        var selectedCollection: FilmCollection?
+        var selectedCollection: CollectionModel?
         var selectedCollectionMediaItems: [MediaItem]?
         var chosenWheelIndex: [MediaItem].Index?
         var isPresentingCollectionPicker = false
@@ -49,8 +49,6 @@ public struct WatchLaterFeature {
         case onMediaModalDismiss
     }
 
-    @Dependency(\.movieProvider) var provider
-
     public var body: some ReducerOf<Self> {
         BindingReducer(action: \.view)
         Reduce { state, action in
@@ -68,7 +66,7 @@ public struct WatchLaterFeature {
                 return .none
 
             case .view(.collectionPickerValueUpdated(let collection)):
-                state.selectedCollection = collection
+                state.selectedCollection = collection.flatMap(CollectionModel.init)
                 state.selectedCollectionMediaItems = collection?.mediaItems
                 state.isPresentingCollectionPicker = false
                 return .none

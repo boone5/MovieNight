@@ -19,6 +19,6 @@ extension UIWindow {
     }
 
     public var currentSceneWidth: CGFloat? {
-        UIWindow.current?.windowScene?.screen.bounds.width
+        windowScene?.screen.bounds.width
     }
 }

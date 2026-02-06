@@ -10,13 +10,17 @@ import SwiftUI
 
 public struct AccountLandingScreen: View {
     @Environment(\.dismiss) var dismiss
-    @AppStorage("account.selectedAvatar") private var selectedAvatar: String = "person.fill"
-
-    @State private var isShowingAvatarSheet = false
-    @State private var tempSelectedAvatar: String = "person.fill"
 
     private var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"]  as? String ?? ""
+    }
+
+    static var IS_PROFILE_SUPPORTED: Bool {
+        #if DEBUG
+        false
+        #else
+        false
+        #endif
     }
 
     public init() {}
@@ -35,50 +39,18 @@ public struct AccountLandingScreen: View {
                             ]
                         )
 
-                        // Predefined avatar options, similar to GitHub or StackOverflow
-                        Circle()
-                            .fill(.thinMaterial)
-                            .stroke(.primary)
-                            .frame(width: 100, height: 100)
-                            .overlay {
-                                Image(systemName: selectedAvatar)
-                                    .font(.system(size: 40, weight: .regular))
-                                    .foregroundStyle(.primary)
-                            }
-                            .overlay(alignment: .bottomTrailing) {
-                                Button {
-                                    tempSelectedAvatar = selectedAvatar
-                                    isShowingAvatarSheet = true
-                                } label: {
-                                    Image(systemName: "arrow.trianglehead.2.counterclockwise")
-                                        .padding(4)
-                                        .background {
-                                            Circle()
-                                                .fill(Color.background)
-                                                .stroke(.primary.opacity(0.5))
-                                        }
-                                }
-                                .buttonStyle(.plain)
-                            }
-
-                        // User's display name, editable (can be used to search for friends besides unique username)
-                        Text("Display Name")
-                            .font(.montserrat(size: 24, weight: .medium))
-                            .foregroundStyle(.primary)
-
-                        // User's unique username (non-editable)
-                        Text("@username")
-                            .font(.openSans(size: 16))
-                            .foregroundStyle(.secondary)
-
-                        Divider()
+                        if Self.IS_PROFILE_SUPPORTED {
+                            ProfileInformationView()
+                        }
 
                         VStack(spacing: 0) {
-                            AccountRow(icon: "pencil", title: "Edit Profile", isFirst: true) {
+                            if Self.IS_PROFILE_SUPPORTED {
+                                AccountRow(icon: "pencil", title: "Edit Profile", isFirst: true) {
 
+                                }
                             }
 
-                            AccountRow(icon: "bell", title: "Notifications") {
+                            AccountRow(icon: "bell", title: "Notifications", isFirst: !Self.IS_PROFILE_SUPPORTED) {
                                 NotificationsSettingsView()
                             }
 
@@ -106,6 +78,55 @@ public struct AccountLandingScreen: View {
                         .font(.openSans(size: 12, weight: .medium))
                 }
             }
+        }
+    }
+}
+
+private struct ProfileInformationView: View {
+    @AppStorage("account.selectedAvatar") private var selectedAvatar: String = "person.fill"
+
+    @State private var isShowingAvatarSheet = false
+    @State private var tempSelectedAvatar: String = "person.fill"
+
+    var body: some View {
+        VStack {
+            // Predefined avatar options, similar to GitHub or StackOverflow
+            Circle()
+                .fill(.thinMaterial)
+                .stroke(.primary)
+                .frame(width: 100, height: 100)
+                .overlay {
+                    Image(systemName: selectedAvatar)
+                        .font(.system(size: 40, weight: .regular))
+                        .foregroundStyle(.primary)
+                }
+                .overlay(alignment: .bottomTrailing) {
+                    Button {
+                        tempSelectedAvatar = selectedAvatar
+                        isShowingAvatarSheet = true
+                    } label: {
+                        Image(systemName: "arrow.trianglehead.2.counterclockwise")
+                            .padding(4)
+                            .background {
+                                Circle()
+                                    .fill(Color.background)
+                                    .stroke(.primary.opacity(0.5))
+                            }
+                    }
+                    .buttonStyle(.plain)
+                }
+
+            // User's display name, editable (can be used to search for friends besides unique username)
+            Text("Display Name")
+                .font(.montserrat(size: 24, weight: .medium))
+                .foregroundStyle(.primary)
+
+            // User's unique username (non-editable)
+            Text("@username")
+                .font(.openSans(size: 16))
+                .foregroundStyle(.secondary)
+
+            Divider()
         }
         .sheet(isPresented: $isShowingAvatarSheet) {
             AvatarPickerSheet(selection: $tempSelectedAvatar) {

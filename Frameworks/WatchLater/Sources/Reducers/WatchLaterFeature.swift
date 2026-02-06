@@ -23,7 +23,7 @@ public struct WatchLaterFeature {
 
         var selectedCollection: FilmCollection?
         var selectedCollectionMediaItems: [MediaItem]?
-        var chosenWheelIndex: [MediaItem].Index? = nil
+        var chosenWheelIndex: [MediaItem].Index?
         var isPresentingCollectionPicker = false
 
         var canUpdateCollection: Bool = true

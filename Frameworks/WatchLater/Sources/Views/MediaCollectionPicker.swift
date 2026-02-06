@@ -16,7 +16,6 @@ struct MediaCollectionPicker: View {
     @State private var sheetHeight: CGFloat = .zero
     let onCollectionPickerValueUpdated: (FilmCollection.ID?) -> Void
 
-
     init(
         collections: FetchedResults<FilmCollection>,
         selectedCollectionID: FilmCollection.ID?,

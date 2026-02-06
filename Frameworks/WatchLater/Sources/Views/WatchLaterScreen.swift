@@ -76,7 +76,7 @@ import CoreData
                 let film = Film(context: context)
                 film.id = Int64(i)
                 film.title = "Mock Film \(i)"
-                film.collection =  watchList
+                film.addToCollections(watchList)
                 film.posterPath = "/dKL78O9zxczVgjtNcQ9UkbYLzqX.jpg"
             }
             return context

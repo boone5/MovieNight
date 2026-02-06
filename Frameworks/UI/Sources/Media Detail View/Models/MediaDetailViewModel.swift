@@ -15,10 +15,11 @@ class MediaDetailViewModel {
     var media: MediaItem
     var averageColor: Color
 
-    // UI state moved from view
+    var showAddToCollectionSheet = false
     var showFullSummary: Bool = false
     var actionTapped: QuickAction? = nil
     var watchCount: Int = 0
+    var collectionModels: [CollectionModel] = []
 
     var menuSections: [MenuSection] = []
 
@@ -40,7 +41,6 @@ class MediaDetailViewModel {
         self.media = media
     }
 
-    @MainActor
     func loadInitialData() async {
         guard loadingState == .idle else { return }
         loadingState = .loading
@@ -57,8 +57,15 @@ class MediaDetailViewModel {
             await getAdditionDetailsPerson()
         }
 
+        self.collectionModels = buildCollectionModels()
         setMenuActions()
         loadingState = .loaded
+    }
+
+    private func buildCollectionModels() -> [CollectionModel] {
+        movieProvider.fetchAllCollections()
+            .filter { $0.id != FilmCollection.recentlyWatchedID }
+            .map { CollectionModel(from: $0) }
     }
 
     /// Hydrates the `media` snapshot from the saved library if present.
@@ -201,24 +208,9 @@ class MediaDetailViewModel {
         setMenuActions()
     }
 
-    private func markAsWatched() {
-        media.feedback = nil
-
-        _ = try? movieProvider.saveFilmToLibrary(.init(media))
-        setMenuActions()
-    }
-
-    private func addToWatchList() {
-        media.feedback = nil
-
-        _ = try? movieProvider.saveFilmToWatchLater(self.media)
-        setMenuActions()
-    }
-
     public func setMenuActions() {
         var sections: [MenuSection] = []
 
-        var primaryActions: [MenuAction] = []
         var destructiveActions: [MenuAction] = []
 
         // Person-specific actions
@@ -253,42 +245,13 @@ class MediaDetailViewModel {
         }
 
         // Film/TV actions
-        if let existingFilm = movieProvider.fetchFilm(media.id) {
-            if existingFilm.isOnWatchList {
-                primaryActions.append(
-                    MenuAction(
-                        title: "Remove from Watch List",
-                        systemImage: "rectangle.stack.badge.minus",
-                        role: .normal,
-                        handler: { [weak self] in self?.removeFromLibrary() }
-                    )
-                )
-            } else {
-                destructiveActions.append(
-                    MenuAction(
-                        title: "Remove from Library",
-                        systemImage: "trash",
-                        role: .destructive,
-                        handler: { [weak self] in self?.removeFromLibrary() }
-                    )
-                )
-            }
-        } else {
-            primaryActions.append(
+        if movieProvider.fetchFilm(media.id) != nil {
+            destructiveActions.append(
                 MenuAction(
-                    title: "Mark as Watched",
-                    systemImage: "checkmark.circle",
-                    role: .normal,
-                    handler: { [weak self] in self?.markAsWatched() }
-                )
-            )
-
-            primaryActions.append(
-                MenuAction(
-                    title: "Add to Watch List",
-                    systemImage: "rectangle.stack.badge.plus",
-                    role: .normal,
-                    handler: { [weak self] in self?.addToWatchList() }
+                    title: "Remove from Library",
+                    systemImage: "trash",
+                    role: .destructive,
+                    handler: { [weak self] in self?.removeFromLibrary() }
                 )
             )
         }
@@ -307,10 +270,21 @@ class MediaDetailViewModel {
             )
         )
 
-        // Primary actions
-        if !primaryActions.isEmpty {
-            sections.append(MenuSection(actions: primaryActions))
-        }
+        // Collections
+        sections.append(
+            MenuSection(
+                actions: [
+                    MenuAction(
+                        title: "Add to Collection",
+                        systemImage: "folder.badge.plus",
+                        role: .normal,
+                        handler: { [weak self] in
+                            self?.showAddToCollectionSheet = true
+                        }
+                    )
+                ]
+            )
+        )
 
         // Destructive actions
         if !destructiveActions.isEmpty {
@@ -320,6 +294,21 @@ class MediaDetailViewModel {
         menuSections = sections
     }
 
+    func toggleCollection(_ model: CollectionModel) {
+        if isFilmInCollection(model) {
+            try? movieProvider.removeFilmFromCollection(filmId: media.id, collectionId: model.id)
+        } else {
+            _ = saveToLibraryIfNecessary()
+            try? movieProvider.addFilmToCollection(filmId: media.id, collectionId: model.id)
+        }
+
+        self.collectionModels = buildCollectionModels()
+    }
+
+    func isFilmInCollection(_ collection: CollectionModel) -> Bool {
+        let films = collection.posterPaths
+        return films.contains { $0 == media.posterPath }
+    }
 }
 
 extension MediaDetailViewModel {

@@ -126,8 +126,11 @@ public struct MediaDetailView: View {
         .safeAreaInset(edge: .top) {
             toolbar
         }
-        .task(id: "fetchInitialData") {
+        .task {
             await viewModel.loadInitialData()
+        }
+        .sheet(isPresented: $viewModel.showAddToCollectionSheet) {
+            AddToCollectionSheet(viewModel: viewModel)
         }
         .zoomTransition(configuration: navigationTransitionConfig)
     }

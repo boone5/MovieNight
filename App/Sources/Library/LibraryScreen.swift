@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Models
+import Networking
 import SwiftUI
 import UI
 
@@ -26,18 +27,20 @@ struct LibraryScreen: View {
     static let sectionSpacing: CGFloat = 15
 
     var body: some View {
-        NavigationStack(path: $store.navigationPath) {
+        NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
             BackgroundColorView {
-                if recentlyWatchedFilms.isEmpty {
-                    VStack {
+                if !store.shouldShowContent {
+                    VStack(alignment: .leading) {
+                        NavigationHeader(title: "Library")
                         Spacer()
-                        Text("Start watching films to build your library.")
-                            .font(.system(size: 14, weight: .semibold))
+                        Text("Your recently watched movies, tv shows,\nand collections.")
+                            .font(.montserrat(size: 16, weight: .medium))
                             .multilineTextAlignment(.center)
+                            .lineSpacing(5)
                             .frame(maxWidth: .infinity, alignment: .center)
-                            .padding(.horizontal, PLayout.horizontalMarginPadding)
                         Spacer()
                     }
+                    .padding(.horizontal, PLayout.horizontalMarginPadding)
 
                 } else {
                     ScrollView(showsIndicators: false) {
@@ -45,37 +48,50 @@ struct LibraryScreen: View {
                             NavigationHeader(
                                 title: "Library",
                                 trailingButtons: [
-                                    NavigationHeaderButton(systemImage: "plus") {
-                                        send(.addCollectionButtonTapped)
+                                    NavigationHeaderButton(systemImage: "folder.badge.plus") {
+                                        send(.tappedAddCollectionButton)
                                     }
                                 ]
                             )
 
-                            RecentlyWatchedView(
-                                films: recentlyWatchedFilms.map(MediaItem.init),
-                                selectedItem: $store.selectedItem,
-                                namespace: namespace
-                            )
+                            if !recentlyWatchedFilms.isEmpty {
+                                RecentlyWatchedView(
+                                    films: recentlyWatchedFilms.map(MediaItem.init),
+                                    selectedItem: $store.selectedItem,
+                                    namespace: namespace
+                                )
+                            }
 
                             // TODO: In Progress TV Shows
                             InProgressView()
 
-                            CollectionsView(collections: Array(collections))
+                            CollectionsView(store: store)
                         }
                         .padding(.horizontal, PLayout.horizontalMarginPadding)
                         .padding(.bottom, PLayout.bottomMarginPadding)
                     }
                 }
             }
-            .navigationDestination(for: FilmCollection.self) { collection in
-                let films = collection.films?.array as? [Film] ?? []
-                CollectionDetailView(title: collection.title, items: films.map(MediaItem.init))
+            .task(id: Array(collections)) {
+                send(.collectionsUpdated(Array(collections)))
+            }
+            .task(id: recentlyWatchedFilms.count) {
+                send(.recentlyWatchedCountChanged(recentlyWatchedFilms.count))
+                send(.collectionsUpdated(Array(collections)))
             }
             .fullScreenCover(item: $store.selectedItem) { selectedFilm in
                 MediaDetailView(
                     media: selectedFilm,
                     navigationTransitionConfig: .init(namespace: namespace, source: selectedFilm)
                 )
+            }
+            .sheet(item: $store.scope(state: \.addCollection, action: \.addCollection)) { store in
+                CreateCollectionSheet(store: store)
+            }
+        } destination: { store in
+            switch store.case {
+            case .collectionDetail(let store):
+                CollectionDetailView(store: store)
             }
         }
     }
@@ -87,14 +103,8 @@ struct LibraryScreen: View {
 
         var body: some View {
             VStack(alignment: .leading, spacing: LibraryScreen.sectionSpacing) {
-                VStack(alignment: .leading) {
-                    Text("Recently watched")
-                        .font(.system(size: 18, weight: .bold))
-
-                    Text("\(films.count) this week")
-                        .foregroundStyle(.secondary)
-                        .font(.system(size: 16, weight: .medium))
-                }
+                Text("Recently watched")
+                    .font(.system(size: 18, weight: .bold))
 
                 FilmRow(
                     items: films,
@@ -108,14 +118,8 @@ struct LibraryScreen: View {
     struct InProgressView: View {
         var body: some View {
             VStack(alignment: .leading, spacing: LibraryScreen.sectionSpacing) {
-                VStack(alignment: .leading) {
-                    Text("In Progress")
-                        .font(.system(size: 18, weight: .bold))
-
-                    Text("__ shows")
-                        .foregroundStyle(.secondary)
-                        .font(.system(size: 16, weight: .medium))
-                }
+                Text("In Progress")
+                    .font(.system(size: 18, weight: .bold))
 
                 ScrollView(.horizontal) {
                     HStack {
@@ -127,55 +131,6 @@ struct LibraryScreen: View {
                     .padding(.horizontal, PLayout.horizontalMarginPadding)
                 }
                 .padding(.horizontal, -PLayout.horizontalMarginPadding)
-            }
-        }
-    }
-
-    struct CollectionsView: View {
-        let collections: [FilmCollection]
-
-        private var visibleCollections: [FilmCollection] {
-            collections.filter { $0.id != FilmCollection.watchLaterID }
-        }
-
-        var body: some View {
-            VStack(alignment: .leading, spacing: LibraryScreen.sectionSpacing) {
-                Text("Collections")
-                    .font(.system(size: 18, weight: .bold))
-
-                ForEach(visibleCollections.enumerated(), id: \.element.id) { idx, collection in
-                    VStack(spacing: 10) {
-                        NavigationLink(value: collection) {
-                            HStack(spacing: 15) {
-                                // TODO: Pass in poster paths of collection
-                                PosterFanView(items: ["1", "2", "3"])
-
-                                VStack(alignment: .leading, spacing: 5) {
-                                    Text(collection.title ?? "-")
-                                        .font(.system(size: 16, weight: .medium))
-
-                                    Text(String(collection.films?.count ?? 0) + " films")
-                                        .font(.system(size: 14, weight: .regular))
-                                        .foregroundStyle(.gray)
-                                }
-                                .padding(.leading, 20)
-
-                                Spacer()
-
-                                Image(systemName: "chevron.right")
-                                    .foregroundStyle(.gray)
-                                    .font(.system(size: 14, weight: .regular))
-                            }
-                        }
-                        .buttonStyle(.plain)
-
-                        if idx != visibleCollections.endIndex-1 {
-                            Rectangle()
-                                .foregroundStyle(.gray.opacity(0.3))
-                                .frame(height: 1)
-                        }
-                    }
-                }
             }
         }
     }

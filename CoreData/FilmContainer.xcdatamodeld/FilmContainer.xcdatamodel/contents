@@ -16,8 +16,8 @@
         <attribute name="posterData" optional="YES" attributeType="Binary"/>
         <attribute name="posterPath" optional="YES" attributeType="String"/>
         <attribute name="releaseDate" optional="YES" attributeType="String"/>
-        <attribute name="title" attributeType="String" defaultValueString="Unknown"/>
-        <relationship name="collection" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="FilmCollection" inverseName="films" inverseEntity="FilmCollection"/>
+        <attribute name="title" optional="YES" attributeType="String"/>
+        <relationship name="collections" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="FilmCollection" inverseName="films" inverseEntity="FilmCollection"/>
         <relationship name="comments" optional="YES" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="Comment" inverseName="film" inverseEntity="Comment"/>
         <relationship name="seasonsWatched" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Season" inverseName="film" inverseEntity="Season"/>
     </entity>
@@ -25,8 +25,9 @@
         <attribute name="dateCreated" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="imageName" optional="YES" attributeType="String"/>
-        <attribute name="title" optional="YES" attributeType="String"/>
-        <relationship name="films" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Film" inverseName="collection" inverseEntity="Film"/>
+        <attribute name="title" attributeType="String" defaultValueString=""/>
+        <attribute name="typeRawValue" attributeType="String" defaultValueString="custom"/>
+        <relationship name="films" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Film" inverseName="collections" inverseEntity="Film"/>
     </entity>
     <entity name="Season" representedClassName="Season" syncable="YES" codeGenerationType="class">
         <attribute name="id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>

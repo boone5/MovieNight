@@ -15,7 +15,6 @@ import Models
 public enum MovieProviderEvent {
     case filmSaved(Film)
     case filmDeleted(Film.ID)
-    case filmAddedToWatchLater(Film)
 }
 
 public enum FeedbackEvent: Equatable {
@@ -53,10 +52,10 @@ public class MovieProvider: MovieProviderClient {
         if container.viewContext.hasChanges {
             do {
                 try container.viewContext.save()
-                log(.movieProvider, .info, "✅ Successfully saved Movie into Core Data")
+                log(.movieProvider, .info, "✅ Successfully saved new context.")
                 // Possibly send an event here if needed
             } catch {
-                log(.movieProvider, .error, "⛔️ Error saving Movie into Core Data: \(error.localizedDescription)")
+                log(.movieProvider, .error, "⛔️ Error saving context: \(error.localizedDescription)")
             }
         }
     }
@@ -105,24 +104,20 @@ public class MovieProvider: MovieProviderClient {
             movie.addToComments(comment)
         }
 
-        switch request.film.mediaType {
-        case .movie:
-            // add to movie collection
-            if let movieCollection = fetchCollection(FilmCollection.movieID) {
-                movieCollection.addToFilms(movie)
-                movie.collection = movieCollection
-            }
-
-        case .tv:
-            // add to tvshow collection
-            if let tvShowCollection = fetchCollection(FilmCollection.tvShowID) {
-                tvShowCollection.addToFilms(movie)
-                movie.collection = tvShowCollection
-            }
-        case .person:
-            // TODO: maybe handle person type later
-            break
+        // Add to Recently Watched collection, creating it if it doesn't exist
+        let recentlyWatchedCollection: FilmCollection
+        if let existing = fetchCollection(FilmCollection.recentlyWatchedID) {
+            recentlyWatchedCollection = existing
+        } else {
+            recentlyWatchedCollection = FilmCollection(context: container.viewContext)
+            recentlyWatchedCollection.id = FilmCollection.recentlyWatchedID
+            recentlyWatchedCollection.title = "Recently Watched"
+            recentlyWatchedCollection.imageName = "movieclapper"
+            recentlyWatchedCollection.dateCreated = Date()
+            recentlyWatchedCollection.type = .custom
         }
+        recentlyWatchedCollection.addToFilms(movie)
+        movie.addToCollections(recentlyWatchedCollection)
 
         if let context = movie.managedObjectContext {
             do {
@@ -135,38 +130,8 @@ public class MovieProvider: MovieProviderClient {
         return movie
     }
 
-    @discardableResult
-    public func saveFilmToWatchLater(_ film: MediaItem) throws(MovieError) -> Film {
-        let filmCD = Film(context: container.viewContext)
-        filmCD.title = film.title
-        filmCD.id = film.id
-        filmCD.dateWatched = nil
-        filmCD.posterPath = film.posterPath
-        filmCD.overview = film.overview
-        filmCD.releaseDate = film.releaseDate
-        filmCD.isOnWatchList = true
-        filmCD.feedback = film.feedback
-        filmCD.comments = .init(array: film.comments ?? [])
-
-        if let watchLaterCollection = fetchCollection(FilmCollection.watchLaterID) {
-            watchLaterCollection.addToFilms(filmCD)
-            filmCD.collection = watchLaterCollection
-        }
-
-        if let context = filmCD.managedObjectContext {
-            do {
-                try context.save()
-                eventSubject.send(MovieProviderEvent.filmAddedToWatchLater(filmCD))
-            } catch {
-                log(.movieProvider, .error, "⛔️ Failed to save: \(error)")
-                throw MovieError.unableToSaveFilm
-            }
-        }
-        return filmCD
-    }
-
     public func deleteFilm(_ id: Film.ID) throws(MovieError) {
-        guard  let movieToDelete = fetchFilm(id) else {
+        guard let movieToDelete = fetchFilm(id) else {
             throw MovieError.filmNotFound
         }
         container.viewContext.delete(movieToDelete)
@@ -174,45 +139,87 @@ public class MovieProvider: MovieProviderClient {
         eventSubject.send(MovieProviderEvent.filmDeleted(id))
     }
 
-    /// Loads default Collections into Core Data
-    public func prepareDefaultCollections() throws(MovieError) {
-        // Get the managed object context from your Core Data stack
-        let context = container.viewContext
+    public func deleteCollection(_ id: UUID) throws(MovieError) {
+        guard let collectionToDelete = fetchCollection(id) else {
+            throw MovieError.collectionNotFound
+        }
+        container.viewContext.delete(collectionToDelete)
+        save()
+    }
 
-        let fetchRequest: NSFetchRequest<FilmCollection> = FilmCollection.fetchRequest()
+    public func renameCollection(_ id: UUID, to newTitle: String) throws(MovieError) {
+        guard let collection = fetchCollection(id) else {
+            throw MovieError.collectionNotFound
+        }
+        collection.title = newTitle
+        save()
+        container.viewContext.refresh(collection, mergeChanges: true)
+    }
+
+    @discardableResult
+    public func createCollection(name: String, type: CollectionType) throws(MovieError) -> FilmCollection {
+        let collection = FilmCollection(context: container.viewContext)
+        collection.id = UUID()
+        collection.title = name
+        collection.dateCreated = Date()
+        collection.type = type
 
         do {
-            let count = try context.count(for: fetchRequest)
-
-            // If count is 0, the store is empty and we need to seed it
-            if count == 0 {
-                let movieCollection = FilmCollection(context: context)
-                movieCollection.id = FilmCollection.movieID
-                movieCollection.title = "Movies"
-                movieCollection.imageName = "movieclapper"
-                movieCollection.dateCreated = Date()
-
-                let tvShowCollection = FilmCollection(context: context)
-                tvShowCollection.id = FilmCollection.tvShowID
-                tvShowCollection.title = "TV Shows"
-                tvShowCollection.imageName = "rectangle.portrait.on.rectangle.portrait.angled"
-                tvShowCollection.dateCreated = Date()
-
-                let watchLaterCollection = FilmCollection(context: context)
-                watchLaterCollection.id = FilmCollection.watchLaterID
-                watchLaterCollection.title = "Watch Later"
-                watchLaterCollection.imageName = "text.badge.checkmark"
-                watchLaterCollection.dateCreated = Date()
-
-                try context.save()
-
-                log(.movieProvider, .info, "✅ Default collections added!")
-            }
+            try container.viewContext.save()
+            log(.movieProvider, .info, "✅ Successfully created collection: \(name)")
+            return collection
         } catch {
-            log(.movieProvider, .error, "⛔️ Error preloading default data: \(error)")
+            log(.movieProvider, .error, "⛔️ Failed to create collection: \(error)")
+            throw MovieError.unableToSaveCollection
         }
     }
 
+    public func fetchAllCollections() -> [FilmCollection] {
+        let request: NSFetchRequest<FilmCollection> = FilmCollection.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \FilmCollection.dateCreated, ascending: true)]
+
+        do {
+            return try container.viewContext.fetch(request)
+        } catch {
+            log(.movieProvider, .error, "⛔️ Error fetching collections: \(error)")
+            return []
+        }
+    }
+
+    public func addFilmToCollection(filmId: Film.ID, collectionId: UUID) throws(MovieError) {
+        guard let film = fetchFilm(filmId) else {
+            throw MovieError.filmNotFound
+        }
+
+        guard let collection = fetchCollection(collectionId) else {
+            throw MovieError.collectionNotFound
+        }
+
+        film.addToCollections(collection)
+        save()
+    }
+
+    public func removeFilmFromCollection(filmId: Film.ID, collectionId: UUID) throws(MovieError) {
+        guard let film = fetchFilm(filmId) else {
+            throw MovieError.filmNotFound
+        }
+
+        guard let collection = fetchCollection(collectionId) else {
+            throw MovieError.collectionNotFound
+        }
+
+        film.removeFromCollections(collection)
+        save()
+    }
+
+    public func updateFilmOrder(filmIds: [Film.ID], inCollection collectionId: UUID) throws(MovieError) {
+        guard let collection = fetchCollection(collectionId) else {
+            throw MovieError.collectionNotFound
+        }
+        let orderedFilms = filmIds.compactMap { fetchFilm($0) }
+        collection.films = NSOrderedSet(array: orderedFilms)
+        save()
+    }
     /// Handles context changes and emits events for inserted, updated, or deleted Film objects.
     private func handleContextChange(_ notification: Notification) {
         guard let userInfo = notification.userInfo else { return }
@@ -278,5 +285,100 @@ extension NSPersistentContainer {
 
 public enum MovieError: Error {
     case unableToSaveFilm
+    case unableToSaveCollection
     case filmNotFound
+    case collectionNotFound
 }
+
+// MARK: Debug Methods
+
+#if DEBUG
+extension MovieProvider {
+    /// Loads default Collections into Core Data (for debugging purposes)
+    public func prepareDefaultCollections() throws(MovieError) {
+        // Get the managed object context from your Core Data stack
+        let context = container.viewContext
+        let rankedListID = FilmCollection.rankedListID
+        let customListID = FilmCollection.customListID
+        var didAddCollections = false
+
+        do {
+            let posterPaths = [
+                "/jNsttCWZyPtW66MjhUozBzVsRb7.jpg",
+                "/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg",
+                "/d5NXSklXo0qyIYkgV94XAgMIckC.jpg",
+                "/rCzpDGLbOoPwLjy3OAm5NUPOTrC.jpg",
+                "/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg",
+                "/vpnVM9B6NMmQpWeZvzLvDESb2QY.jpg",
+                "/7WsyChQLEftFiDOVTGkv3hFpyyt.jpg",
+                "/nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg",
+                "/kqjL17yufvn9OVLyXYpvtyrFfak.jpg",
+                "/hZkgoQYus5vegHoetLkCJzb17zJ.jpg"
+            ]
+
+            let filmTitles = [
+                "The Shawshank Redemption",
+                "The Godfather",
+                "The Dark Knight",
+                "Pulp Fiction",
+                "Fight Club",
+                "Inception",
+                "The Matrix",
+                "Goodfellas",
+                "Se7en",
+                "The Silence of the Lambs"
+            ]
+
+            if self.fetchCollection(rankedListID) == nil {
+                // Create a ranked collection with films
+                let rankedCollection = FilmCollection(context: context)
+                rankedCollection.id = rankedListID
+                rankedCollection.title = "Top 10 Films"
+                rankedCollection.dateCreated = Date()
+                rankedCollection.type = .ranked
+
+                for i in 0..<10 {
+                    let film = Film(context: context)
+                    film.id = Int64(1000 + i)
+                    film.title = filmTitles[i]
+                    film.posterPath = posterPaths[i]
+                    film.releaseDate = "199\(i)-01-01"
+                    film.addToCollections(rankedCollection)
+                }
+
+                didAddCollections = true
+            }
+
+            if self.fetchCollection(customListID) == nil {
+                // Create a custom collection with films
+                let customCollection = FilmCollection(context: context)
+                customCollection.id = customListID
+                customCollection.title = "My Favorites"
+                customCollection.dateCreated = Date()
+                customCollection.type = .custom
+
+                for i in 0..<5 {
+                    let film = Film(context: context)
+                    film.id = Int64(2000 + i)
+                    film.title = filmTitles[i]
+                    film.posterPath = posterPaths[i]
+                    film.releaseDate = "200\(i)-01-01"
+                    film.addToCollections(customCollection)
+                }
+
+                didAddCollections = true
+            }
+
+            if didAddCollections {
+                try context.save()
+                log(.movieProvider, .info, "✅ Default collections added!")
+            } else {
+                log(.movieProvider, .info, "🤝 Default collections already seeded.")
+            }
+
+        } catch {
+            log(.movieProvider, .error, "⛔️ Error preloading default data: \(error)")
+        }
+    }
+}
+#endif

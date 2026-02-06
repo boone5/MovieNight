@@ -37,9 +37,9 @@ struct CollectionsView: View {
                         send(.tappedCollection(collection))
                     } label: {
                         Row(collection: collection)
+                            .contentShape(.rect)
                     }
                     .buttonStyle(.plain)
-                    .contentShape(.rect)
 
                     if idx != visibleCollections.endIndex-1 {
                         Rectangle()

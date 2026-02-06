@@ -5,31 +5,36 @@
 //  Created by Ayren King on 1/27/26.
 //
 
+import Models
 import SwiftUI
 import UI
 
 struct MediaCollectionPicker: View {
-    @Environment(\.dismiss) var dismiss
-
-    @Binding var selectedCollection: String?
-    @State var newCollection: String?
+    let collections: FetchedResults<FilmCollection>
+    let previousSelectedCollectionID: FilmCollection.ID?
+    @State var newCollection: FilmCollection.ID?
     @State private var sheetHeight: CGFloat = .zero
+    let onCollectionPickerValueUpdated: (FilmCollection.ID?) -> Void
 
-    init(selectedCollection: Binding<String?>) {
-        self._selectedCollection = selectedCollection
-        self._newCollection = .init(wrappedValue: selectedCollection.wrappedValue)
+
+    init(
+        collections: FetchedResults<FilmCollection>,
+        selectedCollectionID: FilmCollection.ID?,
+        onCollectionPickerValueUpdated: @escaping (FilmCollection.ID?) -> Void
+    ) {
+        self.collections = collections
+        self.previousSelectedCollectionID = selectedCollectionID
+        self._newCollection = .init(initialValue: selectedCollectionID)
+        self.onCollectionPickerValueUpdated = onCollectionPickerValueUpdated
     }
 
     var body: some View {
         NavigationStack {
             VStack {
                 Picker("", selection: $newCollection) {
-                    Text("No collection").tag(String?.none)
-                    ForEach(
-                        ["Watch List", "In Theaters Now", "Trending Movies", "Custom List #1", "Custom List #2"],
-                        id: \.self
-                    ) { collection in
-                        Text(collection).tag(Optional(collection))
+                    Text("No collection").tag(FilmCollection.ID?.none)
+                    ForEach(collections) { collection in
+                        Text(collection.safeTitle).tag(Optional(collection.id))
                     }
                 }
                 .pickerStyle(.wheel)
@@ -39,14 +44,13 @@ struct MediaCollectionPicker: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Close", systemImage: "xmark") {
-                        dismiss()
+                        onCollectionPickerValueUpdated(previousSelectedCollectionID)
                     }
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done", systemImage: "arrow.up") {
-                        selectedCollection = newCollection
-                        dismiss()
+                        onCollectionPickerValueUpdated(newCollection)
                     }
                     .tint(.popRed)
                 }

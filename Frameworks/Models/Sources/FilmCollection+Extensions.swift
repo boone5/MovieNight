@@ -28,4 +28,9 @@ extension FilmCollection {
     public var safeTitle: String {
         self.title ?? ""
     }
+
+    public var mediaItems: [MediaItem] {
+        let items = films?.array as? [Film]
+        return items?.compactMap(MediaItem.init) ?? []
+    }
 }

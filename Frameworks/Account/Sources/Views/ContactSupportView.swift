@@ -198,7 +198,7 @@ private struct FeedbackRatingButton: View {
             VStack(spacing: 12) {
                 Image(systemName: rating.icon)
                     .font(.title2.weight(.medium))
-                    .foregroundStyle(isSelected ? rating.color: .secondary.opacity(0.4))
+                    .foregroundStyle(isSelected ? rating.color : .secondary.opacity(0.4))
                 Text(rating.rawValue)
                     .font(.openSans(size: 16, weight: .semibold))
                     .foregroundStyle(isSelected ? Color.primary : .secondary.opacity(0.6))

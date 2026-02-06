@@ -36,7 +36,6 @@ struct HomeScreen: View {
                     title: "Home",
                     trailingButtons: [
                         NavigationHeaderButton(systemImage: "person") {
-                            // TODO: Implement profile button action (e.g., navigate to profile screen).
                             showingAccountScreen = true
                         }
                     ]

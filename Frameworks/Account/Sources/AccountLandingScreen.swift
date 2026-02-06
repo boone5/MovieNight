@@ -12,12 +12,12 @@ public struct AccountLandingScreen: View {
     @Environment(\.dismiss) var dismiss
 
     private var appVersion: String {
-        Bundle.main.infoDictionary?["CFBundleShortVersionString"]  as? String ?? ""
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
     }
 
     static var IS_PROFILE_SUPPORTED: Bool {
         #if DEBUG
-        false
+        true
         #else
         false
         #endif

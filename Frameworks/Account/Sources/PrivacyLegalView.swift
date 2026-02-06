@@ -8,7 +8,7 @@ public struct PrivacyLegalView: View {
     @State private var showExportAlert = false
     @State private var showDeleteConfirm = false
 
-    private let privacyPolicyURL = URL(string: "https://example.com/privacy")! // TODO: Replace with your real privacy policy URL
+    private let privacyPolicyURL = URL(string: "https://example.com/privacy") // TODO: Replace with your real privacy policy URL
 
     public init() {}
 
@@ -65,15 +65,17 @@ public struct PrivacyLegalView: View {
                     }
                     .font(.openSans(size: 16, weight: .semibold))
 
-                    Section("Legal") {
-                        Link(destination: privacyPolicyURL) {
-                            Label("Privacy Policy", systemImage: "doc.text")
-                                .font(.openSans(size: 16))
-                                .foregroundStyle(.primary)
+                    if let privacyPolicyURL {
+                        Section("Legal") {
+                            Link(destination: privacyPolicyURL) {
+                                Label("Privacy Policy", systemImage: "doc.text")
+                                    .font(.openSans(size: 16))
+                                    .foregroundStyle(.primary)
+                            }
+                            .listRow(isFirst: true, isLast: true)
                         }
-                        .listRow(isFirst: true, isLast: true)
+                        .font(.openSans(size: 16, weight: .semibold))
                     }
-                    .font(.openSans(size: 16, weight: .semibold))
                 }
                 .listRowBackground(Color.background)
                 .listRowSeparator(.hidden)

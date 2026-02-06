@@ -2,13 +2,12 @@
 //  NotificationsSettingsView.swift
 //  Account
 //
-//  Created by Ayren King on 2026-02-05.
+//  Created by Ayren King on 2026/02/05.
 //
 
 import SwiftUI
 import UserNotifications
 import UI
-
 import ActivityKit
 
 /// Settings screen for notification preferences.
@@ -125,6 +124,8 @@ public struct NotificationsSettingsView: View {
 }
 
 fileprivate extension NotificationsSettingsView {
+
+    // TODO: Migrate to TCA
     @MainActor
     final class ViewModel: ObservableObject {
         @AppStorage("notifications.localEnabled") var localEnabled: Bool = true
@@ -132,12 +133,9 @@ fileprivate extension NotificationsSettingsView {
         @AppStorage("notifications.serverEnabled") var serverNotificationsEnabled: Bool = false
 
         @Published private(set) var authorizationStatus: UNAuthorizationStatus = .notDetermined
-        @Published private(set) var soundSettingEnabled: Bool = false
-
-        private var sampleActivityID: String?
 
         var isAuthorized: Bool { authorizationStatus == .authorized }
-        var isDenied: Bool { authorizationStatus == .denied || authorizationStatus == .provisional }
+        var isDenied: Bool { authorizationStatus == .denied }
 
         var authorizationText: String {
             switch authorizationStatus {
@@ -162,7 +160,6 @@ fileprivate extension NotificationsSettingsView {
             let settings = await UNUserNotificationCenter.current().notificationSettings()
             await MainActor.run {
                 authorizationStatus = settings.authorizationStatus
-                soundSettingEnabled = (settings.soundSetting == .enabled)
             }
         }
 
@@ -178,7 +175,6 @@ fileprivate extension NotificationsSettingsView {
             UNUserNotificationCenter.current().getNotificationSettings { [weak self] settings in
                 DispatchQueue.main.async {
                     self?.authorizationStatus = settings.authorizationStatus
-                    self?.soundSettingEnabled = (settings.soundSetting == .enabled)
                 }
             }
         }

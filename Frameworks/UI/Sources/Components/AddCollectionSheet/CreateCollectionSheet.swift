@@ -17,6 +17,7 @@ public struct CreateCollectionFeature {
     public struct State: Equatable {
         var collectionName: String = ""
         var selectedCollectionType: CollectionType = .custom
+        var nameSubmitAttempts: Int = 0
 
         public init() { }
     }
@@ -44,14 +45,20 @@ public struct CreateCollectionFeature {
                 }
 
             case .tappedCreateButton:
+                guard !state.collectionName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                    state.nameSubmitAttempts += 1
+                    return .none
+                }
+
                 let name = state.collectionName
                 let type = state.selectedCollectionType
-                // TODO: Add error handling for createCollection failure (PR #13)
-                // - Catch errors and display user-facing alert
-                // - Consider adding an `error` state property and corresponding alert
+
                 return .run { _ in
                     try movieProvider.createCollection(name: name, type: type)
                     await dismiss()
+                } catch: { error, send in
+                    // TODO: Add error handling for createCollection failure (PR #13)
+                    // - Consider adding an `error` state property and corresponding alert
                 }
 
             case let .tappedCollectionType(type):
@@ -83,6 +90,8 @@ public struct CreateCollectionSheet: View {
 
                     Divider()
                 }
+                .shakeEffect(trigger: store.nameSubmitAttempts)
+                .sensoryFeedback(.error, trigger: store.nameSubmitAttempts)
 
                 Text("Select one")
                     .font(.openSans(size: 16, weight: .medium))

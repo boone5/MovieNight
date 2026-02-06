@@ -103,6 +103,7 @@ extension CollectionDetailView {
         public let filmCount: Int
         @Binding public var headerOpacity: CGFloat
         @Binding public var isEditingTitle: Bool
+        public let nameSubmitAttempts: Int
         public var onFinishRename: (() -> Void)? = nil
         public var onCancelRename: (() -> Void)? = nil
 
@@ -121,6 +122,8 @@ extension CollectionDetailView {
                                 isTitleFieldFocused = true
                             }
                             .minimumScaleFactor(0.5)
+                            .shakeEffect(trigger: nameSubmitAttempts)
+                            .sensoryFeedback(.error, trigger: nameSubmitAttempts)
 
                         Image(systemName: "checkmark.circle.fill")
                             .font(.system(size: 24))
@@ -196,6 +199,7 @@ extension CollectionDetailView {
                         filmCount: store.collection.filmCount,
                         headerOpacity: $headerOpacity,
                         isEditingTitle: $store.isEditingTitle,
+                        nameSubmitAttempts: store.nameSubmitAttempts,
                         onFinishRename: {
                             send(.finishRename)
                         },
@@ -265,6 +269,7 @@ extension CollectionDetailView {
                     filmCount: store.collection.filmCount,
                     headerOpacity: $headerOpacity,
                     isEditingTitle: $store.isEditingTitle,
+                    nameSubmitAttempts: store.nameSubmitAttempts,
                     onFinishRename: {
                         send(.finishRename)
                     },

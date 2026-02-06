@@ -15,7 +15,6 @@ import Models
 public enum MovieProviderEvent {
     case filmSaved(Film)
     case filmDeleted(Film.ID)
-    case filmAddedToWatchLater(Film)
 }
 
 public enum FeedbackEvent: Equatable {

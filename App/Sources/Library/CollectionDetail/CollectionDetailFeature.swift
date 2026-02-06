@@ -22,6 +22,7 @@ struct CollectionDetailFeature {
         var isReordering: Bool = false
         var isEditingTitle: Bool = false
         var originalTitle: String = ""
+        var nameSubmitAttempts: Int = 0
 
         @Presents var selectedFilm: MediaItem?
 
@@ -72,6 +73,11 @@ struct CollectionDetailFeature {
                 return .none
 
             case .view(.finishRename):
+                guard !state.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                    state.nameSubmitAttempts += 1
+                    return .none
+                }
+
                 let collectionID = state.collection.id
                 let newTitle = state.title
 

@@ -120,7 +120,7 @@ extension MediaItem {
         case .movie(let m):
             self.init(
                 id: m.id,
-                mediaType: m.mediaType,
+                mediaType: .movie,
                 title: m.title,
                 originalTitle: m.originalTitle,
                 overview: m.overview,
@@ -141,7 +141,7 @@ extension MediaItem {
         case .tv(let t):
             self.init(
                 id: t.id,
-                mediaType: t.mediaType,
+                mediaType: .tv,
                 title: t.title,
                 originalTitle: t.originalTitle,
                 overview: t.overview,
@@ -162,7 +162,7 @@ extension MediaItem {
         case .person(let p):
             self.init(
                 id: p.id,
-                mediaType: p.mediaType,
+                mediaType: .person,
                 title: p.title,
                 overview: p.overview,
                 posterPath: p.posterPath,
@@ -198,6 +198,16 @@ extension MediaItem {
     /// Returns the release year extracted from `releaseDate`, if available.
     public var releaseYear: String? {
         releaseDate?.prefix(4).description
+    }
+
+    /// Returns the release date formatted as "Month Year" (e.g., "July 2026"), if available.
+    public var formattedReleaseDate: String? {
+        guard let releaseDate else { return nil }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        guard let date = formatter.date(from: releaseDate) else { return nil }
+        formatter.dateFormat = "MMMM yyyy"
+        return formatter.string(from: date)
     }
 
     /// Indicates whether this media item represents a person.

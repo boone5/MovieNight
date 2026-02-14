@@ -19,6 +19,7 @@ struct AppFeature {
 
         var selectedTab: AppTab
 
+        var home: HomeFeature.State = .init()
         var library: LibraryFeature.State = .init()
         var search: SearchFeature.State = .init()
         var watchLater: WatchLaterFeature.State = .init()
@@ -26,6 +27,7 @@ struct AppFeature {
 
     enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
+        case home(HomeFeature.Action)
         case library(LibraryFeature.Action)
         case search(SearchFeature.Action)
         case watchLater(WatchLaterFeature.Action)
@@ -33,6 +35,7 @@ struct AppFeature {
 
     var body: some ReducerOf<Self> {
         BindingReducer()
+        Scope(state: \.home, action: \.home, child: HomeFeature.init)
         Scope(state: \.library, action: \.library, child: LibraryFeature.init)
         Scope(state: \.search, action: \.search, child: SearchFeature.init)
         Scope(state: \.watchLater, action: \.watchLater, child: WatchLaterFeature.init)
@@ -40,6 +43,8 @@ struct AppFeature {
         Reduce { state, action in
             switch action {
             case .binding: return .none
+
+            case .home: return .none
 
             case .library: return .none
 

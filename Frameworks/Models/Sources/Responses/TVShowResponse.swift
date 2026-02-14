@@ -25,7 +25,6 @@ public struct TVShowResponse: Codable, Hashable, Identifiable {
     public let title: String
     let voteAverage: Double?
     let voteCount: Int64?
-    public let mediaType: MediaType
     public let originCountries: [String]?
 
     // App-enriched
@@ -45,7 +44,6 @@ public struct TVShowResponse: Codable, Hashable, Identifiable {
         case title = "name"
         case voteAverage = "vote_average"
         case voteCount = "vote_count"
-        case mediaType = "media_type"
         case originCountries = "origin_country"
     }
 }
@@ -60,7 +58,6 @@ extension TVShowResponse {
         self.originalTitle = ""
         self.originalLanguage = ""
         self.overview = "Lorem ipsum dolor sit amet, consect adipisc elit, sed do eiusmod tempor incidid ut labore et dolore magna. Ut enim ad minim veniam, quis"
-        self.mediaType = .tv
         self.genreIDs = []
         self.popularity = 0.0
         self.firstAirDate = "air date"

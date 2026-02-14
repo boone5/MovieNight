@@ -19,7 +19,7 @@ struct AppView: View {
     var body: some View {
         TabView(selection: $store.selectedTab) {
             Tab(AppTab.home.label, systemImage: AppTab.home.icon, value: .home) {
-                HomeScreen()
+                HomeScreen(store: store.scope(state: \.home, action: \.home))
                     .environment(\.managedObjectContext, context)
             }
 
@@ -48,7 +48,7 @@ enum AppTab: Hashable {
 
     var label: String {
         switch self {
-        case .home: "Home"
+        case .home: "Discover"
         case .library: "Library"
         case .watchLater: "Wheel"
         case .search: "Search"

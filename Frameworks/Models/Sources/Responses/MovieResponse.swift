@@ -22,7 +22,6 @@ public struct MovieResponse: Codable, Hashable, Identifiable {
     let video: Bool?
     let voteAverage: Double?
     let voteCount: Int64?
-    public let mediaType: MediaType
 
     // MARK: - App-enriched (NOT decoded)
     public var rating: Int16 = 0
@@ -44,7 +43,6 @@ public struct MovieResponse: Codable, Hashable, Identifiable {
         case video
         case voteAverage = "vote_average"
         case voteCount = "vote_count"
-        case mediaType = "media_type"
     }
 }
 
@@ -63,7 +61,6 @@ extension MovieResponse {
         self.video = false
         self.voteAverage = 0
         self.voteCount = 0
-        self.mediaType = .movie
         self.adult = nil
         self.backdropPath = nil
     }

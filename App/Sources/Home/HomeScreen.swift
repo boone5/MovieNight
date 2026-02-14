@@ -5,32 +5,23 @@
 //  Created by Boone on 11/26/25.
 //
 
-import Dependencies
+import ComposableArchitecture
 import Models
 import Networking
 import SwiftUI
 import UI
 
+@ViewAction(for: HomeFeature.self)
 struct HomeScreen: View {
-    //    @FetchRequest(fetchRequest: Film.recentlyWatched())
-    //    private var recentlyWatchedFilms: FetchedResults<Film>
-
-    @State private var trendingMovies: [MediaItem] = []
-    @State private var trendingTVShows: [MediaItem] = []
-    @State private var shouldLoad = true
-
-    // Film Detail View Properties
-    @State private var selectedItem: MediaItem?
+    @Bindable var store: StoreOf<HomeFeature>
 
     @Namespace private var namespace
-
-    @Dependency(\.networkClient) var networkClient
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 15) {
                 NavigationHeader(
-                    title: "Home",
+                    title: "Discover",
                     trailingButtons: [
                         NavigationHeaderButton(systemImage: "person") {
                             // TODO: Implement profile button action (e.g., navigate to profile screen).
@@ -39,35 +30,39 @@ struct HomeScreen: View {
                 )
                 .padding(.bottom, 5)
 
-                Text("Friends watched")
+                Text("In Theaters Now")
                     .font(.montserrat(size: 18, weight: .semibold))
+                    .padding(.top, 10)
 
-                ScrollView(.horizontal) {
-                    HStack {
-                        ForEach(1..<5) { _ in
-                            RoundedRectangle(cornerRadius: 15)
-                                .frame(width: 125, height: 175)
-                        }
-                    }
-                    .padding(.horizontal, 15)
-                }
-                .padding(.horizontal, -15)
+                FilmRow(
+                    items: store.nowPlaying,
+                    selectedItem: $store.selectedItem,
+                    namespace: namespace
+                )
+
+                Text("Coming Soon")
+                    .font(.montserrat(size: 18, weight: .semibold))
+                    .padding(.top, 10)
+
+                ComingSoonRow(items: store.upcoming)
 
                 Text("Trending Movies")
                     .font(.montserrat(size: 18, weight: .semibold))
+                    .padding(.top, 10)
 
                 FilmRow(
-                    items: trendingMovies,
-                    selectedItem: $selectedItem,
+                    items: store.trendingMovies,
+                    selectedItem: $store.selectedItem,
                     namespace: namespace
                 )
 
                 Text("Trending TV Shows")
                     .font(.montserrat(size: 18, weight: .semibold))
+                    .padding(.top, 10)
 
                 FilmRow(
-                    items: trendingTVShows,
-                    selectedItem: $selectedItem,
+                    items: store.trendingTVShows,
+                    selectedItem: $store.selectedItem,
                     namespace: namespace
                 )
             }
@@ -75,19 +70,9 @@ struct HomeScreen: View {
         }
         .background(Color.background)
         .task {
-            guard shouldLoad else { return }
-
-            async let movies = getTrendingMovies()
-            async let shows = getTrendingTVShows()
-            //            async let upcoming = getNowShowing()
-
-            self.trendingMovies = await movies
-            self.trendingTVShows = await shows
-            //            self.upcoming = await upcoming
-
-            shouldLoad = false
+            send(.onTask)
         }
-        .fullScreenCover(item: $selectedItem) { item in
+        .fullScreenCover(item: $store.selectedItem) { item in
             MediaDetailView(
                 media: item,
                 navigationTransitionConfig: .init(namespace: namespace, source: item)
@@ -96,31 +81,11 @@ struct HomeScreen: View {
     }
 }
 
-// MARK: Networking
-
-extension HomeScreen {
-    public func getTrendingMovies() async -> [MediaItem] {
-        do {
-            let response: TrendingMoviesResponse = try await networkClient.request(TMDBEndpoint.trendingMovies)
-            return response.results.map(MediaItem.init)
-        } catch {
-            print("⛔️ Error fetching trending movies: \(error)")
-            return []
-        }
-    }
-
-    public func getTrendingTVShows() async -> [MediaItem] {
-        do {
-            let response: TrendingTVShowsResponse = try await networkClient.request(TMDBEndpoint.trendingTVShows)
-            return response.results.map(MediaItem.init)
-        } catch {
-            print("⛔️ Error fetching trending tv shows: \(error)")
-            return []
-        }
-    }
-}
-
 #Preview {
-    HomeScreen()
-        .loadCustomFonts()
+    HomeScreen(
+        store: Store(initialState: HomeFeature.State()) {
+            HomeFeature()
+        }
+    )
+    .loadCustomFonts()
 }

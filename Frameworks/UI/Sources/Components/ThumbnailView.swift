@@ -85,9 +85,14 @@ struct FeedbackOverlayView: View {
     }
 }
 
-struct PosterView: View {
-    let imagePath: String?
-    let size: CGSize
+public struct PosterView: View {
+    public let imagePath: String?
+    public let size: CGSize
+
+    public init(imagePath: String?, size: CGSize) {
+        self.imagePath = imagePath
+        self.size = size
+    }
 
     var imageShape: RoundedRectangle {
         RoundedRectangle(cornerRadius: 8)
@@ -95,7 +100,7 @@ struct PosterView: View {
 
     @Dependency(\.imageLoader.cachedImage) var cachedImage
 
-    var body: some View {
+    public var body: some View {
         Group {
             if let cachedImage = cachedImage(imagePath) {
                 Image(uiImage: cachedImage)

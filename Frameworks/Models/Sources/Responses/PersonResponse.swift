@@ -10,7 +10,6 @@ public struct PersonResponse: Codable, Hashable, Identifiable {
     public let adult: Bool?
     public let name: String
     public let originalName: String?
-    public let mediaType: MediaType
     public let popularity: Double?
     public let gender: Gender?
     public let knownForDepartment: String?
@@ -27,7 +26,6 @@ public struct PersonResponse: Codable, Hashable, Identifiable {
         case adult
         case name
         case originalName = "original_name"
-        case mediaType = "media_type"
         case popularity
         case gender
         case knownForDepartment = "known_for_department"
@@ -41,7 +39,6 @@ public struct PersonResponse: Codable, Hashable, Identifiable {
         self.adult = adult
         self.name = name
         self.originalName = originalName
-        self.mediaType = mediaType
         self.popularity = popularity
         self.gender = gender
         self.knownForDepartment = knownForDepartment

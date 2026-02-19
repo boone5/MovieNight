@@ -68,7 +68,7 @@ struct WheelView: View {
                 store.send(.view(.selectCollectionPickerButtonTapped))
             } label: {
                 HStack(spacing: 4) {
-                    Text(store.selectedCollection?.safeTitle ?? "No collection selected")
+                    Text(store.selectedCollection?.title ?? "No collection selected")
                         .font(.openSans(size: 16, weight: .semibold))
 
                     Image(systemName: "chevron.down")

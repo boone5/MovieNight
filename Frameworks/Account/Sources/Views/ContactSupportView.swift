@@ -95,6 +95,7 @@ private struct FeedbackFormView: View {
     @State private var category: FeedbackCategory = .ui
     @State private var note: String = ""
     @State private var showSubmittedAlert = false
+    @FocusState private var noteIsFocused: Bool
 
     var body: some View {
         Form {
@@ -127,8 +128,18 @@ private struct FeedbackFormView: View {
                     TextEditor(text: $note)
                         .frame(minHeight: 120)
                         .font(.openSans(size: 16))
+                        .focused($noteIsFocused)
+                        .submitLabel(.done)
                 }
                 .font(.openSans(size: 16))
+                .toolbar {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        Spacer()
+                        Button("Done") {
+                            noteIsFocused = false
+                        }
+                    }
+                }
             }
             .font(.openSans(size: 16, weight: .semibold))
 
@@ -142,6 +153,10 @@ private struct FeedbackFormView: View {
                         .frame(maxWidth: .infinity)
                 }
             }
+        }
+        .onTapGesture {
+            // Dismiss keyboard when tapping outside the TextEditor
+            noteIsFocused = false
         }
         .navigationTitle("Feedback")
         .navigationBarTitleDisplayMode(.inline)

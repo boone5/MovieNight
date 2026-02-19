@@ -5,6 +5,7 @@
 //  Created by Boone on 7/12/25.
 //
 
+import ComposableArchitecture
 import CoreData
 import Dependencies
 import Models
@@ -15,14 +16,18 @@ import UI
 import FortuneWheel
 
 struct WheelView: View {
-    @State private var chosenIndex: [MediaItem].Index?
+    @Bindable var store: StoreOf<WatchLaterFeature>
+    var collections: FetchedResults<FilmCollection>
+
+    init(store: StoreOf<WatchLaterFeature>, collections: FetchedResults<FilmCollection>) {
+        self.store = store
+        self.collections = collections
+    }
 
     private let totalSpinDuration: Double = 5.0
 
-    private let items: [MediaItem]
-
     var circleSize: CGFloat {
-        let width = UIScreen.main.bounds.width
+        guard let width = UIWindow.current?.currentSceneWidth else { return 400 }
         if width > 400 {
             return width * 1.25
         } else {
@@ -30,18 +35,11 @@ struct WheelView: View {
         }
     }
 
-    @State private var selectedCollection: String?
-    @State private var isPresentingCollectionPicker: Bool = false
-
     @Namespace var transition
-
-    init(items: [MediaItem]) {
-        self.items = items
-    }
 
     private var wheelModel: FortuneWheelModel {
         FortuneWheelModel(
-            titles: items.compactMap(\.title),
+            titles: store.selectedCollectionMediaItems?.compactMap(\.title) ?? [],
             size: circleSize,
             colors: nil,
             sliceConfig: .init(strokeWidth: 10),
@@ -52,18 +50,7 @@ struct WheelView: View {
             spinButtonSpacing: 48,
             animationConfig: .init(duration: totalSpinDuration),
             onSpinStateChange: {
-                switch $0 {
-                case .idle:
-                    print("IDLE")
-                case .spinning:
-                    withAnimation {
-                        chosenIndex = nil
-                    }
-                case .finished(let index):
-                    withAnimation {
-                        chosenIndex = index
-                    }
-                }
+                store.send(.view(.wheelStateDidChange($0)), animation: .default)
             }
         )
     }
@@ -78,43 +65,51 @@ struct WheelView: View {
                 .padding(.top, 5)
 
             Button {
-                isPresentingCollectionPicker = true
+                store.send(.view(.selectCollectionPickerButtonTapped))
             } label: {
                 HStack(spacing: 4) {
-                    Text(selectedCollection ?? "No collection selected")
+                    Text(store.selectedCollection?.title ?? "No collection selected")
                         .font(.openSans(size: 16, weight: .semibold))
 
                     Image(systemName: "chevron.down")
                 }
                 .foregroundStyle(.blue)
             }
+            .disabled(!store.canUpdateCollection)
             .padding(.bottom, 12)
 
             Spacer()
 
             FortuneWheel(model: wheelModel)
                 .overlay {
-                    if items.isEmpty {
+                    if store.selectedCollectionHasItems == false {
                         Circle()
                             .fill(Color.primary.opacity(0.1))
                     }
                 }
-                .disabled(items.isEmpty)
-                .frame(width: UIScreen.main.bounds.width - (PLayout.horizontalMarginPadding * 2))
-                .allowsHitTesting(!items.isEmpty)
+                .disabled(store.selectedCollectionHasItems == false)
+                .frame(width: (UIWindow.current?.currentSceneWidth ?? 400) - (PLayout.horizontalMarginPadding * 2))
+                .allowsHitTesting(!(store.selectedCollectionHasItems == false))
 
             Spacer()
         }
         .padding(.horizontal, PLayout.horizontalMarginPadding)
         .safeAreaPadding(.bottom)
         .overlay {
-            if let chosenIndex, let item = items[safe: chosenIndex] {
-                MediaModal(item: item, chosenIndex: $chosenIndex)
+            if let item = store.selectedCollectionMediaItems?[safe: store.chosenWheelIndex] {
+                MediaModal(item: item, onDismiss: { store.send(.view(.onMediaModalDismiss), animation: .interactiveSpring) })
             }
         }
-        .animation(.default, value: chosenIndex)
-        .sheet(isPresented: $isPresentingCollectionPicker) {
-            MediaCollectionPicker(selectedCollection: $selectedCollection)
+        .animation(.default, value: store.chosenWheelIndex)
+        .sheet(isPresented: $store.isPresentingCollectionPicker) {
+            MediaCollectionPicker(
+                collections: collections,
+                selectedCollectionID: store.selectedCollection?.id,
+                onCollectionPickerValueUpdated: { selectedId in
+                    let collection = collections.first { $0.id == selectedId }
+                    store.send(.view(.collectionPickerValueUpdated(collection)))
+                }
+            )
         }
     }
 }
@@ -124,57 +119,5 @@ extension Collection {
     subscript(safe index: Index?) -> Element? {
         guard let index else { return nil }
         return indices.contains(index) ? self[index] : nil
-    }
-}
-
-// MARK: - Preview
-
-#Preview {
-    @Previewable @State var path: NavigationPath = NavigationPath()
-
-    TabView {
-        NavigationStack(path: $path) {
-            WheelViewPreview()
-                // .onAppear { path.append(1) }
-                .navigationDestination(for: Int.self ) { _ in
-                    WheelViewPreview()
-                }
-        }
-        .tabItem {
-            Label("Wheel", systemImage: "circle.grid.3x3.fill")
-        }
-
-        Text("Test")
-            .tabItem {
-                Label("Other", systemImage: "star.fill")
-            }
-    }
-}
-
-struct WheelViewPreview: View {
-    init() {
-        _ = prepareDependencies {
-            $0.imageLoader = .liveValue
-        }
-    }
-    let films: [MediaItem] = {
-        @Dependency(\.movieProvider) var movieProvider
-        let context = movieProvider.container.viewContext
-        let watchList = FilmCollection(context: context)
-        watchList.id = FilmCollection.watchLaterID
-
-        var films: [Film] = []
-
-        for i in 0..<3 {
-            let film = Film(context: context)
-            film.title = "Mock Film \(i)"
-            films.append(film)
-        }
-        return films.map(MediaItem.init)
-    }()
-
-    var body: some View {
-        WheelView(items: films)
-            .loadCustomFonts()
     }
 }

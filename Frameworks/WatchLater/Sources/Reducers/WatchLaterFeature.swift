@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import FortuneWheel
 import Models
 import SwiftUI
 import UI
@@ -18,11 +19,18 @@ public struct WatchLaterFeature {
     public struct State: Equatable {
         public init() {}
 
-        // TODO: Update functionality to match collection-based design
-
         var navigationPath = NavigationPath()
-        var searchText: String = ""
-        var isSearchFieldFocused: Bool = false
+
+        var selectedCollection: CollectionModel?
+        var selectedCollectionMediaItems: [MediaItem]?
+        var chosenWheelIndex: [MediaItem].Index?
+        var isPresentingCollectionPicker = false
+
+        var canUpdateCollection: Bool = true
+
+        var selectedCollectionHasItems: Bool {
+            !(selectedCollectionMediaItems?.isEmpty ?? true)
+        }
 
         @Presents var selectedItem: MediaItem?
     }
@@ -34,9 +42,11 @@ public struct WatchLaterFeature {
     @CasePathable
     public enum View: BindableAction, Equatable {
         case binding(BindingAction<State>)
-        case clearSearchFieldButtonTapped
         case readyToWatchFilmButtonTapped(MediaItem?)
-        case spinWheelButtonTapped
+        case selectCollectionPickerButtonTapped
+        case collectionPickerValueUpdated(FilmCollection?)
+        case wheelStateDidChange(SpinState)
+        case onMediaModalDismiss
     }
 
     public var body: some ReducerOf<Self> {
@@ -46,24 +56,38 @@ public struct WatchLaterFeature {
             case .view(.binding):
                 return .none
 
-            case .view(.clearSearchFieldButtonTapped):
-                state.searchText = ""
-                state.isSearchFieldFocused = false
-                return .none
-
             case .view(.readyToWatchFilmButtonTapped(let item)):
                 guard let item else { return .none }
                 state.selectedItem = item
                 return .none
 
-            case .view(.spinWheelButtonTapped):
-                state.navigationPath.append(WatchLaterPath.wheel)
+            case .view(.selectCollectionPickerButtonTapped):
+                state.isPresentingCollectionPicker = true
+                return .none
+
+            case .view(.collectionPickerValueUpdated(let collection)):
+                state.selectedCollection = collection.flatMap(CollectionModel.init)
+                state.selectedCollectionMediaItems = collection?.mediaItems
+                state.isPresentingCollectionPicker = false
+                return .none
+
+            case .view(.wheelStateDidChange(let spinState)):
+                switch spinState {
+                case .idle:
+                    return .none
+                case .spinning:
+                    state.chosenWheelIndex = nil
+                    state.canUpdateCollection = false
+                case .finished(let index):
+                    state.chosenWheelIndex = index
+                }
+                return .none
+
+            case .view(.onMediaModalDismiss):
+                state.chosenWheelIndex = nil
+                state.canUpdateCollection = true
                 return .none
             }
         }
     }
-}
-
-enum WatchLaterPath: Hashable {
-    case wheel
 }

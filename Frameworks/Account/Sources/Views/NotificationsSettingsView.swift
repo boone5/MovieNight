@@ -45,15 +45,16 @@ public struct NotificationsSettingsView: View {
                         Button("Open Settings") {
                             viewModel.openSettings()
                         }
-                        .buttonStyle(.plain)
+                        .tint(.primary)
                     } else {
                         Button("Request") {
                             viewModel.requestPermission()
                         }
-                        //.buttonStyle(.plain)
+                        .tint(.primary)
                     }
                 }
             }
+            .font(.openSans(size: 16, weight: .semibold))
 
             Section("Local Notifications") {
                 Toggle(isOn: $viewModel.localEnabled) {
@@ -62,6 +63,7 @@ public struct NotificationsSettingsView: View {
                 }
                 .toggleStyle(SwitchToggleStyle(tint: .accentColor))
             }
+            .font(.openSans(size: 16, weight: .semibold))
 
             Section("Live Activities") {
                 Toggle(isOn: $viewModel.liveActivitiesEnabled) {
@@ -70,6 +72,7 @@ public struct NotificationsSettingsView: View {
                 }
                 .toggleStyle(SwitchToggleStyle(tint: .accentColor))
             }
+            .font(.openSans(size: 16, weight: .semibold))
 
             Section("Server Notifications") {
                 Toggle(isOn: $viewModel.serverNotificationsEnabled) {
@@ -82,6 +85,7 @@ public struct NotificationsSettingsView: View {
                     .font(.openSans(size: 13))
                     .foregroundStyle(.secondary)
             }
+            .font(.openSans(size: 16, weight: .semibold))
         }
         .tint(Color.popRed)
         .navigationTitle("Notifications")

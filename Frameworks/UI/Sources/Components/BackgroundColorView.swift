@@ -16,18 +16,7 @@ public struct BackgroundColorView<Content: View>: View {
 
     public var body: some View {
         ZStack {
-            Color.clear
-                .background {
-                    LinearGradient(
-                        colors: [
-                            UIAsset.backgroundColor1.swiftUIColor,
-                            UIAsset.backgroundColor2.swiftUIColor
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                }
-                .ignoresSafeArea()
+            Color.background.ignoresSafeArea()
 
             content()
         }

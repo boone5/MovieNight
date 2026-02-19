@@ -8,6 +8,7 @@
 import ProjectDescription
 
 public enum Framework: String {
+    case account = "Account"
     case logger = "Logger"
     case models = "Models"
     case networking = "Networking"

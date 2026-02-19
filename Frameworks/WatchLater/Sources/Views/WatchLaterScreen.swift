@@ -15,15 +15,17 @@ import UI
 public struct WatchLaterScreen: View {
     @Bindable public var store: StoreOf<WatchLaterFeature>
 
+    @FetchRequest(sortDescriptors: [SortDescriptor(\.dateCreated, order: .forward)])
+    private var collections: FetchedResults<FilmCollection>
+
     public init(store: StoreOf<WatchLaterFeature>) {
         self.store = store
     }
 
     public var body: some View {
         NavigationStack(path: $store.navigationPath) {
-            // TODO: Check for collection lists
-            if true {
-                WheelView(items: [])
+            if !collections.isEmpty {
+                WheelView(store: store, collections: collections)
             } else {
                 noContentView
             }
@@ -35,10 +37,10 @@ public struct WatchLaterScreen: View {
             Image(systemName: "popcorn")
                 .font(.system(size: 60))
 
-            Text("Your Watch Later list is empty!")
+            Text("Your collections are empty!")
                 .font(.system(size: 20, weight: .bold))
                 .padding(.top, 8)
-            Text("Browse movies and TV shows to add them to your Watch Later list.")
+            Text("Browse movies and TV shows to add them to your collections.")
                 .font(.system(size: 16, weight: .medium))
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -93,7 +95,7 @@ import CoreData
             WatchLaterScreenPreviews()
         }
 
-        Tab("test", systemImage:"magnifyingglass", role: .search) {
+        Tab("test", systemImage: "magnifyingglass", role: .search) {
             Text("Test")
         }
     }

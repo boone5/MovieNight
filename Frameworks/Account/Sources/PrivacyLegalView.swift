@@ -90,21 +90,6 @@ public struct PrivacyLegalView: View {
     }
 }
 
-extension View {
-    func listRow(isFirst: Bool = false, isLast: Bool = false, disableTopPadding: Bool = false) -> some View {
-        frame(maxWidth: .infinity, alignment: .leading)
-            .padding([.horizontal, disableTopPadding ? .bottom : .vertical]).background {
-                UnevenRoundedRectangle(
-                    topLeadingRadius: isFirst ? 12 : 0,
-                    bottomLeadingRadius: isLast ? 12 : 0,
-                    bottomTrailingRadius: isLast ? 12 : 0,
-                    topTrailingRadius: isFirst ? 12 : 0
-                )
-                .fill(.thinMaterial)
-            }
-    }
-}
-
 #Preview {
     NavigationStack {
         PrivacyLegalView()

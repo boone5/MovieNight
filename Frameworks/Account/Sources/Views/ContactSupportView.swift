@@ -8,55 +8,45 @@ public struct ContactSupportView: View {
     public init() {}
 
     public var body: some View {
-        BackgroundColorView {
-            List {
-                Group {
-                    Section("Contact Info") {
-                        HStack {
-                            Image(systemName: "envelope")
-                                .foregroundStyle(.secondary)
-                            Text(supportEmail)
-                                .font(.openSans(size: 16))
-                            Spacer()
-                            Button("Copy") {
-                                UIPasteboard.general.string = supportEmail
-                            }
-                            .buttonStyle(.bordered)
-                            .tint(.primary)
-                        }
-                        .listRow(isFirst: true)
-
-                        Button {
-                            if let url = URL(string: "mailto:\(supportEmail)") {
-                                openURL(url)
-                            }
-                        } label: {
-                            Label("Email Us", systemImage: "paperplane")
-                                .font(.openSans(size: 16))
-                                .foregroundStyle(.primary)
-                        }
-                        .buttonStyle(.plain)
-                        .listRow(isLast: true)
+        Form {
+            Section("Contact Info") {
+                HStack {
+                    Text(supportEmail)
+                        .font(.openSans(size: 16))
+                    Spacer()
+                    Button("Copy") {
+                        UIPasteboard.general.string = supportEmail
                     }
-                    .font(.openSans(size: 16, weight: .semibold))
-
-                    Section("") {
-                        NavigationLink {
-                            FeedbackFormView()
-                        } label: {
-                            Label("Write Feedback", systemImage: "square.and.pencil")
-                                .font(.openSans(size: 16))
-                                .foregroundStyle(.primary)
-                        }
-                        .listRow(isFirst: true, isLast: true)
-                    }
+                    .tint(.primary)
                 }
-                .listRowBackground(Color.background)
-                .listRowSeparator(.hidden)
-                .listRowInsets(.init(top: 0, leading: PLayout.horizontalMarginPadding, bottom: 0, trailing: PLayout.horizontalMarginPadding))
+
+                Button {
+                    if let url = URL(string: "mailto:\(supportEmail)") {
+                        openURL(url)
+                    }
+                } label: {
+                    HStack {
+                        Text("Email Us")
+                            .font(.openSans(size: 16))
+                        Spacer()
+                        Image(systemName: "envelope")
+                            .font(.body)
+                    }
+                    .contentShape(.rect)
+                }
+                .tint(.primary)
             }
-            .foregroundStyle(.primary)
-            .listStyle(.plain)
+            .font(.openSans(size: 16, weight: .semibold))
+
+            Section("") {
+                NavigationLink {
+                    FeedbackFormView()
+                } label: {
+                    Text("Write Feedback")
+                        .font(.openSans(size: 16))
+                        .foregroundStyle(.primary)
+                }
+            }
         }
         .navigationTitle("Contact Support")
         .navigationBarTitleDisplayMode(.inline)
@@ -151,7 +141,6 @@ private struct FeedbackFormView: View {
                         .font(.openSans(size: 16))
                         .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.borderedProminent)
             }
         }
         .navigationTitle("Feedback")
@@ -213,7 +202,6 @@ private struct FeedbackRatingButton: View {
                             .stroke(isSelected ? rating.color : Color.secondary.opacity(0.4), lineWidth: 1)
                     )
             }
-            // transient pulse on tap; returns to 1.0 after animation completes
             .scaleEffect(isPulsing ? 1.06 : 1.0)
             .shadow(color: Color.black.opacity(isPulsing ? 0.12 : 0.0), radius: isPulsing ? 8 : 0, x: 0, y: isPulsing ? 4 : 0)
             .contentShape(RoundedRectangle(cornerRadius: 15))

@@ -19,102 +19,71 @@ public struct NotificationsSettingsView: View {
     public init() {}
 
     public var body: some View {
-        BackgroundColorView {
-            List {
-                Group {
-                    Section("Permissions") {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text("Local Notifications")
-                                    .font(.openSans(size: 16, weight: .medium))
-                                    .foregroundStyle(.primary)
+        Form {
+            Section("Permissions") {
+                Text("If you’re not receiving notifications, ensure permissions are enabled in Settings and that server notifications are configured for your account.")
+                    .font(.openSans(size: 13))
+                    .foregroundStyle(.secondary)
 
-                                Text(viewModel.authorizationText)
-                                    .font(.openSans(size: 13))
-                                    .foregroundStyle(.secondary)
-                            }
+                HStack {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Local Notifications")
+                            .font(.openSans(size: 16, weight: .medium))
+                            .foregroundStyle(.primary)
 
-                            Spacer()
-
-                            if viewModel.isAuthorized {
-                                Image(systemName: "checkmark.seal.fill")
-                                    .foregroundStyle(.green)
-                            } else if viewModel.isDenied {
-                                Button("Open Settings") {
-                                    viewModel.openSettings()
-                                }
-                                .buttonStyle(.plain)
-                            } else {
-                                Button("Request") {
-                                    viewModel.requestPermission()
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                        .listRow(isFirst: true, isLast: true)
-                    }
-
-                    Section("Local Notifications") {
-                        HStack {
-                            Toggle(isOn: $viewModel.localEnabled) {
-                                Text("Enable Local Notifications")
-                                    .font(.openSans(size: 16, weight: .regular))
-                            }
-                            .toggleStyle(SwitchToggleStyle(tint: .accentColor))
-                            Spacer()
-                        }
-                        .listRow(isFirst: true, isLast: true)
-                    }
-
-                    Section("Live Activities") {
-                        HStack {
-                            Toggle(isOn: $viewModel.liveActivitiesEnabled) {
-                                Text("Enable Live Activities")
-                                    .font(.openSans(size: 16, weight: .regular))
-                            }
-                            .toggleStyle(SwitchToggleStyle(tint: .accentColor))
-                            Spacer()
-                        }
-                        .listRow(isFirst: true, isLast: true)
-                    }
-
-                    Section("Server Notifications") {
-                        HStack {
-                            Toggle(isOn: $viewModel.serverNotificationsEnabled) {
-                                Text("Enable server push notifications")
-                                    .font(.openSans(size: 16, weight: .regular))
-                            }
-                            .toggleStyle(SwitchToggleStyle(tint: .accentColor))
-                            Spacer()
-                        }
-                        .listRow(isFirst: true)
-
-                        VStack {
-                            Divider()
-                            Text("Server notifications require an account and a valid device token. If enabled, the server may send breaking alerts and recommendation nudges.")
-                                .font(.openSans(size: 13))
-                                .foregroundStyle(.secondary)
-                        }
-                        .listRow(isFirst: false, isLast: true, disableTopPadding: true)
-                    }
-
-                    // Footer / troubleshooting
-                    Section("Troubleshooting") {
-                        Text("If you’re not receiving notifications, ensure permissions are enabled in Settings and that server notifications are configured for your account.")
+                        Text(viewModel.authorizationText)
                             .font(.openSans(size: 13))
                             .foregroundStyle(.secondary)
-                            .listRow(isFirst: true, isLast: true)
                     }
 
+                    Spacer()
+
+                    if viewModel.isAuthorized {
+                        Image(systemName: "checkmark.seal.fill")
+                            .foregroundStyle(.green)
+                    } else if viewModel.isDenied {
+                        Button("Open Settings") {
+                            viewModel.openSettings()
+                        }
+                        .buttonStyle(.plain)
+                    } else {
+                        Button("Request") {
+                            viewModel.requestPermission()
+                        }
+                        //.buttonStyle(.plain)
+                    }
                 }
-                .listRowBackground(Color.background)
-                .listRowSeparator(.hidden)
-                .listRowInsets(.init(top: 0, leading: PLayout.horizontalMarginPadding, bottom: 0, trailing: PLayout.horizontalMarginPadding))
             }
-            .listStyle(.plain)
-            .tint(Color.popRed)
-            .foregroundStyle(.primary)
+
+            Section("Local Notifications") {
+                Toggle(isOn: $viewModel.localEnabled) {
+                    Text("Enable Local Notifications")
+                        .font(.openSans(size: 16, weight: .regular))
+                }
+                .toggleStyle(SwitchToggleStyle(tint: .accentColor))
+            }
+
+            Section("Live Activities") {
+                Toggle(isOn: $viewModel.liveActivitiesEnabled) {
+                    Text("Enable Live Activities")
+                        .font(.openSans(size: 16, weight: .regular))
+                }
+                .toggleStyle(SwitchToggleStyle(tint: .accentColor))
+            }
+
+            Section("Server Notifications") {
+                Toggle(isOn: $viewModel.serverNotificationsEnabled) {
+                    Text("Enable server push notifications")
+                        .font(.openSans(size: 16, weight: .regular))
+                }
+                .toggleStyle(SwitchToggleStyle(tint: .accentColor))
+
+                Text("Server notifications require an account and a valid device token. If enabled, the server may send breaking alerts and recommendation nudges.")
+                    .font(.openSans(size: 13))
+                    .foregroundStyle(.secondary)
+            }
         }
+        .tint(Color.popRed)
         .navigationTitle("Notifications")
         .navigationBarTitleDisplayMode(.inline)
         .task {

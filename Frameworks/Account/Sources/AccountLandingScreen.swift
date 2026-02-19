@@ -27,56 +27,52 @@ public struct AccountLandingScreen: View {
 
     public var body: some View {
         NavigationStack {
-            BackgroundColorView {
-                ScrollView {
-                    VStack {
-                        NavigationHeader(
-                            title: "Account",
-                            trailingButtons: [
-                                .init(systemImage: "xmark", action: {
-                                    dismiss()
-                                })
-                            ]
-                        )
-
-                        if Self.IS_PROFILE_SUPPORTED {
-                            ProfileInformationView()
-                        }
-
-                        VStack(spacing: 0) {
-                            if Self.IS_PROFILE_SUPPORTED {
-                                AccountRow(icon: "pencil", title: "Edit Profile", isFirst: true) {
-
-                                }
-                            }
-
-                            AccountRow(icon: "bell", title: "Notifications", isFirst: !Self.IS_PROFILE_SUPPORTED) {
-                                NotificationsSettingsView()
-                            }
-
-                            AccountRow(icon: "lock.shield", title: "Privacy & Legal", isLast: true) {
-                                PrivacyLegalView()
-                            }
-                            .padding(.bottom, 24)
-
-                            AccountRow(icon: "info.circle", title: "About Us", isFirst: true) {
-                                AboutUsView()
-                            }
-
-                            AccountRow(icon: "questionmark.circle", title: "Contact Support", isLast: true) {
-                                ContactSupportView()
-                            }
-                        }
-                        .padding()
+            Form {
+                Section {
+                    if Self.IS_PROFILE_SUPPORTED {
+                        ProfileInformationView()
+                            .alignmentGuide(.listRowSeparatorLeading) { $0[.leading] }
                     }
-                    .padding(.horizontal, PLayout.horizontalMarginPadding)
+
+                    if Self.IS_PROFILE_SUPPORTED {
+                        AccountRow(icon: "pencil", title: "Edit Profile") {
+
+                        }
+                    }
+
+                    AccountRow(icon: "bell", title: "Notifications") {
+                        NotificationsSettingsView()
+                    }
+
+                    AccountRow(icon: "lock.shield", title: "Privacy & Legal") {
+                        PrivacyLegalView()
+                    }
                 }
-                .scrollBounceBehavior(.basedOnSize)
-                .safeAreaInset(edge: .bottom, spacing: 8) {
-                    Text("App Version \(appVersion)")
-                        .foregroundStyle(.secondary)
-                        .font(.openSans(size: 12, weight: .medium))
+
+                Section {
+                    AccountRow(icon: "questionmark.circle", title: "Contact Support") {
+                        ContactSupportView()
+                    }
                 }
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(role: .close) {
+                        dismiss()
+                    }
+                }
+
+                ToolbarItem(placement: .title) {
+                    Text("Account")
+                        .font(.montserrat(size: 18, weight: .semibold))
+                }
+            }
+            .navigationBarTitleDisplayMode(.inline)
+
+            .safeAreaInset(edge: .bottom, spacing: 8) {
+                Text("App Version \(appVersion)")
+                    .foregroundStyle(.secondary)
+                    .font(.openSans(size: 12, weight: .medium))
             }
         }
     }
@@ -89,44 +85,49 @@ private struct ProfileInformationView: View {
     @State private var tempSelectedAvatar: String = "person.fill"
 
     var body: some View {
-        VStack {
-            // Predefined avatar options, similar to GitHub or StackOverflow
-            Circle()
-                .fill(.thinMaterial)
-                .stroke(.primary)
-                .frame(width: 100, height: 100)
-                .overlay {
-                    Image(systemName: selectedAvatar)
-                        .font(.system(size: 40, weight: .regular))
-                        .foregroundStyle(.primary)
-                }
-                .overlay(alignment: .bottomTrailing) {
-                    Button {
-                        tempSelectedAvatar = selectedAvatar
-                        isShowingAvatarSheet = true
-                    } label: {
-                        Image(systemName: "arrow.trianglehead.2.counterclockwise")
-                            .padding(4)
-                            .background {
-                                Circle()
-                                    .fill(Color.background)
-                                    .stroke(.primary.opacity(0.5))
-                            }
+        HStack {
+            VStack {
+                // Predefined avatar options, similar to GitHub or StackOverflow
+                Circle()
+                    .fill(.thinMaterial)
+                    .stroke(.primary)
+                    .frame(width: 60, height: 60)
+                    .overlay {
+                        Image(systemName: selectedAvatar)
+                            .font(.system(size: 24, weight: .regular))
+                            .foregroundStyle(.primary)
                     }
-                    .buttonStyle(.plain)
-                }
+                    .overlay(alignment: .bottomTrailing) {
+                        Button {
+                            tempSelectedAvatar = selectedAvatar
+                            isShowingAvatarSheet = true
+                        } label: {
+                            Image(systemName: "arrow.trianglehead.2.counterclockwise")
+                                .font(.system(size: 8, weight: .regular))
+                                .padding(4)
+                                .background {
+                                    Circle()
+                                        .fill(Color.background)
+                                        .stroke(.primary.opacity(0.5))
+                                }
+                        }
+                        .buttonStyle(.plain)
+                    }
 
-            // User's display name, editable (can be used to search for friends besides unique username)
-            Text("Display Name")
-                .font(.montserrat(size: 24, weight: .medium))
-                .foregroundStyle(.primary)
+            }
+            VStack {
+                // User's display name, editable (can be used to search for friends besides unique username)
+                Text("Display Name")
+                    .font(.montserrat(size: 18, weight: .medium))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .foregroundStyle(.primary)
 
-            // User's unique username (non-editable)
-            Text("@username")
-                .font(.openSans(size: 16))
-                .foregroundStyle(.secondary)
-
-            Divider()
+                // User's unique username (non-editable)
+                Text("@username")
+                    .font(.openSans(size: 16))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .foregroundStyle(.secondary)
+            }
         }
         .sheet(isPresented: $isShowingAvatarSheet) {
             AvatarPickerSheet(selection: $tempSelectedAvatar) {
@@ -139,21 +140,15 @@ private struct ProfileInformationView: View {
 private struct AccountRow<Destination: View>: View {
     var icon: String
     var title: String
-    var isFirst: Bool
-    var isLast: Bool
     var destination: Destination
 
     init(
         icon: String,
         title: String,
-        isFirst: Bool = false,
-        isLast: Bool = false,
         @ViewBuilder destination: @escaping () -> Destination
     ) {
         self.icon = icon
         self.title = title
-        self.isFirst = isFirst
-        self.isLast = isLast
         self.destination = destination()
     }
 
@@ -161,33 +156,12 @@ private struct AccountRow<Destination: View>: View {
         NavigationLink {
             destination
         } label: {
-            HStack {
-                Image(systemName: icon)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 12)
-                    .padding(6)
-                    .background(.secondary.opacity(0.1), in: .circle)
-                    .foregroundStyle(.secondary)
-                Text(title)
-                    .font(.openSans(size: 16, weight: .regular))
-                Spacer()
-                Image(systemName: "chevron.right")
-            }
-            .foregroundStyle(.primary)
-            .padding()
-            .background {
-                UnevenRoundedRectangle(
-                    topLeadingRadius: isFirst ? 12 : 0,
-                    bottomLeadingRadius: isLast ? 12 : 0,
-                    bottomTrailingRadius: isLast ? 12 : 0,
-                    topTrailingRadius: isFirst ? 12 : 0
-                )
-                .fill(.thinMaterial)
-            }
-            .contentShape(.rect)
+            Text(title)
+                .font(.openSans(size: 16, weight: .regular))
+                .foregroundStyle(.primary)
+                .contentShape(.rect)
+                .alignmentGuide(.listRowSeparatorLeading) { $0[.leading] }
         }
-        .buttonStyle(.plain)
     }
 }
 

@@ -6,6 +6,7 @@
 import ComposableArchitecture
 import Models
 import Networking
+import UI
 
 @Reducer
 struct HomeFeature {
@@ -17,6 +18,7 @@ struct HomeFeature {
         var trendingMovies: [MediaItem] = []
         var trendingTVShows: [MediaItem] = []
         @Presents var selectedItem: MediaItem?
+        @Presents var addToCollection: AddToCollectionFeature.State?
 
         var isOnboardingComplete: Bool {
             onboardingGrid.allComplete
@@ -24,6 +26,7 @@ struct HomeFeature {
     }
 
     enum Action: ViewAction, Equatable {
+        case addToCollection(PresentationAction<AddToCollectionFeature.Action>)
         case api(Api)
         case onboardingGrid(OnboardingGridFeature.Action)
         case view(View)
@@ -39,6 +42,8 @@ struct HomeFeature {
     @CasePathable
     enum View: BindableAction, Equatable {
         case binding(BindingAction<State>)
+        case comingSoonAddToCollectionTapped(MediaItem)
+        case comingSoonPosterTapped(MediaItem)
         case onTask
     }
 
@@ -53,6 +58,14 @@ struct HomeFeature {
 
         Reduce { state, action in
             switch action {
+            case .view(.comingSoonPosterTapped(let item)):
+                state.selectedItem = item
+                return .none
+
+            case .view(.comingSoonAddToCollectionTapped(let item)):
+                state.addToCollection = AddToCollectionFeature.State(media: item)
+                return .none
+
             case .view(.onTask):
                 return .merge(
                     .run { send in
@@ -99,9 +112,12 @@ struct HomeFeature {
             case .api(.trendingTVShowsResponse(.failure)):
                 return .none
 
-            case .view(.binding), .onboardingGrid:
+            case .view(.binding), .addToCollection, .onboardingGrid:
                 return .none
             }
+        }
+        .ifLet(\.$addToCollection, action: \.addToCollection) {
+            AddToCollectionFeature()
         }
     }
 }

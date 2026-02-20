@@ -130,7 +130,12 @@ public struct MediaDetailView: View {
             await viewModel.loadInitialData()
         }
         .sheet(isPresented: $viewModel.showAddToCollectionSheet) {
-            AddToCollectionSheet(viewModel: viewModel)
+            AddToCollectionSheet(
+                store: .init(
+                    initialState: AddToCollectionFeature.State(media: viewModel.media, customBackgroundColor: viewModel.averageColor),
+                    reducer: { AddToCollectionFeature()}
+                )
+            )
         }
         .zoomTransition(configuration: navigationTransitionConfig)
     }

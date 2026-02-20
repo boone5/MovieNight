@@ -11,15 +11,23 @@ import UI
 
 struct ComingSoonRow: View {
     var items: [MediaItem]
-
-    @State private var mediaItemToAdd: MediaItem?
+    @Binding var selectedItem: MediaItem?
+    var namespace: Namespace.ID
+    var onAddToCollection: (MediaItem) -> Void
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: 30) {
                 ForEach(items, id: \.id) { item in
                     HStack(alignment: .top, spacing: 15) {
-                        PosterView(imagePath: item.posterPath, size: CGSize(width: 140, height: 217))
+                        ThumbnailView(
+                            media: item,
+                            size: .init(width: 140, height: 217),
+                            transitionConfig: .init(namespace: namespace, source: item)
+                        )
+                        .onTapGesture {
+                            selectedItem = item
+                        }
 
                         VStack(alignment: .leading, spacing: 20) {
                             HStack {
@@ -36,7 +44,7 @@ struct ComingSoonRow: View {
 
                                 Menu {
                                     Button {
-                                        mediaItemToAdd = item
+                                        onAddToCollection(item)
                                     } label: {
                                         Label("Add to Collection", systemImage: "plus")
                                     }
@@ -64,11 +72,18 @@ struct ComingSoonRow: View {
             .scrollTargetLayout()
         }
         .scrollTargetBehavior(.viewAligned)
+        .scrollClipDisabled()
         .padding(.horizontal, -PLayout.horizontalMarginPadding)
         .contentMargins(.horizontal, PLayout.horizontalMarginPadding)
     }
 }
 
 #Preview {
-    ComingSoonRow(items: [])
+    @Previewable @Namespace var namespace
+    ComingSoonRow(
+        items: [],
+        selectedItem: .constant(nil),
+        namespace: namespace,
+        onAddToCollection: { _ in }
+    )
 }

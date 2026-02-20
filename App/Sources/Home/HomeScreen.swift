@@ -50,7 +50,12 @@ struct HomeScreen: View {
                     .font(.montserrat(size: 18, weight: .semibold))
                     .padding(.top, sectionSpacing)
 
-                ComingSoonRow(items: store.upcoming)
+                ComingSoonRow(
+                    items: store.upcoming,
+                    selectedItem: $store.selectedItem,
+                    namespace: namespace,
+                    onAddToCollection: { send(.comingSoonAddToCollectionTapped($0)) }
+                )
 
                 Text("Trending Movies")
                     .font(.montserrat(size: 18, weight: .semibold))
@@ -83,6 +88,9 @@ struct HomeScreen: View {
                 media: item,
                 navigationTransitionConfig: .init(namespace: namespace, source: item)
             )
+        }
+        .sheet(item: $store.scope(state: \.addToCollection, action: \.addToCollection)) { store in
+            AddToCollectionSheet(store: store)
         }
     }
 }

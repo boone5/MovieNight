@@ -16,6 +16,7 @@ import FortuneWheel
 
 struct WheelView: View {
     @State private var chosenIndex: [MediaItem].Index? = nil
+    @AppStorage("wheelSpinCount") private var wheelSpinCount: Int = 0
 
     private let totalSpinDuration: Double = 5.0
 
@@ -60,6 +61,7 @@ struct WheelView: View {
                         chosenIndex = nil
                     }
                 case .finished(let index):
+                    wheelSpinCount += 1
                     withAnimation {
                         chosenIndex = index
                     }

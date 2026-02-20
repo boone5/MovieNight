@@ -98,6 +98,7 @@ public class MovieProvider: MovieProviderClient {
         movie.posterPath = request.film.posterPath
         movie.overview = request.film.overview
 //        movie.releaseDate = request.film.releaseDate
+        movie.mediaTypeAsString = request.film.mediaType.rawValue
         movie.feedback = request.film.feedback
 
         if let comment = request.comment {
@@ -220,6 +221,7 @@ public class MovieProvider: MovieProviderClient {
         collection.films = NSOrderedSet(array: orderedFilms)
         save()
     }
+
     /// Handles context changes and emits events for inserted, updated, or deleted Film objects.
     private func handleContextChange(_ notification: Notification) {
         guard let userInfo = notification.userInfo else { return }

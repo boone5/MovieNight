@@ -17,6 +17,8 @@ struct HomeScreen: View {
 
     @Namespace private var namespace
 
+    private let sectionSpacing: CGFloat = 15
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 15) {
@@ -28,11 +30,15 @@ struct HomeScreen: View {
                         }
                     ]
                 )
-                .padding(.bottom, 5)
+
+                if !store.isOnboardingComplete {
+                    OnboardingGrid(store: store.scope(state: \.onboardingGrid, action: \.onboardingGrid))
+                        .padding(.top, sectionSpacing)
+                }
 
                 Text("In Theaters Now")
                     .font(.montserrat(size: 18, weight: .semibold))
-                    .padding(.top, 10)
+                    .padding(.top, sectionSpacing)
 
                 FilmRow(
                     items: store.nowPlaying,
@@ -42,13 +48,13 @@ struct HomeScreen: View {
 
                 Text("Coming Soon")
                     .font(.montserrat(size: 18, weight: .semibold))
-                    .padding(.top, 10)
+                    .padding(.top, sectionSpacing)
 
                 ComingSoonRow(items: store.upcoming)
 
                 Text("Trending Movies")
                     .font(.montserrat(size: 18, weight: .semibold))
-                    .padding(.top, 10)
+                    .padding(.top, sectionSpacing)
 
                 FilmRow(
                     items: store.trendingMovies,
@@ -58,7 +64,7 @@ struct HomeScreen: View {
 
                 Text("Trending TV Shows")
                     .font(.montserrat(size: 18, weight: .semibold))
-                    .padding(.top, 10)
+                    .padding(.top, sectionSpacing)
 
                 FilmRow(
                     items: store.trendingTVShows,
@@ -66,7 +72,7 @@ struct HomeScreen: View {
                     namespace: namespace
                 )
             }
-            .padding(.horizontal, 15)
+            .padding(.horizontal, PLayout.horizontalMarginPadding)
         }
         .background(Color.background)
         .task {

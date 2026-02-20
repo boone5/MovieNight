@@ -41,6 +41,24 @@ extension Film {
         return request
     }
 
+    public static func moviesWithFeedback() -> NSFetchRequest<Film> {
+        let movieStr = MediaType.movie.rawValue
+        let request: NSFetchRequest<Film> = Film.fetchRequest()
+        let predicate = #Predicate<Film> { $0.feedbackType != nil && $0.mediaTypeAsString == movieStr }
+        request.predicate = NSPredicate(predicate)
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \Film.dateWatched, ascending: true)]
+        return request
+    }
+
+    public static func showsWithFeedback() -> NSFetchRequest<Film> {
+        let showStr = MediaType.tv.rawValue
+        let request: NSFetchRequest<Film> = Film.fetchRequest()
+        let predicate = #Predicate<Film> { $0.feedbackType != nil && $0.mediaTypeAsString == showStr }
+        request.predicate = NSPredicate(predicate)
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \Film.dateWatched, ascending: true)]
+        return request
+    }
+
     public static func watchedSeason(_ season: AdditionalDetailsTVShow.SeasonResponse) {
 
     }

@@ -12,6 +12,8 @@ import UI
 struct ComingSoonRow: View {
     var items: [MediaItem]
 
+    @State private var mediaItemToAdd: MediaItem?
+
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: 30) {
@@ -34,9 +36,9 @@ struct ComingSoonRow: View {
 
                                 Menu {
                                     Button {
-                                        print("do something")
+                                        mediaItemToAdd = item
                                     } label: {
-                                        Label("Add to Watch List", systemImage: "plus")
+                                        Label("Add to Collection", systemImage: "plus")
                                     }
                                 } label: {
                                     Image(systemName: "ellipsis")

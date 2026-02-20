@@ -11,15 +11,21 @@ import Networking
 struct HomeFeature {
     @ObservableState
     struct State: Equatable {
+        var onboardingGrid = OnboardingGridFeature.State()
         var nowPlaying: [MediaItem] = []
         var upcoming: [MediaItem] = []
         var trendingMovies: [MediaItem] = []
         var trendingTVShows: [MediaItem] = []
         @Presents var selectedItem: MediaItem?
+
+        var isOnboardingComplete: Bool {
+            onboardingGrid.allComplete
+        }
     }
 
     enum Action: ViewAction, Equatable {
         case api(Api)
+        case onboardingGrid(OnboardingGridFeature.Action)
         case view(View)
     }
 
@@ -40,6 +46,10 @@ struct HomeFeature {
 
     var body: some ReducerOf<Self> {
         BindingReducer(action: \.view)
+
+        Scope(state: \.onboardingGrid, action: \.onboardingGrid) {
+            OnboardingGridFeature()
+        }
 
         Reduce { state, action in
             switch action {
@@ -89,7 +99,7 @@ struct HomeFeature {
             case .api(.trendingTVShowsResponse(.failure)):
                 return .none
 
-            case .view(.binding):
+            case .view(.binding), .onboardingGrid:
                 return .none
             }
         }

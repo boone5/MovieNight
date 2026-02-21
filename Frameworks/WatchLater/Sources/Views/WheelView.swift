@@ -16,7 +16,6 @@ import UI
 import FortuneWheel
 
 struct WheelView: View {
-    @AppStorage("wheelSpinCount") private var wheelSpinCount: Int = 0
     @Bindable var store: StoreOf<WatchLaterFeature>
     var collections: FetchedResults<FilmCollection>
 

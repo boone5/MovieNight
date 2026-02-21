@@ -22,9 +22,10 @@ struct OnboardingGridFeature {
 
     @ObservableState
     struct State: Equatable {
+        @Shared(.appStorage("wheelSpinCount")) var wheelSpinCount: Int = 0
+
         var moviesWithFeedbackCount: Int = 0
         var showsWithFeedbackCount: Int = 0
-        var wheelSpinCount: Int = 0
 
         var allComplete: Bool {
             moviesWithFeedbackCount >= Threshold.movies
@@ -41,7 +42,6 @@ struct OnboardingGridFeature {
     enum View: Equatable {
         case moviesWithFeedbackUpdated(newCount: Int)
         case showsWithFeedbackUpdated(newCount: Int)
-        case wheelSpinCountUpdated(newCount: Int)
         case rowTapped(RowKind)
     }
 
@@ -62,10 +62,6 @@ struct OnboardingGridFeature {
                 state.showsWithFeedbackCount = newCount
                 return .none
 
-            case let .view(.wheelSpinCountUpdated(newCount)):
-                state.wheelSpinCount = newCount
-                return .none
-
             case .view(.rowTapped):
                 return .none
             }
@@ -84,8 +80,6 @@ struct OnboardingGrid: View {
 
     @FetchRequest(fetchRequest: Film.showsWithFeedback())
     private var showsWithFeedback: FetchedResults<Film>
-
-    @AppStorage("wheelSpinCount") private var wheelSpinCount: Int = 0
 
     var body: some View {
         VStack(spacing: 15) {
@@ -128,9 +122,6 @@ struct OnboardingGrid: View {
         }
         .task(id: showsWithFeedback.count) {
             send(.showsWithFeedbackUpdated(newCount: showsWithFeedback.count))
-        }
-        .task(id: wheelSpinCount) {
-            send(.wheelSpinCountUpdated(newCount: wheelSpinCount))
         }
     }
 }

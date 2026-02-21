@@ -12,7 +12,7 @@ import UI
 
 struct MediaModal: View {
     let item: MediaItem
-    @Binding var chosenIndex: [MediaItem].Index?
+    let onDismiss: () -> Void
 
     // Needed if we want to transition to the media detail view
     @Namespace var transition
@@ -21,9 +21,9 @@ struct MediaModal: View {
     @State private var triggerConfetti: Bool = false
     let posterSize: CGSize
 
-    init(item: MediaItem, chosenIndex: Binding<[MediaItem].Index?>) {
+    init(item: MediaItem, onDismiss: @escaping () -> Void) {
         self.item = item
-        self._chosenIndex = chosenIndex
+        self.onDismiss = onDismiss
 
         let size = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.screen.bounds.size ?? .zero
 
@@ -40,7 +40,7 @@ struct MediaModal: View {
                 .onTapGesture {
                     withAnimation {
                         isVisible = false
-                        chosenIndex = nil
+                        onDismiss()
                     }
                 }
                 .onAppear {
@@ -83,7 +83,7 @@ struct MediaModal: View {
                         Button {
                             withAnimation(.interactiveSpring) {
                                 isVisible = false
-                                chosenIndex = nil
+                                onDismiss()
                             }
                         } label: {
                             Text("Skip")

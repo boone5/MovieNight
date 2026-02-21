@@ -1,5 +1,5 @@
 //
-//  HomeScreen.swift
+//  DiscoverScreen.swift
 //  MovieNight
 //
 //  Created by Boone on 11/26/25.
@@ -17,9 +17,9 @@ NOT FOR AI:
  - last element in ComingSoon array isn't positioned correctly
  */
 
-@ViewAction(for: HomeFeature.self)
-struct HomeScreen: View {
-    @Bindable var store: StoreOf<HomeFeature>
+@ViewAction(for: DiscoverFeature.self)
+struct DiscoverScreen: View {
+    @Bindable var store: StoreOf<DiscoverFeature>
 
     @Namespace private var namespace
 
@@ -93,9 +93,9 @@ struct HomeScreen: View {
 }
 
 #Preview {
-    HomeScreen(
-        store: Store(initialState: HomeFeature.State()) {
-            HomeFeature()
+    DiscoverScreen(
+        store: Store(initialState: DiscoverFeature.State()) {
+            DiscoverFeature()
         }
     )
     .loadCustomFonts()

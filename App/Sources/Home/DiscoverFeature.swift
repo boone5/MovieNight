@@ -1,5 +1,5 @@
 //
-//  HomeFeature.swift
+//  DiscoverFeature.swift
 //  App
 //
 
@@ -9,7 +9,7 @@ import Networking
 import UI
 
 @Reducer
-struct HomeFeature {
+struct DiscoverFeature {
     @ObservableState
     struct State: Equatable {
         var onboardingGrid = OnboardingGridFeature.State()

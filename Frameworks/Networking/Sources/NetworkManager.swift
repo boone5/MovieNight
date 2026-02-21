@@ -16,8 +16,6 @@ public struct NetworkClient {
     /// Note: This is a low-level function. Prefer using the generic `request` function for most use cases.
     public var requestData: (_ endpoint: EndpointProviding) async throws(APIError) -> Data
 
-    // Deprecate this
-
     /// Generic request function that fetches and decodes data from a given endpoint.
     /// - Parameters:
     ///   - endpoint: The endpoint conforming to `EndpointProviding`.

@@ -72,7 +72,7 @@ struct DiscoverFeature {
                         await send(.api(.nowPlayingResponse(Result { try await networkClient.fetchNowPlaying() }.mapError { $0 as? APIError ?? .unknownError($0) })))
                     },
                     .run { send in
-                        await send(.api(.upcomingResponse(Result { try await networkClient.fetchUpcoming(5, 5) }.mapError { $0 as? APIError ?? .unknownError($0) })))
+                        await send(.api(.upcomingResponse(Result { try await networkClient.fetchUpcoming(10) }.mapError { $0 as? APIError ?? .unknownError($0) })))
                     },
                     .run { send in
                         await send(.api(.trendingMoviesResponse(Result { try await networkClient.fetchTrendingMovies() }.mapError { $0 as? APIError ?? .unknownError($0) })))

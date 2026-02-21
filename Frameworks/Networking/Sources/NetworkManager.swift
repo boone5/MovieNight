@@ -40,7 +40,7 @@ public struct NetworkClient {
 
     public var fetchTrendingMovies: () async throws -> MoviesResponse
     public var fetchNowPlaying: () async throws -> MoviesResponse
-    public var fetchUpcoming: (_ minimumCount: Int, _ maxPages: Int) async throws -> MoviesResponse
+    public var fetchUpcoming: (_ minimumCount: Int) async throws -> MoviesResponse
     public var fetchTrendingTVShows: () async throws -> TrendingTVShowsResponse
 }
 
@@ -85,7 +85,7 @@ extension NetworkClient: DependencyKey {
             fetchNowPlaying: {
                 try await Self.decode(TMDBEndpoint.nowPlaying, requestData: requestData)
             },
-            fetchUpcoming: { minimumCount, maxPages in
+            fetchUpcoming: { minimumCount in
                 let formatter = DateFormatter()
                 formatter.dateFormat = "yyyy-MM-dd"
                 let today = formatter.string(from: .now)
@@ -93,7 +93,7 @@ extension NetworkClient: DependencyKey {
                 var accumulated: [MovieResponse] = []
                 var page = 1
 
-                while accumulated.count < minimumCount && page <= maxPages {
+                while accumulated.count < minimumCount {
                     let response: MoviesResponse = try await Self.decode(
                         TMDBEndpoint.upcoming(page: page),
                         requestData: requestData

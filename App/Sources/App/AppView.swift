@@ -19,7 +19,7 @@ struct AppView: View {
     var body: some View {
         TabView(selection: $store.selectedTab) {
             Tab(AppTab.home.label, systemImage: AppTab.home.icon, value: .home) {
-                DiscoverScreen(store: store.scope(state: \.home, action: \.home))
+                DiscoverScreen(store: store.scope(state: \.discover, action: \.discover))
                     .environment(\.managedObjectContext, context)
             }
 

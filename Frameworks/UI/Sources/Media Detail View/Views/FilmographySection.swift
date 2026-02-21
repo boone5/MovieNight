@@ -7,7 +7,6 @@
 
 import Models
 import SwiftUI
-import UI
 
 struct FilmographySection: View {
     enum Credit: Identifiable {

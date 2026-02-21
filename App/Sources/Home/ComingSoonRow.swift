@@ -11,7 +11,7 @@ import UI
 
 struct ComingSoonRow: View {
     var items: [MediaItem]
-    @Binding var selectedItem: MediaItem?
+    @Binding var selectedItem: TransitionableMedia?
     var namespace: Namespace.ID
     var onAddToCollection: (MediaItem) -> Void
 
@@ -19,14 +19,15 @@ struct ComingSoonRow: View {
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: 30) {
                 ForEach(items, id: \.id) { item in
+                    let sourceID = "Coming Soon-\(item.id)"
                     HStack(alignment: .top, spacing: 15) {
                         ThumbnailView(
                             media: item,
                             size: .init(width: 140, height: 217),
-                            transitionConfig: .init(namespace: namespace, source: item)
+                            transitionConfig: .init(namespace: namespace, id: sourceID)
                         )
                         .onTapGesture {
-                            selectedItem = item
+                            selectedItem = TransitionableMedia(item: item, id: sourceID)
                         }
 
                         VStack(alignment: .leading, spacing: 20) {

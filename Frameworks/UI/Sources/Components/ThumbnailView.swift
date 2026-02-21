@@ -10,12 +10,12 @@ import Models
 import Networking
 import SwiftUI
 
-public struct ThumbnailView: View {
+public struct ThumbnailView<ID: Hashable>: View {
     @Dependency(\.movieProvider) var movieProvider
 
     let media: MediaItem
     let size: CGSize
-    let transitionConfig: NavigationTransitionConfiguration<MediaItem.ID>
+    let transitionConfig: NavigationTransitionConfiguration<ID>
     let showFeedbackOverlay: Bool
 
     @State private var feedback: Feedback? = nil
@@ -23,7 +23,7 @@ public struct ThumbnailView: View {
     public init(
         media: MediaItem,
         size: CGSize,
-        transitionConfig: NavigationTransitionConfiguration<MediaItem.ID>,
+        transitionConfig: NavigationTransitionConfiguration<ID>,
         showFeedbackOverlay: Bool = true
     ) {
         self.media = media

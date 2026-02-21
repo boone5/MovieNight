@@ -17,7 +17,7 @@ struct HomeFeature {
         var upcoming: [MediaItem] = []
         var trendingMovies: [MediaItem] = []
         var trendingTVShows: [MediaItem] = []
-        @Presents var selectedItem: MediaItem?
+        @Presents var selectedItem: TransitionableMedia?
         @Presents var addToCollection: AddToCollectionFeature.State?
 
         var isOnboardingComplete: Bool {
@@ -59,7 +59,7 @@ struct HomeFeature {
         Reduce { state, action in
             switch action {
             case .view(.comingSoonPosterTapped(let item)):
-                state.selectedItem = item
+                state.selectedItem = TransitionableMedia(item: item, id: "Coming Soon-\(item.id)")
                 return .none
 
             case .view(.comingSoonAddToCollectionTapped(let item)):

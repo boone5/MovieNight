@@ -11,6 +11,12 @@ import Networking
 import SwiftUI
 import UI
 
+/*
+NOT FOR AI:
+ - Experiement with average color background of coming soon row
+ - last element in ComingSoon array isn't positioned correctly
+ */
+
 @ViewAction(for: HomeFeature.self)
 struct HomeScreen: View {
     @Bindable var store: StoreOf<HomeFeature>
@@ -21,7 +27,7 @@ struct HomeScreen: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 15) {
+            VStack(alignment: .leading, spacing: 30) {
                 NavigationHeader(
                     title: "Discover",
                     trailingButtons: [
@@ -33,45 +39,36 @@ struct HomeScreen: View {
 
                 if !store.isOnboardingComplete {
                     OnboardingGrid(store: store.scope(state: \.onboardingGrid, action: \.onboardingGrid))
-                        .padding(.top, sectionSpacing)
                 }
 
-                Text("In Theaters Now")
-                    .font(.montserrat(size: 18, weight: .semibold))
-                    .padding(.top, sectionSpacing)
-
                 FilmRow(
+                    sectionTitle: "In Theaters Now",
                     items: store.nowPlaying,
                     selectedItem: $store.selectedItem,
                     namespace: namespace
                 )
 
-                Text("Coming Soon")
-                    .font(.montserrat(size: 18, weight: .semibold))
-                    .padding(.top, sectionSpacing)
+                VStack(alignment: .leading) {
+                    Text("Coming Soon")
+                        .font(.montserrat(size: 18, weight: .semibold))
 
-                ComingSoonRow(
-                    items: store.upcoming,
-                    selectedItem: $store.selectedItem,
-                    namespace: namespace,
-                    onAddToCollection: { send(.comingSoonAddToCollectionTapped($0)) }
-                )
-
-                Text("Trending Movies")
-                    .font(.montserrat(size: 18, weight: .semibold))
-                    .padding(.top, sectionSpacing)
+                    ComingSoonRow(
+                        items: store.upcoming,
+                        selectedItem: $store.selectedItem,
+                        namespace: namespace,
+                        onAddToCollection: { send(.comingSoonAddToCollectionTapped($0)) }
+                    )
+                }
 
                 FilmRow(
+                    sectionTitle: "Trending Movies",
                     items: store.trendingMovies,
                     selectedItem: $store.selectedItem,
                     namespace: namespace
                 )
 
-                Text("Trending TV Shows")
-                    .font(.montserrat(size: 18, weight: .semibold))
-                    .padding(.top, sectionSpacing)
-
                 FilmRow(
+                    sectionTitle: "Trending TV Shows",
                     items: store.trendingTVShows,
                     selectedItem: $store.selectedItem,
                     namespace: namespace
@@ -83,10 +80,10 @@ struct HomeScreen: View {
         .task {
             send(.onTask)
         }
-        .fullScreenCover(item: $store.selectedItem) { item in
+        .fullScreenCover(item: $store.selectedItem) { selected in
             MediaDetailView(
-                media: item,
-                navigationTransitionConfig: .init(namespace: namespace, source: item)
+                media: selected.item,
+                navigationTransitionConfig: .init(namespace: namespace, source: selected)
             )
         }
         .sheet(item: $store.scope(state: \.addToCollection, action: \.addToCollection)) { store in

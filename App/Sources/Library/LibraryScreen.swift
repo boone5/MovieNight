@@ -55,8 +55,9 @@ struct LibraryScreen: View {
                             )
 
                             if !recentlyWatchedFilms.isEmpty {
-                                RecentlyWatchedView(
-                                    films: recentlyWatchedFilms.map(MediaItem.init),
+                                FilmRow(
+                                    sectionTitle: "Recently Watched",
+                                    items: recentlyWatchedFilms.map(MediaItem.init),
                                     selectedItem: $store.selectedItem,
                                     namespace: namespace
                                 )
@@ -81,7 +82,7 @@ struct LibraryScreen: View {
             }
             .fullScreenCover(item: $store.selectedItem) { selectedFilm in
                 MediaDetailView(
-                    media: selectedFilm,
+                    media: selectedFilm.item,
                     navigationTransitionConfig: .init(namespace: namespace, source: selectedFilm)
                 )
             }
@@ -92,25 +93,6 @@ struct LibraryScreen: View {
             switch store.case {
             case .collectionDetail(let store):
                 CollectionDetailView(store: store)
-            }
-        }
-    }
-
-    struct RecentlyWatchedView: View {
-        let films: [MediaItem]
-        @Binding var selectedItem: MediaItem?
-        let namespace: Namespace.ID
-
-        var body: some View {
-            VStack(alignment: .leading, spacing: LibraryScreen.sectionSpacing) {
-                Text("Recently watched")
-                    .font(.system(size: 18, weight: .bold))
-
-                FilmRow(
-                    items: films,
-                    selectedItem: $selectedItem,
-                    namespace: namespace
-                )
             }
         }
     }

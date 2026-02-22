@@ -57,8 +57,8 @@ enum AppTab: Hashable {
 
     var icon: String {
         switch self {
-        case .home: "house"
-        case .library: "rectangle.stack.fill" // TODO: Would be cool to use a rolling film image
+        case .home: "rectangle.stack.fill"
+        case .library: "books.vertical" // TODO: Would be cool to use a rolling film image
         case .watchLater: "chart.pie"
         case .search: "magnifyingglass"
         }

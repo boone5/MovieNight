@@ -8,6 +8,24 @@
 import Models
 import SwiftUI
 
+/// A media item paired with a unique transition source identifier.
+public struct TransitionableMedia: Identifiable, Equatable {
+    public let item: MediaItem
+    public let sourceID: String
+
+    public init(item: MediaItem, id: String? = nil) {
+        self.item = item
+        
+        if let id {
+            self.sourceID = id
+        } else {
+            self.sourceID = item.id.description
+        }
+    }
+
+    public var id: String { sourceID }
+}
+
 public struct NavigationTransitionConfiguration<ID: Hashable> {
     let namespace: Namespace.ID
     let sourceID: ID
@@ -18,6 +36,20 @@ public extension NavigationTransitionConfiguration where ID == MediaItem.ID {
     init(namespace: Namespace.ID, source: MediaItem) {
         self.namespace = namespace
         self.sourceID = source.id
+    }
+}
+
+public extension NavigationTransitionConfiguration where ID == String {
+    /// Creates a zoom transition configuration for a custom id
+    init(namespace: Namespace.ID, id: String) {
+        self.namespace = namespace
+        self.sourceID = id
+    }
+
+    /// Creates a zoom transition configuration from a TransitionableMedia wrapper.
+    init(namespace: Namespace.ID, source: TransitionableMedia) {
+        self.namespace = namespace
+        self.sourceID = source.sourceID
     }
 }
 

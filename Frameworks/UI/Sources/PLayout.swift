@@ -11,5 +11,5 @@ import Foundation
 public enum PLayout {
     public static let horizontalMarginPadding: CGFloat = 20
     public static let bottomMarginPadding: CGFloat = 30
-    public static let sectionPadding: CGFloat = 10
+    public static let sectionPadding: CGFloat = 15
 }

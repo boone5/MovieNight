@@ -14,16 +14,16 @@ import YouTubePlayerKit
 
 // MARK: FilmDetailView
 
-public struct MediaDetailView: View {
+public struct MediaDetailView<SourceID: Hashable>: View {
     @Environment(\.dismiss) var dismiss
 
     @State var viewModel: MediaDetailViewModel
-    let navigationTransitionConfig: NavigationTransitionConfiguration<MediaItem.ID>
+    let navigationTransitionConfig: NavigationTransitionConfiguration<SourceID>
     let posterSize: CGSize
 
     public init(
         media: MediaItem,
-        navigationTransitionConfig: NavigationTransitionConfiguration<MediaItem.ID>,
+        navigationTransitionConfig: NavigationTransitionConfiguration<SourceID>,
     ) {
         _viewModel = State(wrappedValue: MediaDetailViewModel(media: media))
         self.navigationTransitionConfig = navigationTransitionConfig
@@ -130,7 +130,12 @@ public struct MediaDetailView: View {
             await viewModel.loadInitialData()
         }
         .sheet(isPresented: $viewModel.showAddToCollectionSheet) {
-            AddToCollectionSheet(viewModel: viewModel)
+            AddToCollectionSheet(
+                store: .init(
+                    initialState: AddToCollectionFeature.State(media: viewModel.media, customBackgroundColor: viewModel.averageColor),
+                    reducer: { AddToCollectionFeature()}
+                )
+            )
         }
         .zoomTransition(configuration: navigationTransitionConfig)
     }
@@ -433,7 +438,10 @@ extension MediaDetailView {
 
     Text("FilmDetailView Preview")
         .fullScreenCover(isPresented: .constant(true)) {
-            MediaDetailView(media: item, navigationTransitionConfig: .init(namespace: namespace, source: item))
-                .loadCustomFonts()
+            MediaDetailView(
+                media: item,
+                navigationTransitionConfig: .init(namespace: namespace, source: item)
+            )
+            .loadCustomFonts()
         }
 }

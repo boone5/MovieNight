@@ -19,6 +19,8 @@ public struct WatchLaterFeature {
     public struct State: Equatable {
         public init() {}
 
+        @Shared(.appStorage("wheelSpinCount")) var wheelSpinCount: Int = 0
+
         var navigationPath = NavigationPath()
 
         var selectedCollection: CollectionModel?
@@ -80,6 +82,8 @@ public struct WatchLaterFeature {
                     state.canUpdateCollection = false
                 case .finished(let index):
                     state.chosenWheelIndex = index
+                    state.$wheelSpinCount.withLock { $0 += 1 }
+
                 }
                 return .none
 

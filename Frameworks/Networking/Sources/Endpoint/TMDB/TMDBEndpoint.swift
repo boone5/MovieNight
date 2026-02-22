@@ -14,6 +14,8 @@ public enum TMDBEndpoint: EndpointProviding {
     case personDetails(id: MediaItem.ID)
     case trendingMovies
     case trendingTVShows
+    case nowPlaying
+    case upcoming(page: Int = 1)
 }
 
 public extension TMDBEndpoint {
@@ -37,6 +39,10 @@ public extension TMDBEndpoint {
             "/3/trending/movie/day"
         case .trendingTVShows:
             "/3/trending/tv/day"
+        case .nowPlaying:
+            "/3/movie/now_playing"
+        case .upcoming:
+            "/3/movie/upcoming"
         }
     }
 
@@ -44,8 +50,10 @@ public extension TMDBEndpoint {
         switch self {
         case .movieDetails:
             [.init(name: "append_to_response", value: "videos,credits")]
-        case .tvShowDetails, .trendingMovies, .trendingTVShows:
+        case .tvShowDetails, .trendingMovies, .trendingTVShows, .nowPlaying:
             nil
+        case let .upcoming(page):
+            [makePaginationParam(page: page)]
         case .personDetails:
             [.init(name: "append_to_response", value: "combined_credits")]
         }

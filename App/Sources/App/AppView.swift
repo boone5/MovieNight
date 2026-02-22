@@ -19,7 +19,7 @@ struct AppView: View {
     var body: some View {
         TabView(selection: $store.selectedTab) {
             Tab(AppTab.home.label, systemImage: AppTab.home.icon, value: .home) {
-                HomeScreen()
+                DiscoverScreen(store: store.scope(state: \.discover, action: \.discover))
                     .environment(\.managedObjectContext, context)
             }
 
@@ -48,7 +48,7 @@ enum AppTab: Hashable {
 
     var label: String {
         switch self {
-        case .home: "Home"
+        case .home: "Discover"
         case .library: "Library"
         case .watchLater: "Wheel"
         case .search: "Search"
@@ -57,8 +57,8 @@ enum AppTab: Hashable {
 
     var icon: String {
         switch self {
-        case .home: "house"
-        case .library: "rectangle.stack.fill" // TODO: Would be cool to use a rolling film image
+        case .home: "rectangle.stack.fill"
+        case .library: "books.vertical" // TODO: Would be cool to use a rolling film image
         case .watchLater: "chart.pie"
         case .search: "magnifyingglass"
         }

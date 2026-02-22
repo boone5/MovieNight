@@ -11,7 +11,7 @@ import Networking
 import SwiftUI
 
 @Observable
-class MediaDetailViewModel {
+public class MediaDetailViewModel {
     var media: MediaItem
     var averageColor: Color
 
@@ -35,7 +35,7 @@ class MediaDetailViewModel {
     @ObservationIgnored
     @Dependency(\.networkClient) var networkClient
 
-    init(media: MediaItem) {
+    public init(media: MediaItem) {
         @Dependency(\.imageLoader.cachedImage) var cachedImage
         self.averageColor = Color(cachedImage(media.posterPath)?.averageColor ?? UIColor(resource: .brightRed))
         self.media = media
@@ -57,15 +57,8 @@ class MediaDetailViewModel {
             await getAdditionDetailsPerson()
         }
 
-        self.collectionModels = buildCollectionModels()
         setMenuActions()
         loadingState = .loaded
-    }
-
-    private func buildCollectionModels() -> [CollectionModel] {
-        movieProvider.fetchAllCollections()
-            .filter { $0.id != FilmCollection.recentlyWatchedID }
-            .map { CollectionModel(from: $0) }
     }
 
     /// Hydrates the `media` snapshot from the saved library if present.
@@ -292,22 +285,6 @@ class MediaDetailViewModel {
         }
 
         menuSections = sections
-    }
-
-    func toggleCollection(_ model: CollectionModel) {
-        if isFilmInCollection(model) {
-            try? movieProvider.removeFilmFromCollection(filmId: media.id, collectionId: model.id)
-        } else {
-            _ = saveToLibraryIfNecessary()
-            try? movieProvider.addFilmToCollection(filmId: media.id, collectionId: model.id)
-        }
-
-        self.collectionModels = buildCollectionModels()
-    }
-
-    func isFilmInCollection(_ collection: CollectionModel) -> Bool {
-        let films = collection.posterPaths
-        return films.contains { $0 == media.posterPath }
     }
 }
 
